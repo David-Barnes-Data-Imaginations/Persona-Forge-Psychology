@@ -41,7 +41,7 @@
       - Cognitive Distortions and GPT feedback on Erikson's.
 - 6. Send data to dashboard, which staff can access from a web browser via a locally hosted server.
 - 7. The entire app boots from a persistent docker for info and AI security. May have Kubernetes for model rotation if that becomes required.
--
+
 - *Note: If you've not heard of knowledge graphs, they are vector based (as are LLM's and RAG's) graphs which are incredibly fast for data retrieval (Google uses it for its search). Most note-taking tools use them to connect your notes, but my 'go-to' LogSeq gives you a tab to view your notes and their relations. See 'Psychology
 
 - ### UI Therapist/Hospital:
