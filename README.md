@@ -344,4 +344,5 @@ Thanks GPT. Now from my side i'll add a light summary of the AI model architectu
 External:
 - GPT (via OpenAI API)
 
-```# Persona-Forge-Psychology
+```
+
