@@ -4,21 +4,21 @@
 - The Persona-Forge has been a project of mine for close to two years, but it has evolved as I have 'pivoted' towards new tech and ideas.
   It began as a simple ideas to map personalities of anything from video games, to my own persona, using knowledge graphs to create branches that mapped out 'speaking tone and vocabulary', personal profiles such as 'Myers Briggs', history (for example the history of characters from the feature-rich Cyberpunk Universe ) profiles and even branches of metaphor types that the character uses.
 - Whilst those goals are still WIP projects, my lifelong passion for Psychology, the incredible pace of AI advancement, and my preference for doing  good for the world has caused me to temporarily pivot. Well, that and the fact that I realised I have basically already completed the project by accident, requiring 'only' the merging of 3 from my portfolio.
-- It's worth noting that the README and APPENDIX files in this repo are written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon. The second audience is for either potential employers, or others looking to learn how to build agentic frameworks (Smolagents - CodeAgents), Persona-mappings, or how to use AI to 'augment' your building. If you have never built an agentic framework before, DO NOT start with Codeagents. I go to great lengths to layer containerization specifically because CodeAgents are powerful enough to break hardware or worse if they get confused and out of control.
+- It's worth noting that the README and APPENDIX (to be added shortly) files in this repo are written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon. The second audience is for either potential employers, or others looking to learn how to build agentic frameworks (Smolagents - CodeAgents), Persona-mappings, or how to use AI to 'augment' your building. If you have never built an agentic framework before, DO NOT start with Codeagents. I go to great lengths to layer containerization specifically because CodeAgents are powerful enough to break hardware or worse if they get confused and out of control.
 - ** For Learners:**
 - If it's your first agentic framework, I'd suggest starting with n8n, moving on to something like LangGraph (not be confused with 'Knowledge-Graphs') and then a 'smolagents - ToolCallingAgent before 'CodeAgents'. Ensure the CodeAgent is conatinaerized on docker, E2B, and/or Kubenetes if running multiple agents. Ideally on a Sandbox drive that you wouldn't mind losing / wiping.
-- This still remains a challenge, since I've learned the hard way that having AI write code for you on 'AI-based' projects usually ends up with more pain than success (at the time of writing July 25). It's 'ok-ish' at bug fixing UI or backends. If you want to develop similar projects and are still developing your coding my recommendations would be:
+- This still remains a challenge, since I've learned the hard way that having AI write code for you on 'AI-based' projects often ends up with more pain than success (at the time of writing July 25). It's 'ok-ish' at bug fixing UI or backends. If you want to develop similar projects and are still developing your coding my recommendations would be:
   - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
    - If no code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or just AI tools.
-   - For mid-level coders, start yourself and then have claude build the generic bits via 'Claude CLI', or 'GPT Codex' (slower as it uses its own computer).
-      - For debugging very challenging fixes, Gemma CLI is great as it has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
+   - For mid-level coders, start yourself and then have claude build the generic bits via 'Claude CLI', or 'GPT Codex' (slower as it uses its own computer but the most accurate of the founder models).
+      - For debugging very challenging fixes, Codex or Gemma CLI is great as it has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
 ---
 - As of today the main goal is to build a tool that will help therapists and mental health hospitals modernize and care for patients. I'm scoping an adaptation for criminal profiling and pattern matching also as it's all similar architecture.
 - # Use Cases:
 - ## 1.  Hospital-Therapist 'Vision of the Future'
 - There are two main elements, three AI models involved, a bunch of UI/Interface tools and many hours of research:
 - ## Elements:
-   1. To modernize Psychology, by providing the superhuman pattern matching and profiling abilities of AI, for Therapists and Hospitals. This free's up resources for better work, benefits care for patients, and help therapists learn from their own techniques.
+   1. To modernize Psychology, by providing the superhuman pattern matching and profiling abilities of AI, for Therapists and Hospitals. This free's up resources for better work, benefits care for patients, and help therapists learn from their own techniques. It cannot be stressed enough that this does not aim to 'replace' human therapists or clinicians, it's 'AI - Human augmentation via fusion'.
    2. Modernizing patient interactions to streamlined automation processes that remove pen & paper based tools, again freeing up staff resources to care for patients more effectively.
 
 - ## AI Models:
@@ -27,12 +27,12 @@
 - ### Non-Local - Psychological Profiling:
   GPT 4.5/5 - This does the main analysis and reports details of note, caution or concerns about the patient. Send back to the agent to record. GPT is incredible at Psychology, OpenAI is doing fantastic work in that direction.
 - ## Interface & Process:
-  The app can either be used from a simple website setup or mobile app (out of scope). The local model transcribes and only labels the text as 'Therapist 1' (I use the reknowned 'Carl and Gloria / Sylvia therapist sessions for demo) and 'Client 345'. It transcribes the conversation and does the following actions:
+  The app can either be used from a simple website setup or mobile app (out of scope until tbc). The local model transcribes and only labels the text as 'Therapist 1' (I use the reknowned 'Carl and Gloria / Sylvia therapist sessions for demo) and 'Client 345'. It transcribes the conversation and does the following actions:
    1. Stores in Database. Tags the text (see architecture but examples are 'history', 'allergies', 'care requests' etc..)
    2. Sends (anonomized) text + results (from the three models) and historical results to GPT.
    3. GPT Analyses using the three psychology frameworks (see 'Psychology Demonstration').
    4. Sends back analysis and tagged text to the local smolagent runner
-   5. Populates knowledge Graph and stores in RAG:
+   5. Runner populates knowledge Graph and stores in RAG:
 
    - The High/Median/Low of 23 detected emotions in a knowledge graph. Each session has its own branch (within the patients node) so that the transitions over time can be matched via:
       - Cognitive Distortions and GPT feedback on Erikson's.
@@ -246,6 +246,7 @@ Graph Example:
 ### 🧠 2. Big Five Personality Traits (OCEAN)
 
 Clinical Value: High
+
 Trait dimensions provide a stable behavioral lens for understanding clients over time.
 
 Graph Example:
