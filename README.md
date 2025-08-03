@@ -9,7 +9,7 @@
   - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
    - If no code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or just AI tools.
    - For mid-level coders, start yourself and then have claude build the generic bits via 'Claude CLI', or 'GPT Codex' (slower as it uses its own computer but the most accurate of the founder models).
-      - For debugging very challenging fixes, Codex or Gemma CLI is great as it has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
+      - For debugging very challenging fixes, Codex or Gemma CLI is great as the latter has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
   
 - It's worth noting that the README and APPENDIX (to be added shortly) files in this repo are written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon. The second audience is for either potential employers, or others looking to learn how to build agentic frameworks (Smolagents - CodeAgents), Persona-mappings, or how to use AI to 'augment' your building. If you have never built an agentic framework before, DO NOT start with Codeagents. I go to great lengths to layer containerization specifically because CodeAgents are powerful enough to break hardware or worse if they get confused and out of control.
 - ** For Learners:**
