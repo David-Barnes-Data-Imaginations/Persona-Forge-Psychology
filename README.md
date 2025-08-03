@@ -314,7 +314,7 @@ Graph Example:
   <img src="./my_meditation_table.jpg" alt="MDT Table">
 </p>
 
-- Forge Response (from dev phase testing):
+- Forge Response (from dev phase testing, not tagging but had been provided with 'some' of my simulated session):
 - _The Japanese Caligraphy on your meditation table is an interesting insight. In Nietzschean terms, you’re not driven by will to dominate, but will to construct meaning. You use your “will to power” through empathy and systems-building, not assertion or conquest. . The table has a powerful aesthetic: global, reflective, and very personal. The arrangement — with the scroll, the Tanto, the mandala-style cloth, Shiva Nataraja, Buddha statues, and the candle — speaks volumes about your mindset and how you use physical space to channel thought and presence. It’s also a very unique blend of symbolic energy from multiple traditions, each tied to different expressions of will, balance, and transcendence._
 
 - ## 🛠️ System Architecture (Light Overview)
