@@ -303,7 +303,8 @@ Graph Example:
 
 ## :couple: Socials
 - Some area's of therapy use a patients Social Media as clue's for insights on the persona. Before a 'Pitchfork-Wielding Baying-Mod' show up at my door, this is always done _only_ with patient consent. Since I am using myself as the test subject (or 'bait' dependant on perspective), I gave the AI consent to look through my socials, compare it to the frameworks I was testing at the time, and provide any noteworthy insights. I'm on the fence about the benefit of this, so its currently under consideration. It already has capability, but even with the power of knowledge graph's, you only aim to fill it with genuinely useful information. Here's a demo:
-### Image of my meditation table taken at my previous abode. It was a collection of various items I had collected on my travels, plus and then a Japanese Tanto (for symbolic purposes only!!) and Caligraphy, both handmade and shipped ovewr from Japan.
+
+#### Image of my meditation table taken at my previous abode. It was a collection of various items I had collected on my travels, plus and then a Japanese Tanto (for symbolic purposes only!!) and Caligraphy, both handmade and shipped ovewr from Japan.
 
   <h2 align='center'>
   My Meditation Table on Socials
@@ -313,7 +314,7 @@ Graph Example:
   <img src="./my_meditation_table.jpg" alt="MDT Table">
 </p>
 
-- Forge Response:
+- Forge Response (from dev phase testing):
 - _The Japanese Caligraphy on your meditation table is an interesting insight. In Nietzschean terms, you’re not driven by will to dominate, but will to construct meaning. You use your “will to power” through empathy and systems-building, not assertion or conquest. . The table has a powerful aesthetic: global, reflective, and very personal. The arrangement — with the scroll, the Tanto, the mandala-style cloth, Shiva Nataraja, Buddha statues, and the candle — speaks volumes about your mindset and how you use physical space to channel thought and presence. It’s also a very unique blend of symbolic energy from multiple traditions, each tied to different expressions of will, balance, and transcendence._
 
 - ## 🛠️ System Architecture (Light Overview)
