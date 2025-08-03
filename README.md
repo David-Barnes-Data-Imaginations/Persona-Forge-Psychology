@@ -201,7 +201,7 @@ CBT remains the gold standard for detecting irrational thoughts like catastrophi
 
   >
 
-  *Here’s what it looks like in David’s Logseq notes (used during testing). In production, this is powered by a proper graph database like Memgraph or Neo4j.*  
+  *Here’s what it looks like in David’s Logseq notes (used during testing). In production, this is powered by a graph database like Memgraph or Neo4j.*  
   <h2 align='center'>
   A Visual View of a Knowledge-Graph
   </h2>
