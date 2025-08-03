@@ -12,7 +12,7 @@
       - For debugging very challenging fixes, Codex or Gemma CLI is great as the latter has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
   
 - It's worth noting that the README and APPENDIX (to be added shortly) files in this repo are written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon. The second audience is for either potential employers, or others looking to learn how to build agentic frameworks (Smolagents - CodeAgents), Persona-mappings, or how to use AI to 'augment' your building. If you have never built an agentic framework before, DO NOT start with Codeagents. I go to great lengths to layer containerization specifically because CodeAgents are powerful enough to break hardware or worse if they get confused and out of control.
-- ** For Learners:**
+### For Learners:
 - If it's your first agentic framework, I'd suggest starting with n8n, moving on to something like LangGraph (not be confused with 'Knowledge-Graphs') and then a 'smolagents - ToolCallingAgent before 'CodeAgents'. Ensure the CodeAgent is conatinaerized on docker, E2B, and/or Kubenetes if running multiple agents. Ideally on a Sandbox drive that you wouldn't mind losing / wiping.
 
 ---
@@ -47,6 +47,7 @@
 - ### UI Therapist/Hospital:
 - The UI has the dashboard with the various graphs used, you can see an older version of the dashboard  (minus ModernBert utterance tagging) front-end on my git repo 'https://github.com/David-Barnes-Data-Imaginations/SentimentSuite'.
 - The Gradio interface from my smolagents will be added to the dash for:
+  
   a) Chat-bot input for surveys / forms / transcription. Forms can be verbal or typed.  
   b) Chat-bot data retrieval  
   c) Profile feedback can be delivered verbally via Whisper, GPT or a locally hosted 'Hugging Face - Spaces' if required.
