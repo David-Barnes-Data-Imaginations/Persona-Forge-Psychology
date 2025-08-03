@@ -2,7 +2,9 @@
 - This 'README' is more of a collation of various notes from my Logseq files whilst the project is WIP, so don't expect too much coherence or fancy writing. I'll do that once its finished.
 - # The Persona-Forge
 - The Persona-Forge has been a project of mine for close to two years, but it has evolved as I have 'pivoted' towards new tech and ideas.
-  It began as a simple ideas to map personalities of anything from video games, to my own persona, using knowledge graphs to create branches that mapped out 'speaking tone and vocabulary', personal profiles such as 'Myers Briggs', history (for example the history of characters from the feature-rich Cyberpunk Universe ) profiles and even branches of metaphor types that the character uses.
+  > Hear the concept of 'pivoting in AI' from one of the 'Godfathers of AI' - Andrew Ng from around '7:50' [here](https://www.youtube.com/watch?v=RNJCfif1dPY).
+  
+- It began as a simple ideas to map personalities of anything from video games, to my own persona, using knowledge graphs to create branches that mapped out 'speaking tone and vocabulary', personal profiles such as 'Myers Briggs', history (for example the history of characters from the feature-rich Cyberpunk Universe ) profiles and even branches of metaphor types that the character uses.
 - Whilst those goals are still WIP projects, my lifelong passion for Psychology, the incredible pace of AI advancement, and my preference for doing  good for the world has caused me to temporarily pivot. Well, that and the fact that I realised I have basically already completed the project by accident, requiring 'only' the merging of 3 from my portfolio.
 
 - This still remains a challenge, since I've learned the hard way that having AI write code for you on 'AI-based' projects often ends up with more pain than success (at the time of writing July 25). It's 'ok-ish' at bug fixing UI or backends. If you want to develop similar projects and are still developing your coding my recommendations would be:
@@ -21,16 +23,16 @@
 - ## 1.  Hospital-Therapist 'Vision of the Future'
 - There are two main elements, three AI models involved, a bunch of UI/Interface tools and many hours of research:
 - ## Elements:
-   1. To modernize Psychology, by providing the superhuman pattern matching and profiling abilities of AI, for Therapists and Hospitals. This free's up resources for better work, benefits care for patients, and help therapists learn from their own techniques. It cannot be stressed enough that this does not aim to 'replace' human therapists or clinicians, it's 'AI - Human augmentation via fusion'.
+   1. To modernize Psychology, by providing the superhuman pattern matching and profiling abilities of AI, for Therapists and Hospitals. This enhances insights for better work, _benefits_ the care for patients, and help therapists learn from their own techniques. It cannot be stressed enough that this does not aim to 'replace' human therapists, clinicians or their current methods. 'It's 'AI - Human augmentation via fusion'. _How_ this actually functions on a 'practical' / 'daily' level is still under intense scrutiny. The reason is the same reason that I love to build AI, I do _extensive_ testing (makes up about 70% of the work), and I'm being so blown away with idea's and possibilities I hadn't percieved, simultaneaously pivoting away from others that I thought _might_ work.
    2. Modernizing patient interactions to streamlined automation processes that remove pen & paper based tools, again freeing up staff resources to care for patients more effectively.
 
 - ## AI Models:
 - ### Local (stressed for importance of privacy):
-  Cirumus/ ModernBert Psychology focussed model, 1 agentic model (likely Gemma3) using an adaptation of my smolagents framework 'https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist' which carries out all the automation, transcription and anonomizing of data. It also does  psychological assessment and storage/retrieval, preparing the information so it is in a good state for GPT 4.5 (or soon to be GPT5).
+  Cirumus/ ModernBert Psychology focussed model, 1 agentic model (likely Gemma3) using an adaptation of my [smolagents framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) which carries out all the automation, transcription and anonomizing of data. It also does  psychological assessment and storage/retrieval, preparing the information so it is in a good state for GPT 4.5 (or soon to be GPT5).
 - ### Non-Local - Psychological Profiling:
   GPT 4.5/5 - This does the main analysis and reports details of note, caution or concerns about the patient. Send back to the agent to record. GPT is incredible at Psychology, OpenAI is doing fantastic work in that direction.
 - ## Interface & Process:
-  The app can either be used from a simple website setup or mobile app (out of scope until tbc). The local model transcribes and only labels the text as 'Therapist 1' (Example number, but I use the reknowned 'Carl and Gloria / Sylvia therapist sessions for demo) and 'Client 345'. It transcribes the conversation and does the following actions:
+  The app can either be used from a simple website setup or mobile app (out of scope until tbc). The local model transcribes and only labels the text as 'Therapist 1' (Example number, but I use the reknowned 'Carl and Gloria / Sylvia therapist sessions for demo) and 'Client 345'. It transcribes the conversation (one of the aforementioned concepts I'm pivoting away from) and does the following actions:
    1. Stores in Database. Tags the text (see architecture but examples are 'history', 'allergies', 'care requests' etc..)
    2. Sends (anonomized) text + results (from the three models) and historical results to GPT.
    3. GPT Analyses using the three psychology frameworks (see 'Psychology Demonstration').
