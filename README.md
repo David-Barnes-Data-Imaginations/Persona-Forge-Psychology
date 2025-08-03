@@ -30,7 +30,7 @@
 - ### Non-Local - Psychological Profiling:
   GPT 4.5/5 - This does the main analysis and reports details of note, caution or concerns about the patient. Send back to the agent to record. GPT is incredible at Psychology, OpenAI is doing fantastic work in that direction.
 - ## Interface & Process:
-  The app can either be used from a simple website setup or mobile app (out of scope until tbc). The local model transcribes and only labels the text as 'Therapist 1' (I use the reknowned 'Carl and Gloria / Sylvia therapist sessions for demo) and 'Client 345'. It transcribes the conversation and does the following actions:
+  The app can either be used from a simple website setup or mobile app (out of scope until tbc). The local model transcribes and only labels the text as 'Therapist 1' (Example number, but I use the reknowned 'Carl and Gloria / Sylvia therapist sessions for demo) and 'Client 345'. It transcribes the conversation and does the following actions:
    1. Stores in Database. Tags the text (see architecture but examples are 'history', 'allergies', 'care requests' etc..)
    2. Sends (anonomized) text + results (from the three models) and historical results to GPT.
    3. GPT Analyses using the three psychology frameworks (see 'Psychology Demonstration').
