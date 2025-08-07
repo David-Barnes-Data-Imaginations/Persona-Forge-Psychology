@@ -1,26 +1,19 @@
 - # Intro
 - This 'README' is more of a collation of various notes from my Logseq files whilst the project is WIP, so don't expect too much coherence or fancy writing. I'll do that once its finished.
+
 - # The Persona-Forge
 - The Persona-Forge has been a project of mine for close to two years, but it has evolved as I have 'pivoted' towards new tech and ideas.
   > Hear the concept of 'pivoting in AI' from one of the 'Godfathers of AI' - Andrew Ng from around '7:50' [here](https://www.youtube.com/watch?v=RNJCfif1dPY).
   
 - It began as a simple ideas to map personalities of anything from video games, to my own persona, using knowledge graphs to create branches that mapped out 'speaking tone and vocabulary', personal profiles such as 'Myers Briggs', history (for example the history of characters from the feature-rich Cyberpunk Universe ) profiles and even branches of metaphor types that the character uses.
-- Whilst those goals are still WIP projects, my lifelong passion for Psychology, the incredible pace of AI advancement, and my preference for doing  good for the world has caused me to temporarily pivot. Well, that and the fact that I realised I have basically already completed the project by accident, requiring 'only' the merging of 3 from my portfolio, and a LOT of testing. For a 'production' environment you'd want to test and tune over at least one year).
+- Whilst those goals are still WIP projects, my lifelong passion for Psychology, the incredible pace of AI advancement, and my preference for doing  good for the world has caused me to temporarily pivot. Well, that and the fact that I realised I have basically already completed the project by accident, requiring 'only' the merging of 3 from my portfolio, and a LOT of testing. For a 'production' environment you'd want to test and tune over _at least_ one year).
 
-- This still remains a challenge, since I've learned the hard way that having AI write code for you on 'AI-based' projects often ends up with more pain than success (at the time of writing July 25). It's 'ok-ish' at bug fixing UI or backends. If you want to develop similar projects and are still developing your coding my recommendations would be:
-  - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
-   - If no code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or just AI tools.
-   - For mid-level coders, start yourself and then have claude build the generic bits via 'Claude CLI', or 'GPT Codex' (slower as it uses its own computer but the most accurate of the founder models).
-      - For debugging very challenging fixes, Codex or Gemma CLI is great as the latter has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
-  
-- It's worth noting that the README and APPENDIX (to be added shortly) files in this repo are written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon. The second audience is for either potential employers, or others looking to learn how to build agentic frameworks (Smolagents - CodeAgents), Persona-mappings, or how to use AI to 'augment' your building. If you have never built an agentic framework before, DO NOT start with Codeagents. I go to great lengths to layer containerization specifically because CodeAgents are powerful enough to break hardware or worse if they get confused and out of control.
-### For Learners:
-- If it's your first agentic framework, I'd suggest starting with n8n, moving on to something like LangGraph (not be confused with 'Knowledge-Graphs') and then a 'smolagents - ToolCallingAgent before 'CodeAgents'. Ensure the CodeAgent is conatinaerized on docker, E2B, and/or Kubenetes if running multiple agents. Ideally on a Sandbox drive that you wouldn't mind losing / wiping.
+For those learning to build agentic systems, at the bottom of the file is a 'Learning Agentic Systems' (Under the 'Tech Stuff' heading, clinicans can ginore) covering topics such as 'Hardware Considerations', 'Testing' and 'Agentic Frameworks'.
 
 ---
 - As of today the main goal is to build a tool that will help therapists and mental health hospitals modernize and care for patients. I'm scoping an adaptation for criminal profiling and pattern matching also as it's all similar architecture.
 - # Use Cases:
-- ## 1.  Hospital-Therapist 'Vision of the Future'
+- ## 1. Hospital and/or Therapist/Clinician Support - 'Vision of the Future'
 - There are two main elements, three AI models involved, a bunch of UI/Interface tools and many hours of research:
 - ## Elements:
    1. To modernize Psychology, by providing the superhuman pattern matching and profiling abilities of AI, for Therapists and Hospitals. This enhances insights for better work, _benefits_ the care for patients, and help therapists learn from their own techniques. It cannot be stressed enough that this does not aim to 'replace' human therapists, clinicians or their current methods. 'It's 'AI - Human augmentation via fusion'. _How_ this actually functions on a 'practical' / 'daily' level is still under intense scrutiny. The reason is the same reason that I love to build AI, I do _extensive_ testing (makes up about 70% of the work), and I'm being so blown away with idea's and possibilities I hadn't percieved, simultaneaously pivoting away from others that I thought _might_ work.
@@ -44,7 +37,7 @@
 - 6. Send data to dashboard, which staff can access from a web browser via a locally hosted server.
 - 7. The entire app boots from a persistent docker for info and AI security. May have Kubernetes for model rotation if that becomes required.
 
-- *Note: If you've not heard of knowledge graphs, they are vector based (as are LLM's and RAG's) graphs which are incredibly fast for data retrieval (Google uses it for its search). Most note-taking tools use them to connect your notes, but my 'go-to' LogSeq gives you a tab to view your notes and their relations. See 'Psychology
+- *Note*: If you've not heard of knowledge graphs, they are vector based (as are LLM's and RAG's) graphs which are incredibly fast for data retrieval (Google uses it for its search). Most note-taking tools use them to connect your notes, but my 'go-to' LogSeq gives you a tab to view your notes and their relations. See 'Psychology
 
 - ### UI Therapist/Hospital:
 - The UI has the dashboard with the various graphs used, you can see an older version of the dashboard  (minus ModernBert utterance tagging) front-end on my git repo 'https://github.com/David-Barnes-Data-Imaginations/SentimentSuite'.
@@ -53,9 +46,10 @@
   a) Chat-bot input for surveys / forms / transcription. Forms can be verbal or typed.  
   b) Chat-bot data retrieval  
   c) Profile feedback can be delivered verbally via Whisper, GPT or a locally hosted 'Hugging Face - Spaces' if required.
+  
 - ### UI Patient:
   When patients are admitted for long stay at all kinds of hospitals they often are required to fill out forms via pen and paper.  Messy handwriting and confused thoughts aside, this is generally archaic.
-- This could be managed via a secure laptop from which AI converses with the patient via text or voice, a super easy implementation and re-usable at various stages of admission. The AI can be tuned or 'persona-forged' to a 'Therapists' persona'.
+- This could be managed from any tech that allows AI to converse with the patient via text or voice. The AI can be tuned or 'persona-forged' to a 'Therapists' persona'.
 
 - ## 🧠 Psychology Demonstration: From Thought to Graph
 
@@ -339,6 +333,7 @@ If you’re looking to re-engage with the concept more deeply — maybe for your
 "Beyond Good and Evil" – more direct, philosophical articulation.
 Reading Rollo May’s “Love and Will” or Jordan Peterson’s early lectures (he gives a good Jung-meets-Nietzsche angle)._"
 
+## Tech Stuff (Non-tech people ignore below)
 
 - ## 🛠️ System Architecture (Light Overview)
 - Behind the scenes, the Persona-Forge uses a multi-branch fusion system designed to simulate realistic emotional responses — whether it's analysing therapy transcripts or generating AI character dialogue.
@@ -388,4 +383,32 @@ External:
 - GPT (via OpenAI API)
 
 ```
+## Learning to Build Agentic Systems
+This information is built into my ever list of growing blogs, but after my domain host wiped it (for reasons known only to them), I've placed the 'Learning Agentic Systems' section here temporarily.
+
+## 📝 Testing:
+
+Most of the work on these _concept_ projects is spent testing, akin to the old 'Data Science' adage of "80-90% of Data Science is data cleansing".
+When I build AI for a project, i'll test it works to the point where one or a combination of the below are satisfied:
+- I'm convinced the architecture is optimally created.
+- If [it's a model tuning project] then until I'm convinced it works better for my goals than before it was tuned.
+- The test works better than I expected, inspiring a new even more 'exciting / impactful / beneficial' project (i.e. a 'Pivot').
+For projects aimed at 'Production Environments' testing of agentic workflows could take as long as a year or more, dependant on subject sensitivty (like Psychology for example), exposure, Risk and resources.
+
+---
+**Code vs No-Code**
+Since even smaller LLM's can perform vastly differently dependant on the task, training used, prompt template, agentic architecture etc. Using AI to code _complex AI driven systems_ has its limits (as of July 25), primarily because the code is often relatively simple, but the runtime testing is critical. Typically 'runs' are tracked in production using tools such as OpenTelemetry, Pheonix and / or LangFuse. My 'Smolagents' project was really intended to be an 'AI Skunkworks' style testing platform where the runs are viewed in realtime through Gradio + Command-line, with 'Emergency Stops', 'Step Control' and layers of containerization for safety built in. 
+'Smolagents - CodeAgent' is the most complex framework IMO, but one with optimal precision & control. Perhaps akin to using '.cpp' LLM models opposed to 'plug and play' format of 'GGUF'.
+
+*Vibe Coding*
+It's great for non-coding agentic systems, and its both challenging and 'inadvisable' to solely use for complex ones. Here's what i'd _typically_ recommend. It's 'ok' at bug fixing UI or backends (though that adds the visual element). 
+However if you want to develop similar projects and are still developing your coding, my recommendations would be:
+  - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
+  - If no-code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or AI tools, but _can_ perform respectably in later elements.
+  - For mid-level coders, start yourself and then have claude build the generic bits via any model.
+      - For debugging very challenging fixes, Codex or Gemma CLI is great as the latter has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
+---
+- It's worth noting that the README and APPENDIX (to be added shortly) files in this repo are written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon. The second audience is for either potential employers, or others looking to learn how to build agentic frameworks (Smolagents - CodeAgents), Persona-mappings, or how to use AI to 'augment' your building. If you have never built an agentic framework before, DO NOT start with Codeagents. I go to great lengths to layer containerization specifically because CodeAgents are powerful enough to break hardware or worse if they get confused and out of control.
+### For Learners:
+- If it's your first agentic framework, I'd suggest starting with n8n, moving on to something like LangGraph (not be confused with 'Knowledge-Graphs'), Llama Index (not related to 'Ollama') and then a 'smolagents - ToolCallingAgent before 'CodeAgents'. Ensure the CodeAgent is containerized on docker, E2B, and/or Kubenetes if running multiple agents. Ideally on a Sandbox drive that you wouldn't mind losing / wiping.
 
