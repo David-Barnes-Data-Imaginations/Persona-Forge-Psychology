@@ -488,11 +488,14 @@ For projects aimed at 'Production Environments' testing of agentic workflows cou
 
 ---
 **Code vs No-Code**
-Since even smaller LLM's can perform vastly differently dependant on the task, training used, prompt template, agentic architecture etc. Using AI to code _complex AI driven systems_ has its limits (as of July 25), primarily because the code is often relatively simple, but the runtime testing is critical. Typically 'runs' are tracked in production using tools such as OpenTelemetry, Pheonix and / or LangFuse. My 'Smolagents' project was really intended to be an 'AI Skunkworks' style testing platform where the runs are viewed in realtime through Gradio + Command-line, with 'Emergency Stops', 'Step Control' and layers of containerization for safety built in. 
+Since even smaller LLM's can perform vastly differently dependant on the task, training used, prompt template, agentic architecture etc. Using AI to code _complex AI driven systems_ has its limits (as of July 25), primarily because the code is often relatively simple, but the runtime testing is critical. Typically 'runs' are tracked in production using tools such as OpenTelemetry, Phoenix and / or LangFuse. 
+
+My 'Smolagents' project was really intended to be an 'AI Skunkworks' style testing platform where the runs are viewed in realtime through Gradio + Command-line, with 'Emergency Stops', 'Step Control' and layers of containerization for safety built in. 
 'Smolagents - CodeAgent' is the most complex framework IMO, but one with optimal precision & control. Perhaps akin to using '.cpp' LLM models opposed to 'plug and play' format of 'GGUF'.
 
 *Vibe Coding*
-It's great for non-coding agentic systems, and its both challenging and 'inadvisable' to solely use for complex ones. Here's what i'd _typically_ recommend. It's 'ok' at bug fixing UI or backends (though that adds the visual element). 
+It's great for non-coding agentic systems, and its both challenging and 'inadvisable' to solely use for complex ones. Here's what i'd _typically_ recommend. It's 'ok' at bug fixing UI or backends (though that adds the visual element).
+
 However if you want to develop similar projects and are still developing your coding, my recommendations would be:
   - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
   - If no-code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or AI tools, but _can_ perform respectably in later elements.
