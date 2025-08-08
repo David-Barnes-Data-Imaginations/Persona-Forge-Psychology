@@ -513,7 +513,7 @@ Doing so gives the agent _carte blanche_ to search for anything online, leaving 
 
 ### ⛔⛔⛔ Prompt Injections involve **Bad Actors** leaving text formatted as 'System Prompts' in websites, poorly managed message boards etc. 
 
-They would likely be in the same colour text as the background meaning you can't see them, but the agent can. It's 'Low Risk - High Impact' but even if you have a containerized environment, but even trivial 'Prompt Injections' could trick your agent into producing images in an 'infinite loop' leaving hardware unusable.
+They would likely be in the same colour text as the background meaning you can't see them, whilst the agent can. It's 'Low Risk - High Impact' but even if you have a containerized environment, even trivial 'Prompt Injections' could trick your agent into producing images in an 'infinite loop' leaving hardware unusable.
 
   
 ## 📝 Testing:
