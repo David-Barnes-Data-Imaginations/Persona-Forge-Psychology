@@ -1,7 +1,9 @@
-- # Intro
+# Intro
 
+---
 This 'README' is more of a collation of various notes from my Logseq files whilst the project is WIP, so don't expect too much coherence or fancy writing. I'll do that once its finished.
-
+---
+---
 # The Persona-Forge
 - The Persona-Forge has been a project of mine for close to two years, but it has evolved as I have 'pivoted' towards new tech and ideas.
   > Hear the concept of 'pivoting in AI' from one of the 'Godfathers of AI' - Andrew Ng from around '7:50' [here](https://www.youtube.com/watch?v=RNJCfif1dPY).
@@ -13,9 +15,14 @@ This 'README' is more of a collation of various notes from my Logseq files whils
 For those learning to build agentic systems, at the bottom of the file is a 'Learning Agentic Systems' (Under the 'Tech Stuff' heading, clinicians can ignore) covering topics such as 'Hardware Considerations', 'Testing' and 'Agentic Frameworks'.
 
 - If you have never built an agentic framework before, **DO NOT** start with 'Smolagents' - 'CodeAgent'. I go to great lengths to layer containerization specifically because CodeAgents are powerful enough to break hardware or worse if they get confused and out of control.
-   
-- >###  ⛔  In particular follow the safety tips, **especially the section on '🚫PROMPT INJECTION'**. ⛔
-  
+---
+---
+>###  ⛔  I have copied the 'newly-extended' safety advice & procedures from my [smolagents framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist),  (which include the process I recommend for learning to build with 'Smolagents') to avoid pitfalls such as **'🚫PROMPT INJECTION ⛔'**.
+
+  > The section is intentionally more detailed than a typical README specifically because of the risks involved when using libraries as powerful as 'Smolagents', but the principles can apply to all agentic systems.
+
+  > Anyone who is **not** intending to build with 'smolagents' themselves can ignore this, hence its placement at the bottom.
+---
 ---
 As of today the main goal is to build a tool that will help therapists and mental health hospitals modernize and care for patients. I'm scoping an adaptation for criminal profiling and pattern matching also as it's all similar architecture.
 
@@ -501,21 +508,7 @@ External:
 
 This information is built into my ever list of growing blogs, but after my domain host wiped it (for reasons known only to them), I've placed the 'Learning Agentic Systems' section here temporarily.
 
-### The Basics
-
-- If it's your first agentic framework, I'd suggest starting with n8n, moving on to something like LangGraph (not be confused with 'Knowledge-Graphs'), Llama Index (not related to 'Ollama') and then a 'Smolagents' - 'ToolCallingAgent' before 'CodeAgents'. Ensure the 'CodeAgent' is containerized on docker, E2B, and/or Kubenetes if running multiple agents. Ideally on a Sandbox drive that you wouldn't mind losing / wiping.
-- Different models will often require vastly different prompt templates for the same task.
-- If you don't use a 'Context Window Refresher' the model will produce incoherent output once the window is full. My Smolagents runner has that built in (in 'agent.py') so use that or similar.
-
-### 🚫🚫🚫PROMPT INJECTION!: **DO NOT** leave the 'CodeAgent' base tools all in until you have experience with the 'SmolAgents' framework.
-
-Doing so gives the agent _carte blanche_ to search for anything online, leaving your system vulnerable to 'Prompt Injections'
-
-### ⛔⛔⛔ Prompt Injections involve **Bad Actors** leaving text formatted as 'System Prompts' in websites, poorly managed message boards etc. 
-
-They would likely be in the same colour text as the background meaning you can't see them, whilst the agent can. It's 'Low Risk - High Impact' but even if you have a containerized environment, even trivial 'Prompt Injections' could trick your agent into producing images in an 'infinite loop' leaving hardware unusable.
-
-  
+---
 ## 📝 Testing:
 
 Most of the work on these _concept_ projects is spent testing, akin to the old 'Data Science' adage of "80-90% of Data Science is data cleansing".
@@ -548,3 +541,96 @@ However if you want to develop similar projects and are still developing your co
   B1[🧪 Pre-Prod Testing<br>Higher fidelity prototypes<br><b>Use: Teams, small-scale pilots</b>] --> C1
   C1[🚀 Production / Edge Use-Case<br>Stable deployment or specialist use<br><b>Use: Office integration, home automation</b>]
 ```
+
+---
+## ⚠️ Ethical considerations and safety ⚠️
+  
+Running a code agent gives the LLM a high degree of control over your environment.  Always remember that agents are experimental and should be treated accordingly.
+
+### In particular:  
+- **Sandbox everything.**  The agent executes arbitrary code; only run it on a dedicated NVMe inside either an [E2B](https://e2b.dev) sandbox or a Docker (or your preferred equivalent containerization).  Never point it at your host operating system or personal files.
+- **Keep secrets out of scope.**  Do not grant the agent access to sensitive credentials or systems.  Tools should be whitelisted explicitly.
+- **Omit the trigger phrases for safety.**  Hugging Face intentionally does not publicise 'examples with fully functional *CodeAgents* due to the risks if the library is implemented poorly.
+- It explains [SmolAgents](https://github.com/huggingface/smolagents) in great detail on its [Agents Course](https://huggingface.co/learn/agents-course/en/unit0/introduction), but at implemention you'll find a 'maze of misdirection' and ommisions. It took me many hours of reading through the Smolagents library on Github, whilst comparing the code and documentation to the HF notes. One 'red herring' in particular required ~3-4 days of testing debug a critical feature.
+- This is not intended to be evasive or to make things difficult for learners, it's (presumably) intended to prevent inexperienced users from accidentally starting infinite‑running loops, breaking their PC (or someone elses), or compromising their entire network and data.
+
+**For similar reasons this README does not spell out:**
+- The commands to switch to 'Agent Mode', and the commands to 'start the loop' in my framework. You can find them in the code. I stick to the presumed 'Hugging Face' principle of: "if you can't work out the code, you shouldn't be using CodeAgents yet".
+- How the SmolAgents library works under the hood. It's open-source on github so you'll know you're at a point where you _could_ use the library safely, when you have learned how the library works 'back-to-front'.
+- To learn the library, here's the steps I'd suggest:
+  - > 1. ### Do the  [Agents Course](https://huggingface.co/learn/agents-course/en/unit0/introduction). Its intended to be 'roughly' 60 hours for full completion, though if you're exploring all its concepts (it suggests exploration methods), expect it to be around double that.
+    > 2. ### Read all documentation resources at the [bottom of the SmolAgents Resources](https://huggingface.co/learn/agents-course/en/unit2/smolagents/introduction#resources) page. I'll add thenm below these bullets again for ease of access, but expect it to be perhaps 30 hours.
+  - > 3. ### _Optional but advisable_ Do the [MCP Course](https://huggingface.co/learn/mcp-course/unit0/introduction). You don't need MCP for a runner like mine (i pulled MCP out early on) but it just helps to further understand agentic frameworks
+  - > 4. ### Implement all the examples in the [Cookbook: Agents-Recipes](https://huggingface.co/learn/cookbook/en/agents) and [Cookbook: MLOPS-Recipes](https://huggingface.co/learn/cookbook/en/mlflow_ray_serve). You don't need to use Rayserve but it reinforces the 'monitoring' concepts.
+  - > 5. ### Monitoring Runs: If you did the above, you'll know the importance and steps to implement tracing (via Langfuse, OpenTelemmetry, Pheonix etc) or build a 'realtime runner' test-bed-sandbox, like mine.
+  - > 6. ### *Start with 'ToolCallingAgent'* to implement an agentic solution. *ONLY* move on to 'CodeAgent' once you have done so.
+    - > ToolCallingAgent's can still run code if you write it into the tools (at one point during testing I had something like 27 tools with python code, you can see them in my early commits).
+    - > My build safety process is below (in 3 diagrams due to Github's overly restrictive 'Mermaid' rules preventing one clean version)
+
+```mermaid
+flowchart LR
+    A[Build with ToolCallingAgent<br/>Custom tools only and required libs] --> B[Add tracing and realtime runner]
+    B --> C[Test with local and cloud LLMs]
+    C --> D[Switch to CodeAgent<br/>Keep only approved tools]
+    D --> E[Prompt restrict to given tools<br/>Run tests]
+    E --> F[Add restricted Python interpreter<br/>Remove custom tools gradually<br/>Agent writes code for removed tools]
+```
+### Sequence / Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant Dev
+    participant Agent
+    Dev->>Agent: Build ToolCallingAgent with custom tools
+    Note over Dev,Agent: Add tracing and realtime runner
+    Dev->>Agent: Test with local and cloud LLMs
+    Dev->>Agent: Switch to CodeAgent (no python tool)
+    Dev->>Agent: Prompt restrict to given tools
+    Dev->>Agent: Add restricted Python interpreter
+    Agent-->>Dev: Replace custom tools with code
+
+```
+Sub-Graph Grouped by phase
+
+```mermaid
+flowchart TD
+    subgraph Phase 1
+      A1[ToolCallingAgent<br/>Custom tools only]
+      A2[Tracing + realtime runner]
+      A1 --> A2
+    end
+
+    subgraph Phase 2
+      B1[Test with local and cloud LLMs]
+    end
+
+    subgraph Phase 3
+      C1[Switch to CodeAgent]
+      C2[Keep only approved tools]
+      C1 --> C2
+    end
+
+    subgraph Phase 4
+      D1[Prompt restrict to given tools]
+      D2[Add restricted Python interpreter]
+      D3[Remove custom tools gradually]
+      D4[Agent writes code for removed tools]
+      D1 --> D2 --> D3 --> D4
+    end
+
+    A2 --> B1 --> C1 --> D1
+
+
+```
+
+### 🚫🚫🚫PROMPT INJECTION!: **DO NOT** leave all the 'CodeAgent - base tools' in until you have experience with the 'SmolAgents' framework.
+
+Doing so gives the agent _carte blanche_ to search for anything online, leaving your system vulnerable to 'Prompt Injections'. If you don't know how to remove certain base tools from 'Smolagents', keep practicing with 'ToolCallingAgent' until you do.
+
+### ⛔⛔⛔ Prompt Injections involve **Bad Actors** leaving text formatted as 'System Prompts' in websites, poorly managed message boards etc. 
+
+They would likely be in the same colour text as the background meaning you can't see them, whilst the agent can. It's 'Low Risk - High Impact' but even if you have a containerized environment, even trivial 'Prompt Injections' could trick your agent into producing images in an 'infinite loop' leaving hardware unusable.
+
+  
+
+  
