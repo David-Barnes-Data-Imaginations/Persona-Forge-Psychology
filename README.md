@@ -1,5 +1,6 @@
 - # Intro
-- This 'README' is more of a collation of various notes from my Logseq files whilst the project is WIP, so don't expect too much coherence or fancy writing. I'll do that once its finished.
+
+This 'README' is more of a collation of various notes from my Logseq files whilst the project is WIP, so don't expect too much coherence or fancy writing. I'll do that once its finished.
 
 - # The Persona-Forge
 - The Persona-Forge has been a project of mine for close to two years, but it has evolved as I have 'pivoted' towards new tech and ideas.
@@ -9,21 +10,26 @@
 - Whilst those goals are still WIP projects, my lifelong passion for Psychology, the incredible pace of AI advancement, and my preference for doing  good for the world has caused me to temporarily pivot. Well, that and the fact that I realised I have basically already completed the project by accident, requiring 'only' the merging of 3 from my portfolio, and a LOT of testing. For a 'production' environment you'd want to test and tune over _at least_ one year).
 - It's worth noting that the README and APPENDIX (to be added shortly) files in this repo are written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon. The second audience is for either potential employers, or others looking to learn how to build agentic frameworks (Smolagents - CodeAgents), Persona-mappings, or how to use AI to 'augment' your building.
 
-For those learning to build agentic systems, at the bottom of the file is a 'Learning Agentic Systems' (Under the 'Tech Stuff' heading, clinicans can ginore) covering topics such as 'Hardware Considerations', 'Testing' and 'Agentic Frameworks'.
-If you have never built an agentic framework before, DO NOT start with Codeagents. I go to great lengths to layer containerization specifically because CodeAgents are powerful enough to break hardware or worse if they get confused and out of control.
+For those learning to build agentic systems, at the bottom of the file is a 'Learning Agentic Systems' (Under the 'Tech Stuff' heading, clinicians can ignore) covering topics such as 'Hardware Considerations', 'Testing' and 'Agentic Frameworks'.
 
+- If you have never built an agentic framework before, **DO NOT** start with 'Smolagents' - 'CodeAgent'. I go to great lengths to layer containerization specifically because CodeAgents are powerful enough to break hardware or worse if they get confused and out of control.
+   
+- In particular follow the safety tips, **especially the section on '🚫PROMPT INJECTION'**.
+  
 ---
-- As of today the main goal is to build a tool that will help therapists and mental health hospitals modernize and care for patients. I'm scoping an adaptation for criminal profiling and pattern matching also as it's all similar architecture.
+As of today the main goal is to build a tool that will help therapists and mental health hospitals modernize and care for patients. I'm scoping an adaptation for criminal profiling and pattern matching also as it's all similar architecture.
+
 - # Use Cases:
 - ## 1. Hospital and/or Therapist/Clinician Support - 'Vision of the Future'
-- There are two main elements, three AI models involved, a bunch of UI/Interface tools and many hours of research:
+There are two main elements, three AI models involved, a bunch of UI/Interface tools and many hours of research:
+
 - ## Elements:
    1. To modernize Psychology, by providing the superhuman pattern matching and profiling abilities of AI, for Therapists and Hospitals. This enhances insights for better work, _benefits_ the care for patients, and help therapists learn from their own techniques. It cannot be stressed enough that this does not aim to 'replace' human therapists, clinicians or their current methods. 'It's 'AI - Human augmentation via fusion'. _How_ this actually functions on a 'practical' / 'daily' level is still under intense scrutiny. The reason is the same reason that I love to build AI, I do _extensive_ testing (makes up about 70% of the work), and I'm being so blown away with idea's and possibilities I hadn't percieved, simultaneaously pivoting away from others that I thought _might_ work.
    2. Modernizing patient interactions to streamlined automation processes that remove pen & paper based tools, again freeing up staff resources to care for patients more effectively.
 
 - ## AI Models:
 - ### Local (stressed for importance of privacy):
-  Cirumus/ ModernBert Psychology focussed model, 1 agentic model (likely Gemma3) using an adaptation of my [smolagents framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) which carries out all the automation, transcription and anonomizing of data. It also does  psychological assessment and storage/retrieval, preparing the information so it is in a good state for GPT 4.5 (or soon to be GPT5).
+  Cirumus/ ModernBert Psychology focussed model, 1 agentic model (likely Gemma3) using an adaptation of my [smolagents framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) which carries out all the automation, transcription and anonomizing of data. It also does psychological assessment and storage/retrieval, preparing the information so it is in a good state for GPT 4.5 (or soon to be GPT5).
 - ### Non-Local - Psychological Profiling:
   GPT 4.5/5 - This does the main analysis and reports details of note, caution or concerns about the patient. Send back to the agent to record. GPT is incredible at Psychology, OpenAI is doing fantastic work in that direction.
 - ## Interface & Process:
@@ -358,7 +364,7 @@ Using the distributed networking, I have two desktops and one Mini-ITX with a to
 - 18TB storage (mostly NVME 'Samsung 990 Pro')
 
 - ### Sponsorship for AI Grants
-If the end goal is to use AI in a production or start-up environment, its easy to get sponsorship from the like of [NVIDEA](https://www.nvidia.com/en-gb/startups/), Google[https://cloud.google.com/startup/apply?utm_source=google&utm_medium=cpc&utm_campaign=FY21-Q1-global-demandgen-website-cs-startup_program_mc&utm_content=rsa_bkws_AI-bkws_long-form&gad_source=1&gad_campaignid=20908813911&gbraid=0AAAAApSNca_Jm8U-mPDFCTnsK7Oe16p2S&gclid=CjwKCAjwwNbEBhBpEiwAFYLtGHZMYaeJmycx4-Y84Nna_mS8MRISpM2f7uMeDWA3w4AGIFRlWaKwKhoCD2IQAvD_BwE], Meta, AWS etc. Even the UK Government hands out grants like smarties. If the end-goal is both plausible and more importantly 'altruistic' then you can pretty much guarantee sponsorship from any. I'd go with NVIDEA and a Gov grant personally. These provide the tech required for production environments, but the below options are for custom hardware set-ups that are still 'cloud-connectable'.
+If the end goal is to use AI in a production or start-up environment, its easy to get sponsorship from the likes of [NVIDEA](https://www.nvidia.com/en-gb/startups/), [Google](https://cloud.google.com/startup/apply?utm_source=google&utm_medium=cpc&utm_campaign=FY21-Q1-global-demandgen-website-cs-startup_program_mc&utm_content=rsa_bkws_AI-bkws_long-form&gad_source=1&gad_campaignid=20908813911&gbraid=0AAAAApSNca_Jm8U-mPDFCTnsK7Oe16p2S&gclid=CjwKCAjwwNbEBhBpEiwAFYLtGHZMYaeJmycx4-Y84Nna_mS8MRISpM2f7uMeDWA3w4AGIFRlWaKwKhoCD2IQAvD_BwE), Meta, AWS etc. Even the UK Government hands out grants like smarties. If the end-goal is both plausible and more importantly 'altruistic' then you can pretty much guarantee sponsorship from any. I'd go with NVIDEA and a Gov grant personally. These provide the tech required for production environments, but the below options are for custom hardware set-ups for local, or local + 'cloud-connectable'.
 
 ### 🧠 Project Phases & Budget-Use Visual
 
@@ -475,7 +481,10 @@ External:
 - GPT (via OpenAI API)
 
 ```
+---
 ## Learning to Build Agentic Systems
+---
+
 This information is built into my ever list of growing blogs, but after my domain host wiped it (for reasons known only to them), I've placed the 'Learning Agentic Systems' section here temporarily.
 
 ### The Basics
@@ -483,6 +492,14 @@ This information is built into my ever list of growing blogs, but after my domai
 - If it's your first agentic framework, I'd suggest starting with n8n, moving on to something like LangGraph (not be confused with 'Knowledge-Graphs'), Llama Index (not related to 'Ollama') and then a 'Smolagents' - 'ToolCallingAgent' before 'CodeAgents'. Ensure the 'CodeAgent' is containerized on docker, E2B, and/or Kubenetes if running multiple agents. Ideally on a Sandbox drive that you wouldn't mind losing / wiping.
 - Different models will often require vastly different prompt templates for the same task.
 - If you don't use a 'Context Window Refresher' the model will produce incoherent output once the window is full. My Smolagents runner has that built in (in 'agent.py') so use that or similar.
+
+### 🚫🚫🚫PROMPT INJECTION!: **DO NOT** leave the 'CodeAgent' base tools all in until you have experience with the 'SmolAgents' framework.
+
+Doing so gives the agent _carte blanche_ to search for anything online, leaving your system vulnerable to 'Prompt Injections'
+
+### ⛔⛔⛔ Prompt Injections involve **Bad Actors** leaving text formatted as 'System Prompts' in websites, poorly managed message boards etc. 
+
+They would likely be in the same colour text as the background meaning you can't see them, but the agent can. It's 'Low Risk - High Impact' but even if you have a containerized environment, but even trivial 'Prompt Injections' could trick your agent into producing images in an 'infinite loop' leaving hardware unusable.
 
   
 ## 📝 Testing:
