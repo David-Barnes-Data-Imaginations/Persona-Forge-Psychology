@@ -349,8 +349,10 @@ But first,
 - ### :atm: My Stack
 I build most of my projects so they can be run from a single GPU (or even CPU). Whilst I occasionally use the large models for backends or elements requiring specialist knowledge, these could be replaced in Production by 'tuning or training' local models, but that's not practical for most small demo projects. (See 'Training / Tuning).
 I use three PC's, custom built for AI inference. At present the cheapest way for compute is to build your own, but due to the Spark (and AMD equivalents e.g. Threadripper), pre-built PC's will be the best value for probably the first time in PC history.
+
 My PC's are networked via NVIDEA Mellanox cards at 25gbe, but for home project and demo's SFP+ (10gbe) or ethernet is enough. For production you'd use NVLink or RDMA.
 Using the distributed networking, I have two desktops and one Mini-ITX with a total of:
+
 - 46gb VRAM (NVIDEA - 'ASUS TUF STRIX 4090', 'ASUS 4070 Super Pro Duo', 'ASUS 2080 Ti STRIX)
 - 356gb CPU RAM ('i9 14th Gen KS', 'i9 10th Gen', 'AMD Ryzen 9 5950X') 
 - 18TB storage (mostly NVME 'Samsung 990 Pro')
