@@ -355,12 +355,15 @@ Using the distributed networking, I have two desktops and one Mini-ITX with a to
 - 356gb CPU RAM ('i9 14th Gen KS', 'i9 10th Gen', 'AMD Ryzen 9 5950X') 
 - 18TB storage (mostly NVME 'Samsung 990 Pro')
 
+- ### Sponsorship for AI Grants
+If the end goal is to use AI in a production or start-up environment, its easy to get sponsorship from the like of [NVIDEA](https://www.nvidia.com/en-gb/startups/), Google[https://cloud.google.com/startup/apply?utm_source=google&utm_medium=cpc&utm_campaign=FY21-Q1-global-demandgen-website-cs-startup_program_mc&utm_content=rsa_bkws_AI-bkws_long-form&gad_source=1&gad_campaignid=20908813911&gbraid=0AAAAApSNca_Jm8U-mPDFCTnsK7Oe16p2S&gclid=CjwKCAjwwNbEBhBpEiwAFYLtGHZMYaeJmycx4-Y84Nna_mS8MRISpM2f7uMeDWA3w4AGIFRlWaKwKhoCD2IQAvD_BwE], Meta, AWS etc. Even the UK Government hands out grants like smarties. If the end-goal is both plausible and more importantly 'altruistic' then you can pretty much guarantee sponsorship from any. I'd go with NVIDEA and a Gov grant personally. These provide the tech required for production environments, but the below options are for custom hardware set-ups that are still 'cloud-connectable'.
+
 ### 🧠 Project Phases & Budget-Use Visual
 
 Think of this like designing an AI‑ready hospital wing or smart building: you don’t need all the tech up front. Start small, test, iterate.
 ```mermaid
 graph TD
-  A1[🛠️ Dev Testing<br>Basic functionality<br><b>Use: Home tinkerers, early proof-of-concept, patient-or-therapy-room prototypes</b>] --> B1
+  A1[🛠️ Dev Testing<br>Basic functionality<br><b>Use: Home Assistant, early proof-of-concept, patient-or-therapy-room prototypes</b>] --> B1
   B1[🧪 Pre-Prod Testing<br>Higher fidelity prototypes<br><b>Use: Teams, small-scale pilots, hospital ward trial</b>] --> C1
   C1[🚀 Production / Edge Use-Case<br>Stable deployment or specialist use<br><b>Use: Integrated room assistants, patient-interaction hubs</b>]
 ```
