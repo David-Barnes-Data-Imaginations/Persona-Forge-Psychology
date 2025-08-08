@@ -335,12 +335,25 @@ If you’re looking to re-engage with the concept more deeply — maybe for your
 "Beyond Good and Evil" – more direct, philosophical articulation.
 Reading Rollo May’s “Love and Will” or Jordan Peterson’s early lectures (he gives a good Jung-meets-Nietzsche angle)._"
 
-### Tech Stuff (For Clinicans curious about the hardware implementation options, and Non-Techies or Learners)
+## Tech Stuff (For Techie's or Clinicans / Non-Techie's curious about the hardware implementation options)
+
 👋 For Curious Learners: Building Agentic Systems - From Budget to Specialized
 
-Whether you're tinkering at home, fitting out patient rooms, or planning a smart workspace, it's now easier than ever to explore AI agentic systems — even on a tight budget. This guide demystifies what's possible at each stage of development, from entry-level hardware to specialist setups. It's not just for devs — it's for dreamers, clinicians, designers, and doers.
+Whether you're building your 'Home Assistant', fitting out patient rooms, or planning a smart workspace, it's now easier than ever to explore AI agentic systems — even on a tight budget. This guide demystifies what's possible at each stage of development, from entry-level hardware to specialist setups. It's not just for devs — it's for dreamers, clinicians, designers, and doers.
 
-Learning should be  both inclusive and imaginative, that’s why this section is included — to help others see the possibilities and inspire their own solutions for helping others.
+Learning should be both inclusive and imaginative, that’s why this section is included — to help others see the possibilities and inspire their own solutions for helping others.
+
+Below I have listed current technologies you _might_ use for any agentic implementation. However it's worth noting that once the (slightly delayed) [NVIDEA DGX Spark](https://www.nvidia.com/en-gb/products/workstations/dgx-spark/) is released, it renders most of the below obsolete aside from extremely specialised situations (for example the [NVIDIA Jetson AGX Orin](https://www.amazon.co.uk/NVIDIA-Jetson-Orin-64GB-Developer/dp/B0BYGB3WV4/ref=sr_1_2?crid=33CCWL1IBISS2&dib=eyJ2IjoiMSJ9.69vgNBFj_CdRHWPE_OPdtzawpTgSy7m7eYwZ4Zpd3qmNn2sSrsmOZG4bcs42HUmcy1ngGpW5cR1TCiY_Q96G4MQ8VWDGzE2DdSHdunjTG6o-L2ZcnGuqHqOJX7Y5xzgiQJi6V7vHG3oxZeFBl9erQWd-Aq4JCmSRbLh0sN52bcxl1jvUSJCtk3Fq8xIGcdJkSYwio6aq0trgaB62cP2tMQ.A2QEg87Q5k0XgEE2eEWUG-VEaLW2OhsXtXp3q4jQU2o&dib_tag=se&keywords=NVIDIA%2BJetson%2BAGX%2BOrin%2B%2F%2BNVIDIA%2BIGX&qid=1754615087&sprefix=nvidia%2Bjetson%2Bagx%2Borin%2B%2F%2Bnvidia%2Bigx%2B%2Caps%2C59&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1) is often used for automated Security Camera monitoring and tagging / timestamping). The Spark and / or [DGX Workstation](https://www.nvidia.com/en-us/products/workstations/dgx-station/) will likely redefine modern computers and laptops entirely. The Spark was rumoured to be around £3k (likely closer to £4k) and two networked via NV-Link can run a Llama-Nemo 405B (roughly half the size of GPT4o on release). The Spark fits in the palm of your hand (so goodbye laptops) whilst the Workstation is regular PC size.
+But first,
+
+- ### :atm: My Stack
+I build most of my projects so they can be run from a single GPU (or even CPU). Whilst I occasionally use the large models for backends or elements requiring specialist knowledge, these could be replaced in Production by 'tuning or training' local models, but that's not practical for most small demo projects. (See 'Training / Tuning).
+I use three PC's, custom built for AI inference. At present the cheapest way for compute is to build your own, but due to the Spark (and AMD equivalents e.g. Threadripper), pre-built PC's will be the best value for probably the first time in PC history.
+My PC's are networked via NVIDEA Mellanox cards at 25gbe, but for home project and demo's SFP+ (10gbe) or ethernet is enough. For production you'd use NVLink or RDMA.
+Using the distributed networking, I have two desktops and one Mini-ITX with a total of:
+- 46gb VRAM (NVIDEA - 'ASUS TUF STRIX 4090', 'ASUS 4070 Super Pro Duo', 'ASUS 2080 Ti STRIX)
+- 356gb CPU RAM ('i9 14th Gen KS', 'i9 10th Gen', 'AMD Ryzen 9 5950X') 
+- 18TB storage (mostly NVME 'Samsung 990 Pro')
 
 ### 🧠 Project Phases & Budget-Use Visual
 
@@ -365,6 +378,7 @@ graph TD
 🔴 High-End / Specialized — £800+
 💡 Edge-Ready — Runs models locally, no internet required
 ☁️ Cloud-Connected — Uses API (e.g., GPT) or hybrid inference
+
 1. Dev Testing
 
 🟢☁️💡 [Raspberry Pi 4B or above](https://www.amazon.co.uk/GeeekPi-Raspberry-Complete-Starter-Supply/dp/B0B7KPPQSX/ref=sr_1_7?crid=29GKZL6UI6AZL&dib=eyJ2IjoiMSJ9.czOPq1wxRkaCBA9iYRkHMEyoIGrkWAa50swCqCdplx9r1n0oWVkRCrtGl_lPPT5s11-wBmDQO0mfywYFSLVIyx2yAJAu1iPuXMmixaSe1cX68hqdREjLxXXZzUlkANTyOG0i5XrWZTUpxHF3pwsyUs4Ykl497CjDeeIOPhP_H30IUYIQRaOoYj1f5bdVgTtIvOV2QBMETihdXarNlu4dfNQl0Sx2WH4m6EgUp1UfcUY.0LFHfhH1tJI_ZQx4y9yK24UBdUO0ws2v9IZTgdKYFCU&dib_tag=se&keywords=raspberry+pi+4b&qid=1754613894&sprefix=raspberry+pi+4b%2Caps%2C80&sr=8-7) + [USB Mic](https://www.amazon.co.uk/dp/B0CNVZ27YH?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1) or [All-in-one Mic+Speaker](https://www.amazon.co.uk/dp/B0CH9KHP41?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_2) and / or [Budget Touchscreen](https://www.amazon.co.uk/dp/B0D44S9323?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_3&th=1) 
@@ -385,7 +399,7 @@ _Usages: For Staff - Mid-range agents, therapy dashboards, running local graph+R
 
 3.5. Portable Laptop
 
-🔴☁️💡 Laptop w/ RTX GPU - [Top Tier](https://www.amazon.co.uk/MSI-laptop-NVIDIA%C2%AE-GeForce-RTX5090/dp/B0F546YDLD/ref=sr_1_10?crid=13GL8KNPFEIMU&dib=eyJ2IjoiMSJ9.MdkFub1UIYSNw583q-NCvPmNIq4cEz7TMGU19tv9NoXclZckWKBV2nRn9v4xRFuJNVk8xG4bjKoMScVMd-weza8QxBpG_lUQ66DXNqj7Cb4qJbchJgfFZsr2koqSPb4xqJ8ozVHqz-7_x11E7wavSWp1P-3HaaPatssoGZTV2IHE8JBzaRU74TSlwIazNiR7eL4EBrpwQ3jbxugfQjTqzJQK58Ac4-ZcOuFPi3e5M4s.PCexiwxQYdB-olesMsnyo776_HcmN86j8FOOgrT_G80&dib_tag=se&keywords=nvidia+gpu+laptops+ai&qid=1754614695&sprefix=nvidea+gpu+laptops+ai%2Caps%2C64&sr=8-10) or 🔴 [Budget Friendly but highly AI capable](https://www.amazon.co.uk/Predator-Helios-PHN16-73-Gaming-Laptop/dp/B0BW94XWN4/ref=sr_1_2?crid=28Q61IMUAZD50&dib=eyJ2IjoiMSJ9.Go_I_jjJBUCKTY0HWG-_EfiAPEq6_ecZfqv46OXq2AK9xXUrH6ijDG-GM1R-nAE9RAFBrj58PRe2dQxo32_b6U_7ROZin9bSwSsB86vxqfpk01egvBpBz3qCa-kIqPUMow0Xavl3lAmAPveVy_h5AgAQtfEO82d7LZCkJ01Wc9ShLEgx3Q4Si-NSv4Hs-Z0zW3KVHKrj808XrdMFgGB_LALZI7Ykk1Mj1gSnE4-wTb3Tc1ughb6ij9PmeVOidVuOK9i-eqmKup15FzUZWPt7VtQfh_DfqTFnbkqdUTfXGBo.-14TJTjH49N7TYmcyXg97FQ9nhA9I9zBLhOcQRDsHkA&dib_tag=se&keywords=ai%2Blaptops%2Bhigh%2Bvram%2Bnvidia&qid=1754614915&refinements=p_n_feature_twenty-one_browse-bin%3A27387799031&rnid=27387793031&s=computers&sprefix=ai%2Blaptops%2Bhigh%2Bvram%2Bnvidea%2Caps%2C56&sr=1-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)
+🔴☁️💡 Laptop w/ RTX GPU (Only worth it if you already have something similar as obsolete when DGX Spark is released. Plus laptops are generally terrible IMO) - [Top Tier](https://www.amazon.co.uk/MSI-laptop-NVIDIA%C2%AE-GeForce-RTX5090/dp/B0F546YDLD/ref=sr_1_10?crid=13GL8KNPFEIMU&dib=eyJ2IjoiMSJ9.MdkFub1UIYSNw583q-NCvPmNIq4cEz7TMGU19tv9NoXclZckWKBV2nRn9v4xRFuJNVk8xG4bjKoMScVMd-weza8QxBpG_lUQ66DXNqj7Cb4qJbchJgfFZsr2koqSPb4xqJ8ozVHqz-7_x11E7wavSWp1P-3HaaPatssoGZTV2IHE8JBzaRU74TSlwIazNiR7eL4EBrpwQ3jbxugfQjTqzJQK58Ac4-ZcOuFPi3e5M4s.PCexiwxQYdB-olesMsnyo776_HcmN86j8FOOgrT_G80&dib_tag=se&keywords=nvidia+gpu+laptops+ai&qid=1754614695&sprefix=nvidea+gpu+laptops+ai%2Caps%2C64&sr=8-10) or 🔴 [Budget Friendly but highly AI capable](https://www.amazon.co.uk/Predator-Helios-PHN16-73-Gaming-Laptop/dp/B0BW94XWN4/ref=sr_1_2?crid=28Q61IMUAZD50&dib=eyJ2IjoiMSJ9.Go_I_jjJBUCKTY0HWG-_EfiAPEq6_ecZfqv46OXq2AK9xXUrH6ijDG-GM1R-nAE9RAFBrj58PRe2dQxo32_b6U_7ROZin9bSwSsB86vxqfpk01egvBpBz3qCa-kIqPUMow0Xavl3lAmAPveVy_h5AgAQtfEO82d7LZCkJ01Wc9ShLEgx3Q4Si-NSv4Hs-Z0zW3KVHKrj808XrdMFgGB_LALZI7Ykk1Mj1gSnE4-wTb3Tc1ughb6ij9PmeVOidVuOK9i-eqmKup15FzUZWPt7VtQfh_DfqTFnbkqdUTfXGBo.-14TJTjH49N7TYmcyXg97FQ9nhA9I9zBLhOcQRDsHkA&dib_tag=se&keywords=ai%2Blaptops%2Bhigh%2Bvram%2Bnvidia&qid=1754614915&refinements=p_n_feature_twenty-one_browse-bin%3A27387799031&rnid=27387793031&s=computers&sprefix=ai%2Blaptops%2Bhigh%2Bvram%2Bnvidea%2Caps%2C56&sr=1-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)
 
 _Usages: Tech Staff for Mobile ward demos, hybrid local/cloud processing, in-field fine-tuning (Model trining for subject matter)_
 
@@ -393,7 +407,7 @@ _Usages: Tech Staff for Mobile ward demos, hybrid local/cloud processing, in-fie
 
 🟡☁️💡 [NVIDIA Jetson AGX Orin](https://www.amazon.co.uk/NVIDIA-Jetson-Orin-64GB-Developer/dp/B0BYGB3WV4/ref=sr_1_2?crid=33CCWL1IBISS2&dib=eyJ2IjoiMSJ9.69vgNBFj_CdRHWPE_OPdtzawpTgSy7m7eYwZ4Zpd3qmNn2sSrsmOZG4bcs42HUmcy1ngGpW5cR1TCiY_Q96G4MQ8VWDGzE2DdSHdunjTG6o-L2ZcnGuqHqOJX7Y5xzgiQJi6V7vHG3oxZeFBl9erQWd-Aq4JCmSRbLh0sN52bcxl1jvUSJCtk3Fq8xIGcdJkSYwio6aq0trgaB62cP2tMQ.A2QEg87Q5k0XgEE2eEWUG-VEaLW2OhsXtXp3q4jQU2o&dib_tag=se&keywords=NVIDIA%2BJetson%2BAGX%2BOrin%2B%2F%2BNVIDIA%2BIGX&qid=1754615087&sprefix=nvidia%2Bjetson%2Bagx%2Borin%2B%2F%2Bnvidia%2Bigx%2B%2Caps%2C59&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1) / NVIDIA IGX / LLM-ready compute modules
 
-_Usages: 'Realtime' processing, High-performance inference, personalised patient assistants, offline reasoning, multi-modal patient interactions_
+_Usages: 'Realtime' processing (AI Driven Security Camera tech or robotics) , High-performance inference, personalised patient assistants, offline reasoning, multi-modal patient interactions_
 
 5. Central Node / Server
 
