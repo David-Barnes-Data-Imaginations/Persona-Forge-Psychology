@@ -477,8 +477,14 @@ External:
 ```
 ## Learning to Build Agentic Systems
 This information is built into my ever list of growing blogs, but after my domain host wiped it (for reasons known only to them), I've placed the 'Learning Agentic Systems' section here temporarily.
-- If it's your first agentic framework, I'd suggest starting with n8n, moving on to something like LangGraph (not be confused with 'Knowledge-Graphs'), Llama Index (not related to 'Ollama') and then a 'smolagents - ToolCallingAgent before 'CodeAgents'. Ensure the CodeAgent is containerized on docker, E2B, and/or Kubenetes if running multiple agents. Ideally on a Sandbox drive that you wouldn't mind losing / wiping.
-- 
+
+### The Basics
+
+- If it's your first agentic framework, I'd suggest starting with n8n, moving on to something like LangGraph (not be confused with 'Knowledge-Graphs'), Llama Index (not related to 'Ollama') and then a 'Smolagents' - 'ToolCallingAgent' before 'CodeAgents'. Ensure the 'CodeAgent' is containerized on docker, E2B, and/or Kubenetes if running multiple agents. Ideally on a Sandbox drive that you wouldn't mind losing / wiping.
+- Different models will often require vastly different prompt templates for the same task.
+- If you don't use a 'Context Window Refresher' the model will produce incoherent output once the window is full. My Smolagents runner has that built in (in 'agent.py') so use that or similar.
+
+  
 ## 📝 Testing:
 
 Most of the work on these _concept_ projects is spent testing, akin to the old 'Data Science' adage of "80-90% of Data Science is data cleansing".
