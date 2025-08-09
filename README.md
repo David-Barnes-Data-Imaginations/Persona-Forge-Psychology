@@ -24,12 +24,12 @@
 - It began as a simple ideas to map personalities of anything from video games, to my own persona, using 'Knowledge Graphs' to map out 'Personality Constructs', or 'Persona'. Mapping include 'speaking tone' & 'vocabulary', profiling frameworks (e.g. 'Myers Briggs', history (e.g. key events in a persons life, and the emotions they trigger) and even metaphor or common phrase types that the character uses.
 - My lifelong passion for Psychology, the incredible pace of AI advancement, and my preference for 'altruistic projects' caused me to pivot to a more spoecific goal. The pivot was also inspired by the realization that it could be achieved by simply merging three of my portfolio projects and a LOT of testing.
 - AI Building is primarily focussed on testing. I've spent hundreds of hours just testing the capabilities of small models by querying them on topics, however for a 'production' environment you'd want to test and tune over _at least_ one year).
-- This README is written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon. The secondary audience is for either potential employers, or those seeking to learn the _art_ of AI building, Persona-mappings, or 'Using AI to _augment_ people or processes.
-For those learning to build agentic systems, at the bottom of the file is a 'Learning Agentic Systems' (Under the 'Tech Stuff' heading, clinicians can ignore) covering topics such as 'Hardware Considerations', 'Testing' and 'Agentic Frameworks'.
+- This README is written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon in the first half of the document.
+- The second half covers more technical aspects for the _art_ of AI building, Persona-mappings, or 'Using AI to _augment_ people or processes. This covers 'Hardware Considerations', 'Testing', Safety, and learning 'Agentic Frameworks'.
 ---
 
 ---
-As of today the main goal is to build a tool that will help therapists and mental health hospitals modernize and care for patients. I'm scoping an adaptation for criminal profiling and pattern matching, both online and in the 'real-world'.
+This version of the Persona-Forge is designed to help therapists and mental health hospitals modernize and care for patients. I'm scoping an adaptation for criminal profiling and pattern matching, both 'online' and in the 'real-world'.
 
 # Use Cases:
 
@@ -43,23 +43,26 @@ There are two main elements, three AI models involved, a bunch of UI/Interface t
 ## AI Models:
 
 ### Local (stressed for importance of privacy):
-  Cirumus/ ModernBert Psychology focussed model, 1 agentic model (likely Gemma3) using an adaptation of my [smolagents framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) which carries out all the automation, transcription and anonomizing of data. It also does psychological assessment and storage/retrieval, preparing the information so it is in a good state for GPT 4.5 (or soon to be GPT5).
+  Cirumus/ ModernBert Psychology focussed model (possibly obsolete due to technology improvements), 1 agentic local model (likely GPT-oss or Gemma3) using an adaptation of my [smolagents framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) to implement automation, transcription and anonomizing of data etc. 
+  Additionaly it can do 'basic psychological assessment' and 'Graph-RAG' storage/retrieval, preparing the information to send for anonymous psychological profiling with GPT5 or a tuned local model (Llama 405B or equiv).
   
 ### Non-Local - Psychological Profiling:
-  GPT 4.5/5 - This does the main analysis and reports details of note, caution or concerns about the patient. Send back to the agent to record. GPT is incredible at Psychology, OpenAI is doing fantastic work in that direction.
+  GPT 5 - Does the main analysis (see Psychology Frameworks), highlighting caution or concerns about the patient. Sends back to local agent to record. GPT is incredible at Psychology, OpenAI is doing fantastic work in that direction.
   
 ## Interface & Process:
-  The app can either be used from a simple website setup or mobile app (out of scope until tbc). The local model transcribes and only labels the text as 'Therapist 1' (Example number, but I use the reknowned 'Carl and Gloria / Sylvia therapist sessions for demo) and 'Client 345'. It transcribes the conversation (one of the aforementioned concepts I'm pivoting away from) and does the following actions:
+  The therapist dashboard includes results along with AI inference for retrieval of information and can be used via web or mobile app (out of scope until tbc). 
   
-   1. Stores in Database. Tags the text (see architecture but examples are 'history', 'allergies', 'care requests' etc..)
-   2. Sends (anonomized) text + results (from the three models) and historical results to GPT.
-   3. GPT Analyses using the three psychology frameworks (see 'Psychology Demonstration').
-   4. Sends back analysis and tagged text to the local smolagent runner
+  Transcription: Dependant on scope, the local model can be used for transcription or summarisation, labelling the text as 'Therapist 1' (for example) and 'Client 345'. 
+  Example _local_ model setup:
+  
+   1. Stores in Database. Tags the text ('Utterances', 'history', 'allergies', 'care requests' etc..)
+   2. Sends formatted results and historical results to or local 'Psychology trained' large model.
+   3. Large model analyses using the chosen psychology frameworks (see 'Psychology Demonstration').
+   4. Returns analysis and tagged text to the local smolagent runner
    5. Runner populates knowledge Graph and stores in RAG:
 
-   - The High/Median/Low of 23 detected emotions in a knowledge graph. Each session has its own branch (within the patients node) so that the transitions over time can be matched via:
-      - Cognitive Distortions and GPT feedback on Erikson's.
-- 6. Send data to dashboard, which staff can access from a web browser via a locally hosted server.
+   - The High/Median/Low of 23 detected emotions in a knowledge graph. Each session has its own branch (within the patients node) so patterns & transitions over time, can be matched via frameworks
+- 6. Send data to dashboard
 - 7. The entire app boots from a persistent docker for info and AI security. May have Kubernetes for model rotation if that becomes required.
 
 - *Note*: If you've not heard of knowledge graphs, they are vector based (as are LLM's and RAG's) graphs which are incredibly fast for data retrieval (Google uses it for its search). Most note-taking tools use them to connect your notes, but my 'go-to' LogSeq gives you a tab to view your notes and their relations. See 'Psychology
@@ -152,7 +155,7 @@ CBT remains the gold standard for detecting irrational thoughts like catastrophi
   -[:REFLECTS_STAGE]->(:Stage {name: "Identity vs Role Confusion"})
   ```
 
-  > Models like 'GPT-4o / 4.5 / 5' can now understand: this isn't just a sad sentence — it's a cognitively distorted self-assessment likely influenced by adolescent-stage uncertainty.
+  > Models like 'GPT' can now understand: this isn't just a sad sentence — it's a cognitively distorted self-assessment likely influenced by adolescent-stage uncertainty.
 
 ---
 
@@ -240,7 +243,7 @@ CBT remains the gold standard for detecting irrational thoughts like catastrophi
     Session -->|INCLUDES| Utterance
   ```
 ## Additional Frameworks David's Scoping 
-[David's note] You can view APPENDIX_1 to see me testing Gemma3 vs GPT before I added these models. Gemma3-12B (6-7gb in size) actually matched some of my scoping preferences, which GPT then developed.
+[David's note] You can view APPENDIX_1 (tba) to see me testing Gemma3 vs GPT before I added these frameworks. Gemma3-12B (6-7gb in size) actually matched some of my scoping preferences, which GPT then developed.
 
 #### Psychological Framework Ranking for Persona-Forge
 
