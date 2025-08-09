@@ -14,7 +14,7 @@
 - At the very bottom is the 'Safety & Ethics' section, outlining how to run experiments with the incredibly powerful 'Smolagents' library, in a safe dev environment. This also contains advice on _how to learn_ 'SmolAgents' most powerful 'CodeAgent' functionality.
 - Topics covered 
 ---
->###  ⛔ I have copied the 'newly-extended' safety advice & procedures  to avoid pitfalls such as **'🚫PROMPT INJECTION ⛔'**.
+>###  ⛔ At the bottom of the page I have pasted (from my smolagents runner) the 'newly-extended' safety advice & procedures to avoid pitfalls such as **'🚫PROMPT INJECTION ⛔'**.
 ---
 
 # The Persona-Forge
