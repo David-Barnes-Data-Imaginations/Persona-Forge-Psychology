@@ -528,6 +528,7 @@ When I build AI for a project, i'll test it works to the point where one or a co
 - If [it's a model tuning project] then until I'm convinced it works better for my goals than before it was tuned.
 - The test works better than I expected, inspiring a new even more 'exciting / impactful / beneficial' project (i.e. a 'Pivot').
 For projects aimed at 'Production Environments' testing of agentic workflows could take as long as a year or more, dependant on subject sensitivty (like Psychology for example), exposure, Risk and resources.
+- I'm currently testing the Pycharm [AI Model Testing Toolkit](https://lp.jetbrains.com/pycharm-for-ai-engineers/?utm_source=product&utm_medium=link&utm_campaign=PY&utm_content=2025.2) and so far it's 'S-Tier'. 
 
 ---
 **Code vs No-Code**
