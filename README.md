@@ -539,11 +539,13 @@ My 'Smolagents' project was really intended to be an 'AI Skunkworks' style testi
 *Vibe Coding*
 It's great for non-coding agentic systems, and its both challenging and 'inadvisable' to solely use for complex ones. Here's what i'd _typically_ recommend. It's 'ok' at bug fixing UI or backends (though that adds the visual element).
 
-However if you want to develop similar projects and are still developing your coding, my recommendations would be:
+If you want to develop similar projects and are still developing your coding, my recommendations would be:
   - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
   - If no-code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or AI tools, but _can_ perform respectably in later elements.
   - For mid-level coders, start yourself and then have claude build the generic bits via any model.
       - For debugging very challenging fixes, Codex or Gemma CLI is great as the latter has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
+      - 
+Note: I'm currently testing the new [Pycharm AI Dev Environment](https://lp.jetbrains.com/pycharm-for-ai-engineers/?utm_source=product&utm_medium=link&utm_campaign=PY&utm_content=2025.2) and will update accordingly.
 ---
 
 ```mermaid
