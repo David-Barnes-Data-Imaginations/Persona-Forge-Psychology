@@ -1,30 +1,35 @@
 # Intro
 
 ---
-This 'README' is more of a collation of various notes from my Logseq files whilst the project is WIP, so don't expect too much coherence or fancy writing. I'll do that once its finished.
+### This 'README' is more of a collation of various notes from my Logseq files that I write during breaks from testing, whilst the project is WIP. Therefore don't expect too much coherence or fancy writing, i'll do that once its finished.
 ---
+**For Clinicians / Non-Techies:**
+- I present the core 'Psychology principles' involved first, to spare the pain of technical jargon. I cover _some_ technical aspects related to 'Knowledge Graphs', but graph syntax is closer to 'Structured English' than it is to a 'Coding Language'.
+- The concept was developed from a [project](https://github.com/David-Barnes-Data-Imaginations/SentimentSuite) that was intended to be a 'light demo' for a friend, using 'Russells Cicumplex' and 'utterances' to evaluate therapy session transcripts (Carl & Gloria etc.)
 ---
+**For 'Techies' or those learning to build 'Advanced Agentic Systems':**
+- The code from my 'Agent Runner' 🏃 [smolagents 'Test & Trace' Dev-Environment](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) is currently placed in this repo, with the [SentimentSuite](https://github.com/David-Barnes-Data-Imaginations/SentimentSuite) added in.
+- The 'Agent Runner'🏃 can be tailoured to practically any task, using adaptations to the 'Prompt Templates and 'Tools', leveraging core 'Hugging Face - Spaces', MCP (I removed as it was out of scope), custom trained LLM or a 'Founder Model' backend. I'll make those updates when i've completed the current 'Scope-Testing' phase.
+- The final element of coding is for the 'Knowledge-Graphs' using Cypher, i'll cover the process in the second half of the document aimed at technical readers.
+- At the very bottom is the 'Safety & Ethics' section, outlining how to run experiments with the incredibly powerful 'Smolagents' library, in a safe dev environment. This also contains advice on _how to learn_ 'SmolAgents' most powerful 'CodeAgent' functionality.
+- Topics covered 
+---
+>###  ⛔ I have copied the 'newly-extended' safety advice & procedures  to avoid pitfalls such as **'🚫PROMPT INJECTION ⛔'**.
+---
+
 # The Persona-Forge
-- The Persona-Forge has been a project of mine for close to two years, but it has evolved as I have 'pivoted' towards new tech and ideas.
+- The Persona-Forge has been a project of mine for close to two years, 'evolving' as I have 'pivoted' towards new tech and ideas.
   > Hear the concept of 'pivoting in AI' from one of the 'Godfathers of AI' - Andrew Ng from around '7:50' [here](https://www.youtube.com/watch?v=RNJCfif1dPY).
   
-- It began as a simple ideas to map personalities of anything from video games, to my own persona, using knowledge graphs to create branches that mapped out 'speaking tone and vocabulary', personal profiles such as 'Myers Briggs', history (for example the history of characters from the feature-rich Cyberpunk Universe ) profiles and even branches of metaphor types that the character uses.
-- Whilst those goals are still WIP projects, my lifelong passion for Psychology, the incredible pace of AI advancement, and my preference for doing  good for the world has caused me to temporarily pivot. Well, that and the fact that I realised I have basically already completed the project by accident, requiring 'only' the merging of 3 from my portfolio, and a LOT of testing. For a 'production' environment you'd want to test and tune over _at least_ one year).
-- It's worth noting that the README and APPENDIX (to be added shortly) files in this repo are written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon. The second audience is for either potential employers, or others looking to learn how to build agentic frameworks (Smolagents - CodeAgents), Persona-mappings, or how to use AI to 'augment' your building.
-
+- It began as a simple ideas to map personalities of anything from video games, to my own persona, using 'Knowledge Graphs' to map out 'Personality Constructs', or 'Persona'. Mapping include 'speaking tone' & 'vocabulary', profiling frameworks (e.g. 'Myers Briggs', history (e.g. key events in a persons life, and the emotions they trigger) and even metaphor or common phrase types that the character uses.
+- My lifelong passion for Psychology, the incredible pace of AI advancement, and my preference for 'altruistic projects' caused me to pivot to a more spoecific goal. The pivot was also inspired by the realization that it could be achieved by simply merging three of my portfolio projects and a LOT of testing.
+- AI Building is primarily focussed on testing. I've spent hundreds of hours just testing the capabilities of small models by querying them on topics, however for a 'production' environment you'd want to test and tune over _at least_ one year).
+- This README is written with 'Clinicians' as the primary audience, to demo possibilities with non-technical jargon. The secondary audience is for either potential employers, or those seeking to learn the _art_ of AI building, Persona-mappings, or 'Using AI to _augment_ people or processes.
 For those learning to build agentic systems, at the bottom of the file is a 'Learning Agentic Systems' (Under the 'Tech Stuff' heading, clinicians can ignore) covering topics such as 'Hardware Considerations', 'Testing' and 'Agentic Frameworks'.
+---
 
-- If you have never built an agentic framework before, **DO NOT** start with 'Smolagents' - 'CodeAgent'. I go to great lengths to layer containerization specifically because CodeAgents are powerful enough to break hardware or worse if they get confused and out of control.
 ---
----
->###  ⛔  I have copied the 'newly-extended' safety advice & procedures from my [smolagents framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist),  (which include the process I recommend for learning to build with 'Smolagents') to avoid pitfalls such as **'🚫PROMPT INJECTION ⛔'**.
-
-  > The section is intentionally more detailed than a typical README specifically because of the risks involved when using libraries as powerful as 'Smolagents', but the principles can apply to all agentic systems.
-
-  > Anyone who is **not** intending to build with 'smolagents' themselves can ignore this, hence its placement at the bottom.
----
----
-As of today the main goal is to build a tool that will help therapists and mental health hospitals modernize and care for patients. I'm scoping an adaptation for criminal profiling and pattern matching also as it's all similar architecture.
+As of today the main goal is to build a tool that will help therapists and mental health hospitals modernize and care for patients. I'm scoping an adaptation for criminal profiling and pattern matching, both online and in the 'real-world'.
 
 # Use Cases:
 
@@ -310,7 +315,11 @@ Graph Example:
 
   *(Human prompt, AI mindmap, and joint authorship: a fusion we call ethical augmentation.)*
 ---
-### Thanks GPT. Now from my side i'll add a light summary of the 'socials' element i'm testing, and the AI model architecture (for the techies), though i've held back a few tricks for few surprises to come.
+### Thanks GPT. I'm adding other features being 'scoped for testing' below as I work through them. 
+
+> Despite having spent two years 'geeking out' on AI, in recent weeks I've found this project opening my eye's to new avenues of possibility on a daily basis whilst I test to a more specific purpose. 
+
+socials' element i'm testing, and the AI model architecture (for the techies), though i've held back a few tricks for few surprises to come.
 
 ## :couple: Socials
 - Some area's of therapy use a patients Social Media as clue's for insights on the persona. Before a 'Pitchfork-Wielding Baying-Mob' show up at my door, this is always done _only_ with patient consent. Since I am using myself as the test subject (or 'bait' dependant on perspective), I gave the AI consent to look through my socials, compare it to the frameworks I was testing at the time, and provide any noteworthy insights. I'm on the fence about the benefit of this, so its currently under consideration. It already has capability, but even with the power of knowledge graph's, you only aim to fill it with genuinely useful information. Here's a demo:
@@ -359,11 +368,12 @@ _If you’re looking to re-engage with the concept more deeply — maybe for you
 
 ## Tech Stuff (For Techie's or Clinicans / Non-Techie's curious about the hardware implementation options)
 
+
 👋 For Curious Learners: Building Agentic Systems - From Budget to Specialized
 
 Whether you're building your 'Home Assistant', fitting out patient rooms, or planning a smart workspace, it's now easier than ever to explore AI agentic systems — even on a tight budget. This guide demystifies what's possible at each stage of development, from entry-level hardware to specialist setups. It's not just for devs — it's for dreamers, clinicians, designers, changers and doers.
 
-Learning should be both inclusive and imaginative, that’s why this section is included — to help others see the possibilities and inspire their own solutions for helping others.
+Learning should be both inclusive and imaginative, that’s why this section is included — to help others see the possibilities and inspire their own solutions to bring about _positive change_.
 
 > "The future is already here — it's just not evenly distributed." — William Gibson
 
@@ -371,7 +381,7 @@ Below I have listed current technologies you _might_ use for any agentic impleme
 But first,
 
 ### :atm: My Stack
-I build most of my projects so they can be run from a single GPU (or even CPU). Whilst I occasionally use the large models for backends or elements requiring specialist knowledge, these could be replaced in Production by 'tuning or training' local models, but that's not practical for most small demo projects. (See 'Training / Tuning).
+I build most of my projects so they can be run from a single GPU (or even CPU). Whilst I occasionally use the large models for backends or elements requiring specialist knowledge, these could be replaced in Production by 'tuning or training' local models, not practical for most small demo projects. (See 'Training / Tuning).
 I use three PC's, custom built for AI inference. At present the cheapest way for compute is to build your own, but due to the Spark (and AMD equivalents e.g. Threadripper), pre-built PC's will be the best value for probably the first time in PC history.
 
 My PC's are networked via NVIDEA Mellanox cards at 25gbe, but for home project and demo's SFP+ (10gbe) or ethernet is enough. For production you'd use NVLink or RDMA.
@@ -452,9 +462,7 @@ Beyond voice interactions, it could play music, suggest guided breathing, or hel
 
 Whether you’re prototyping for home use or planning a clinical rollout, think modularly: start small, integrate well, and scale as confidence and budget grow.
 
-## Tech Stuff (Non-tech people ignore below)
-
-- ## 🛠️ System Architecture (Light Overview)
+## 🛠️ System Architecture (Light Overview)
 - Behind the scenes, the Persona-Forge uses a multi-branch fusion system designed to simulate realistic emotional responses — whether it's analysing therapy transcripts or generating AI character dialogue.
 
   ```
