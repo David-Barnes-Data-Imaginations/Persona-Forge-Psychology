@@ -1,4 +1,5 @@
 from smolagents import Tool
+import os
 
 
 class RetrieveMetadata(Tool):
@@ -68,15 +69,24 @@ class DocumentLearningInsights(Tool):
         Returns:
             str: Confirmation message including the assigned chunk number.
         """
-        if not self.sandbox:
-            return "Error: Sandbox not available"
-
         # Get chunk number, triple logic temp added for testing
         index_path = "insights/chunk_index.txt"
         try:
-            current_index = int(self.sandbox.files.read(index_path).decode().strip())
-            chunk_number = current_index + 1
-            self.sandbox.files.write(index_path, str(chunk_number).encode())
+            if self.sandbox:
+                current_index = int(self.sandbox.files.read(index_path).decode().strip())
+                chunk_number = current_index + 1
+                self.sandbox.files.write(index_path, str(chunk_number).encode())
+            else:
+                # Local file handling
+                os.makedirs("insights", exist_ok=True)
+                if os.path.exists(index_path):
+                    with open(index_path, 'r') as f:
+                        current_index = int(f.read().strip())
+                    chunk_number = current_index + 1
+                else:
+                    chunk_number = 0
+                with open(index_path, 'w') as f:
+                    f.write(str(chunk_number))
         except:
             chunk_number = 0
 
@@ -125,21 +135,42 @@ class DocumentLearningInsights(Tool):
             }
             
             try:
-                store_data = self.sandbox.files.read(self.agent_notes_store_path).decode()
-                agent_store = json.loads(store_data)
+                if self.sandbox:
+                    store_data = self.sandbox.files.read(self.agent_notes_store_path).decode()
+                    agent_store = json.loads(store_data)
+                else:
+                    # Local file handling
+                    os.makedirs("embeddings", exist_ok=True)
+                    if os.path.exists(self.agent_notes_store_path):
+                        with open(self.agent_notes_store_path, 'r') as f:
+                            agent_store = json.load(f)
+                    else:
+                        agent_store = []
             except:
                 agent_store = []
             
             agent_store.append(chunk_data)
 
             # Save everything
-            self.sandbox.files.write(md_path, md_content.encode())
-            self.sandbox.files.write(json_path, json.dumps(json_content, indent=2).encode())
-            self.sandbox.files.write(index_path, str(chunk_number).encode())
-
-            # Save embeddings as simple JSON
-            store_json = json.dumps(agent_store, indent=2)
-            self.sandbox.files.write(self.agent_notes_store_path, store_json.encode())
+            if self.sandbox:
+                self.sandbox.files.write(md_path, md_content.encode())
+                self.sandbox.files.write(json_path, json.dumps(json_content, indent=2).encode())
+                self.sandbox.files.write(index_path, str(chunk_number).encode())
+                # Save embeddings as simple JSON
+                store_json = json.dumps(agent_store, indent=2)
+                self.sandbox.files.write(self.agent_notes_store_path, store_json.encode())
+            else:
+                # Local file handling
+                os.makedirs("insights", exist_ok=True)
+                with open(md_path, 'w') as f:
+                    f.write(md_content)
+                with open(json_path, 'w') as f:
+                    json.dump(json_content, f, indent=2)
+                with open(index_path, 'w') as f:
+                    f.write(str(chunk_number))
+                # Save embeddings as simple JSON
+                with open(self.agent_notes_store_path, 'w') as f:
+                    json.dump(agent_store, f, indent=2)
 
             return f"Logged and embedded notes for chunk {chunk_number}"
 
@@ -180,15 +211,20 @@ class RetrieveSimilarChunks(Tool):
         Returns:
             list of dict: Each item contains { "chunk": int, "notes": str }
         """
-        if not self.sandbox:
-            return [{"chunk": 0, "notes": "Sandbox not available"}]
-
         import json
         
         # Simple fallback - just return stored notes without similarity search for now
         try:
-            store_data = self.sandbox.files.read("embeddings/agent_notes_store.json").decode()
-            agent_store = json.loads(store_data)
+            if self.sandbox:
+                store_data = self.sandbox.files.read("embeddings/agent_notes_store.json").decode()
+                agent_store = json.loads(store_data)
+            else:
+                # Local file handling
+                if os.path.exists("embeddings/agent_notes_store.json"):
+                    with open("embeddings/agent_notes_store.json", 'r') as f:
+                        agent_store = json.load(f)
+                else:
+                    agent_store = []
             
             # Return first few items limited by num_results
             results = []
@@ -239,8 +275,22 @@ class ValidateCleaningResults(Tool):
             dict: { "logical_issues": [...], "stat_summary": {...}, "suggested_fixes": [...] }
         """
         import json
+        import os
+        
         index_path = "insights/chunk_index.txt"
-        current_index = int(self.sandbox.files.read(index_path).decode().strip())
+        try:
+            if self.sandbox:
+                current_index = int(self.sandbox.files.read(index_path).decode().strip())
+            else:
+                # Local file handling
+                if os.path.exists(index_path):
+                    with open(index_path, 'r') as f:
+                        current_index = int(f.read().strip())
+                else:
+                    current_index = chunk_number
+        except:
+            current_index = chunk_number
+        
         chunk_number = current_index
 
         issues = []
@@ -272,7 +322,15 @@ class ValidateCleaningResults(Tool):
 {json.dumps(suggestions, indent=2)}
 """
 
-        self.sandbox.files.write(f"validation/chunk_{chunk_number}.md", md.encode())
-        self.sandbox.files.write(f"validation/chunk_{chunk_number}.json", json.dumps(summary, indent=2).encode())
+        if self.sandbox:
+            self.sandbox.files.write(f"validation/chunk_{chunk_number}.md", md.encode())
+            self.sandbox.files.write(f"validation/chunk_{chunk_number}.json", json.dumps(summary, indent=2).encode())
+        else:
+            # Local file handling
+            os.makedirs("validation", exist_ok=True)
+            with open(f"validation/chunk_{chunk_number}.md", 'w') as f:
+                f.write(md)
+            with open(f"validation/chunk_{chunk_number}.json", 'w') as f:
+                json.dump(summary, f, indent=2)
 
         return summary

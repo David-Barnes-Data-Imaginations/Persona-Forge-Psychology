@@ -7,9 +7,9 @@ import os
 from dotenv import load_dotenv
 
 class MetadataEmbedder:
-    """Class for embedding metadata and storing them in a sandbox"""
+    """Class for embedding metadata and storing them locally"""
     def __init__(self, sandbox=None):
-        self.sandbox = sandbox
+        self.sandbox = sandbox  # Keep for backward compatibility but use local files
         openai_api_key = os.getenv("OPENAI_API_KEY")
         self.openai_client = OpenAI(api_key=openai_api_key)
 
@@ -22,23 +22,19 @@ class MetadataEmbedder:
         self.agent_notes_store = []
 
     def _check_metadata_exists(self) -> bool:
-        """Check if metadata embeddings already exist in sandbox"""
-        if not self.sandbox:
-            return False
-
+        """Check if metadata embeddings already exist locally"""
         try:
-            # Check if metadata store exists
-            self.sandbox.files.read(self.metadata_store_path)
-            return True
+            # Check if metadata store exists locally
+            return os.path.exists(self.metadata_store_path)
         except:
             return False
 
     def _load_existing_metadata(self):
         """Load existing metadata embeddings"""
         try:
-            # Load metadata store (now includes embeddings)
-            store_data = self.sandbox.files.read(self.metadata_store_path).decode()
-            self.metadata_store = json.loads(store_data)
+            # Load metadata store from local file
+            with open(self.metadata_store_path, 'r') as f:
+                self.metadata_store = json.load(f)
 
             print(f"Loaded existing metadata embeddings: {len(self.metadata_store)} items")
             return True
@@ -57,12 +53,10 @@ class MetadataEmbedder:
 
         print("Creating new metadata embeddings...")
 
-        # Read the metadata file from sandbox
+        # Read the metadata file locally
         try:
-            metadata_content = self.sandbox.files.read(file_path)
-            # Check if it's bytes or string
-            if isinstance(metadata_content, bytes):
-                metadata_content = metadata_content.decode()
+            with open(file_path, 'r', encoding='utf-8') as f:
+                metadata_content = f.read()
         except Exception as e:
             return f"Error reading metadata file: {e}"
 
@@ -96,11 +90,14 @@ class MetadataEmbedder:
         if not embeddings:
             return "Error: No embeddings created"
 
-        # Save to sandbox (embeddings are now stored in metadata_store)
+        # Save locally (embeddings are now stored in metadata_store)
         try:
+            # Ensure embeddings directory exists
+            os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
+            
             # Save metadata store with embeddings
-            store_json = json.dumps(self.metadata_store, indent=2)
-            self.sandbox.files.write(self.metadata_store_path, store_json.encode())
+            with open(self.metadata_store_path, 'w') as f:
+                json.dump(self.metadata_store, f, indent=2)
 
             return f"Successfully embedded metadata file: {len(chunks)} chunks created"
 
@@ -215,10 +212,13 @@ class MetadataEmbedder:
                     continue
 
         if embeddings:
-            # Save updated store with embeddings
+            # Save updated store with embeddings locally
             try:
-                store_json = json.dumps(self.metadata_store, indent=2)
-                self.sandbox.files.write(self.metadata_store_path, store_json.encode())
+                # Ensure embeddings directory exists
+                os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
+                
+                with open(self.metadata_store_path, 'w') as f:
+                    json.dump(self.metadata_store, f, indent=2)
 
             except Exception as e:
                 return f"Error saving tool help embeddings: {e}"

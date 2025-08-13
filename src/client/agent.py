@@ -101,8 +101,8 @@ class CustomAgent:
             tools=self.tools,
             model=model,
             prompt_templates=prompt_templates,
-            additional_authorized_imports=["pandas sqlalchemy scikit-learn statistics smolagents seaborn"],
-            executor_type="e2b",
+            additional_authorized_imports=["pandas", "sqlalchemy", "scikit-learn", "statistics", "smolagents", "seaborn", "random", "itertools", "queue", "math", "io", "numpy", "matplotlib", "plotly"],
+            executor_type="local",  # Use local execution
             use_structured_outputs_internally=True,
             planning_interval=5,
             add_base_tools=True,  # Enable base tools including python_interpreter
@@ -110,8 +110,8 @@ class CustomAgent:
             verbosity_level=2,
         )
         
-        # Copy files from our sandbox to the agent's sandbox
-        self._setup_agent_data()
+        # Files are now local - no need to copy from sandbox
+        # self._setup_agent_data()  # Commented out as files are already local
 
         try:
             test_response = litellm.completion(
@@ -126,33 +126,24 @@ class CustomAgent:
 
 
     def _setup_agent_data(self):
-        """Copy data files from main sandbox to agent's sandbox"""
+        """Setup data files for local execution - files are already local in Docker"""
         try:
-            # Get the agent's executor (sandbox)
-            agent_sandbox = self.agent.python_executor.sandbox
+            # Verify that data files exist locally
+            data_files = [
+                "./src/data/turtle_reviews.csv",
+                "./src/data/turtle_sales.csv", 
+                "./src/data/tg_database.db",
+                "./src/data/metadata/turtle_games_dataset_metadata.md"
+            ]
             
-            # Copy the data files from our sandbox to the agent's sandbox
-            
-            # Copy turtle_reviews.csv
-            turtle_reviews_content = self.sandbox.files.read("/data/turtle_reviews.csv")
-            agent_sandbox.files.write("/data/turtle_reviews.csv", turtle_reviews_content)
-            
-            # Copy turtle_sales.csv  
-            turtle_sales_content = self.sandbox.files.read("/data/turtle_sales.csv")
-            agent_sandbox.files.write("/data/turtle_sales.csv", turtle_sales_content)
-            
-            # Copy database file
-            db_content = self.sandbox.files.read("/data/tg_database.db")
-            agent_sandbox.files.write("/data/tg_database.db", db_content)
-            
-            # Copy metadata file
-            metadata_content = self.sandbox.files.read("/data/metadata/turtle_games_dataset_metadata.md")
-            agent_sandbox.files.write("/data/metadata/turtle_games_dataset_metadata.md", metadata_content)
-            
-            print("✅ Successfully copied data files to agent's sandbox")
-            
+            for file_path in data_files:
+                if os.path.exists(file_path):
+                    print(f"✅ Found: {file_path}")
+                else:
+                    print(f"❌ Missing: {file_path}")
+                    
         except Exception as e:
-            print(f"⚠️ Warning: Could not copy files to agent sandbox: {str(e)}")
+            print(f"⚠️ Warning: Error checking data files: {str(e)}")
 
     def run(self, task: str, images=None, stream=False, reset=False, additional_args=None):
         print(f"🔍 Agent.run called with task: '{task}', agentic_mode: {self.is_agentic_mode}")
@@ -226,14 +217,13 @@ Once all chunks are cleaned, I will print the dataframe and submit "Dataframe cl
 """
 
 
-
     def return_to_chat_mode(self):
         """Return to chat mode after agentic workflow completes"""
         self.is_agentic_mode = False
         return "✅ Analysis complete! I'm back in chat mode. Feel free to ask me questions about the analysis or request new tasks."
 
     def cleanup(self):
-        """Clean up agent resources including E2B sandbox."""
+        """Clean up agent resources."""
         try:
             if hasattr(self.agent, 'cleanup'):
                 self.agent.cleanup()
