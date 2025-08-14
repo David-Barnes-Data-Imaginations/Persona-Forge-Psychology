@@ -71,12 +71,11 @@ class StepController:
             self.ready.set()  # Unblock any pending waits
 
 class CustomAgent:
-    """Custom agent wrapper that configures ToolCallingAgent with our tools and settings"""
-
-    def __init__(self, tools: List[Tool] = None, sandbox=None, metadata_embedder=None, model_id=None, executor=None):
+    def __init__(self, tools: List[Tool] = None, sandbox=None, metadata_embedder=None, model_id=None, executor=None, ollama_host="localhost"):
         self.metadata_embedder = metadata_embedder
         self.tools = tools or []
         self.is_agentic_mode = False
+        self.ollama_host = ollama_host  # Store the Ollama host
 
         """Custom agent wrapper that configures ToolCallingAgent with our tools and settings"""
 
@@ -89,7 +88,7 @@ class CustomAgent:
 
         model = LiteLLMModel(
             model_id=model_id,
-            api_base="http://localhost:11434",  # still valid
+            api_base=f"http://{ollama_host}:11434",  # Use the configured Ollama host
             api_key="dummy",                   # fine for Ollama
             num_ctx=8192                        # fine to override context
         )
@@ -115,9 +114,9 @@ class CustomAgent:
 
         try:
             test_response = litellm.completion(
-                model="ollama/qwen2.5-coder:32b",
+                model="ollama/gpt-oss:20b",
                 messages=[{"role": "user", "content": "." }],
-                api_base="http://localhost:11434",
+                api_base=f"http://{ollama_host}:11434",  # Use the configured Ollama host here too
                 stream=False
             )
             print("✅ Ollama test response:", test_response['choices'][0]['message']['content'])
@@ -176,20 +175,20 @@ class CustomAgent:
         try:
             # Get the model_id from the agent's model
             model_id = self.agent.model.model_id
-            
+
             response = litellm.completion(
                 model=model_id,
                 messages=[{"role": "user", "content": task}],
-                api_base="http://localhost:11434",
+                api_base=f"http://{self.ollama_host}:11434",  # Use the stored Ollama host
                 stream=stream
             )
-            
+
             if stream:
                 return response
             else:
                 return response['choices'][0]['message']['content']
         except Exception as e:
-            return f"Error in chat mode: {str(e)}"
+         return f"Error in chat mode: {str(e)}"
 
     def handle_agentic_mode(self, task: str, images=None, stream=False, reset=False, additional_args=None):
         """Handle agentic workflow execution"""

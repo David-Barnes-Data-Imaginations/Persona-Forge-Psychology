@@ -69,35 +69,37 @@ def start_ollama_server_background() -> Optional[subprocess.Popen]:
         return None
 
 
-def pull_model(model_name: str, host: str = "localhost", port: int = 11434) -> bool:
-    """Pull a model if it doesn't exist"""
+def pull_model(model_name: str, host: str = "localhost", port: int = 11434, timeout: int = 300) -> bool:
+    """Pull a model from Ollama if not already present"""
     try:
+        print(f"📥 Checking if model {model_name} is already pulled...")
+        
         # Check if model exists
-        models = get_available_models(host, port)
-        existing_models = [model['name'] for model in models]
-
-        if model_name in existing_models or f"{model_name}:latest" in existing_models:
-            print(f"✅ Model {model_name} already available")
-            return True
-
+        response = requests.get(f"http://{host}:{port}/api/tags", timeout=10)
+        if response.status_code == 200:
+            models = response.json().get("models", [])
+            for model in models:
+                if model.get("name") == model_name:
+                    print(f"✅ Model {model_name} is already pulled")
+                    return True
+        
+        # If we get here, need to pull model
         print(f"📥 Pulling model {model_name}...")
-
-        # Pull the model
-        process = subprocess.run(
-            ["ollama", "pull", model_name],
-            capture_output=True,
-            text=True
+        response = requests.post(
+            f"http://{host}:{port}/api/pull",
+            json={"name": model_name},
+            timeout=timeout
         )
-
-        if process.returncode == 0:
+        
+        if response.status_code == 200:
             print(f"✅ Successfully pulled model {model_name}")
             return True
         else:
-            print(f"❌ Failed to pull model {model_name}: {process.stderr}")
+            print(f"❌ Failed to pull model {model_name}: {response.text}")
             return False
-
-    except Exception as e:
-        print(f"❌ Error pulling model {model_name}: {e}")
+            
+    except requests.RequestException as e:
+        print(f"❌ Error pulling model {model_name}: {str(e)}")
         return False
 
 
@@ -161,5 +163,3 @@ def chat_completion(
     except Exception as e:
         print(f"❌ Error generating chat completion: {e}")
     return ""
-
-            

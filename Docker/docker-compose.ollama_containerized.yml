@@ -5,7 +5,10 @@ services:
       dockerfile: Docker/Dockerfile
     image: persona-forge:latest
     container_name: persona-forge
-    network_mode: "host"  # This gives direct access to host network
+    ports:
+      - "7860:7860"   # Gradio interface
+      - "8000:8000"   # FastAPI if needed
+      - "11434:11434" # Ollama server
     
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -13,7 +16,19 @@ services:
       - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
       - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
       - PYTHONUNBUFFERED=1
-      - USE_HOST_OLLAMA=true
-      - OLLAMA_HOST=localhost  # Use localhost since we're using host network mode
     
     command: ["python", "main.py"]
+
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-server
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+volumes:
+  ollama_data:
