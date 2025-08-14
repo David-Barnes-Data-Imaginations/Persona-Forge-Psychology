@@ -9,8 +9,7 @@
 ---
 **For 'Techies' or those learning to build 'Advanced Agentic Systems':**
 - The code from my 'Agent Runner' 🏃 [smolagents 'Test & Trace' Dev-Environment](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) is currently placed in this repo, with the [SentimentSuite](https://github.com/David-Barnes-Data-Imaginations/SentimentSuite) added in.
-- The 'Agent Runner'🏃 can be tailoured to practically any task, using adaptations to the 'Prompt Templates and 'Tools', leveraging core 'Hugging Face - Spaces', MCP (I removed as it was out of scope), custom trained LLM or a 'Founder Model' backend. I'll make those updates when i've completed the current 'Scope-Testing' phase.
-- The final element of coding is for the 'Knowledge-Graphs' using Cypher, i'll cover the process in the second half of the document aimed at technical readers.
+- The 'Agent Runner'🏃 can be tailoured to practically any task, using adaptations to the 'Prompt Templates and 'Tools', leveraging core 'Hugging Face - Spaces', MCP (I removed as it was out of scope), custom trained LLM or a 'Founder Model' backend. 
 - At the very bottom is the 'Safety & Ethics' section, outlining how to run experiments with the incredibly powerful 'Smolagents' library, in a safe dev environment. This also contains advice on _how to learn_ 'SmolAgents' most powerful 'CodeAgent' functionality.
 - Topics covered
 ---
