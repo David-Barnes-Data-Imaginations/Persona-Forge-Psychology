@@ -17,8 +17,8 @@
 # TODO's (Redone after a file saving mishap)
 1. ~Finish Simulated-therapy script~
 2. ~Replace E2b with Docker containerization~ (pushed to repo now, boots much faster)
-3. ~Add example risk-register / considerations for production environments
-4. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation.
+3. ~Add example risk-register / considerations for production environments~
+4. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation. **(WIP)**
 5. Test AI schema tagging, schema and a selection of models to optimize GPU usage.
 6. Generate schema instructions 'for AI, by AI' using GPT5.
 7. Finalise Graph schema and test data collection methods to test.
@@ -58,7 +58,7 @@ There are two main elements, three AI models involved, a bunch of UI/Interface t
 ## AI Models:
 
 ### Local (stressed for importance of privacy):
-  Cirumus/ ModernBert Psychology focussed model (possibly obsolete due to technology improvements), 1 agentic local model (likely GPT-oss or Gemma3) using an adaptation of my [smolagents framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) to implement automation, transcription and anonomizing of data etc. 
+  Cirumus/ ModernBert Psychology focussed model (possibly obsolete due to technology improvements), 1 agentic local model (likely GPT-oss or Gemma3) using an adaptation of my [smolagents agentic runner framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) to implement automation, transcription and anonomizing of data etc. 
   Additionaly it can do 'basic psychological assessment' and 'Graph-RAG' storage/retrieval, preparing the information to send for anonymous psychological profiling with GPT5 or a tuned local model (Llama 405B or equiv).
   
 ### Non-Local - Psychological Profiling:
@@ -67,23 +67,63 @@ There are two main elements, three AI models involved, a bunch of UI/Interface t
 ## Interface & Process:
   The therapist dashboard includes results along with AI inference for retrieval of information and can be used via web or mobile app (out of scope until tbc). 
   
-  Transcription: Dependant on scope, the local model can be used for transcription or summarisation, labelling the text as 'Therapist 1' (for example) and 'Client 345'. 
-  Example _local_ model setup:
+- *Note*: If you've not heard of knowledge graphs, they are vector based (as are LLM's and RAG's) graphs which are incredibly fast for data retrieval (Google uses it for its search). Most note-taking tools use them to connect your notes, but my 'go-to' LogSeq gives you a tab to view your notes and their relations. See 'Psychology Framework Section'
+
+Example Agentic Framework / Responsibilities
+
+### 1. Sandbox / Secure Container - _AI Clinical & Patient‑Care Assistant_
+
+  **Primary role:** Collects and organises patient‑related data from multiple sources.  
   
-   1. Stores in Database. Tags the text ('Utterances', 'history', 'allergies', 'care requests' etc..)
-   2. Sends formatted results and historical results to or local 'Psychology trained' large model.
-   3. Large model analyses using the chosen psychology frameworks (see 'Psychology Demonstration').
-   4. Returns analysis and tagged text to the local smolagent runner
-   5. Runner populates knowledge Graph and stores in RAG:
+  | Function | Example Use Case |
+  |---|---|
+  | **Transcription** | Converts speech to text during therapy, labelling speakers (e.g. "Therapist 1" / "Client 345"). |
+  | **Environment & Behavioural Logging** | Identifies patterns from conversations or environmental sensors. |
+  | **Daily Care Automation** | Room ambience control, temperature adjustment, reminders for medication or routines. |
+  | **Therapeutic Assistance** | Guided meditation, light CBT / ACT, activity prompts. |
+  | **Visual AI Monitoring** | Camera‑based emergency detection, spotting subtle risks faster than humans. |
+  
+**All collected data is securely passed to Sandbox 2**.  
+  
+---
 
-   - The High/Median/Low of 23 detected emotions in a knowledge graph. Each session has its own branch (within the patients node) so patterns & transitions over time, can be matched via frameworks
-- 6. Send data to dashboard
-- 7. The entire app boots from a persistent docker for info and AI security. May have Kubernetes for model rotation if that becomes required.
+### 2. Sandbox / Secure Container – _The Storage Manager_
+  
+  **Primary role:** Organises, tags, and connects information for later analysis.  
+  
+  | Function | Example Use Case |
+  |---|---|
+  | **Database & Graph‑RAG Storage** | Stores structured & unstructured data with tags like "utterance", "allergy", "care request". |
+  | **Dynamic Note‑Taking** | Automatically generates RAG‑ready summaries using the [smolagents agentic runner](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist). |
+  | **Emotional Mapping** | Tracks emotional highs, medians, and lows across sessions for 23 detected emotions, stored in a graph per patient over time. |
+  | **Result Packaging** | Formats summaries and history for Sandbox 3. |
+  
+---
+### 3. Sandbox / Secure Container –  _The Architect_
+  
+  **Primary role:** Performs deep analysis and provides insights to clinicians.  
+  
+  | Function | Example Use Case |
+  |---|---|
+  | **Advanced Analysis** | Applies chosen psychology/therapy frameworks to patient data. |
+  | **Clinical Knowledge Access** | Retrieves relevant research, best practices, and AI‑generated recommendations. |
+  | **Schema Verification** | Checks consistency and compliance in stored data. |
+  | **Feedback Loop** | Sends adjustment instructions back to Storage Manager if needed. |
+  | **Dashboard Management** | Maintains the primary clinician interface. |
+  | **Performance Review** | Monitors AI assistants and provides human‑readable performance feedback. |
+  
+---
 
-- *Note*: If you've not heard of knowledge graphs, they are vector based (as are LLM's and RAG's) graphs which are incredibly fast for data retrieval (Google uses it for its search). Most note-taking tools use them to connect your notes, but my 'go-to' LogSeq gives you a tab to view your notes and their relations. See 'Psychology
+### **Why This Sparks Possibilities**
+- **Layered Safety:** Each sandbox can run on different machines or even in different physical locations, reducing breach impact.
+- **Customisable Depth:** A sole‑practitioner therapist might use only Sandbox 1 & 2, while a hospital could run all three with specialised modules.
+- **Scalable AI Roles:** From a calm bedside assistant to a multi‑modal analyst combining speech, text, and video.
+- **Human in the Loop:** Designed for augmentation, not replacement, allowing clinicians to direct the AI’s focus whilst recieving _powerful augmentations_.
 
-- ### UI Therapist/Hospital:
-- The UI has the dashboard with the various graphs used, you can see an older version of the dashboard  (minus ModernBert utterance tagging) front-end on my git repo 'https://github.com/David-Barnes-Data-Imaginations/SentimentSuite'.
+---
+
+### UI Therapist/Hospital:
+- The UI has the dashboard with the various graphs used, you can see an older version of the dashboard (minus ModernBert utterance tagging) front-end on my git repo 'https://github.com/David-Barnes-Data-Imaginations/SentimentSuite'.
 - The Gradio interface from my smolagents will be added to the dash for:
   
   a) Chat-bot input for surveys / forms / transcription. Forms can be verbal or typed.  
@@ -103,7 +143,7 @@ There are two main elements, three AI models involved, a bunch of UI/Interface t
 GPT-4o: **Actually, let’s do more than a demo** — let’s show what it looks like when a language model isn’t just reading your words, but *mapping your mind*.
 
   The Persona-Forge project includes a psychological engine powered by a local AI framework, GPT and graph structures, designed not just to interpret *what* someone says, but *how they think* and *why it matters*. We leverage two foundational frameworks:
-- ### 1.  **Cognitive Distortion Detection**  (from CBT)
+### 1.  **Cognitive Distortion Detection**  (from CBT)
 
   This identifies irrational patterns in thought, like:
 - **Catastrophising**: "This will be a disaster."
@@ -135,7 +175,8 @@ CBT remains the gold standard for detecting irrational thoughts like catastrophi
   This means we can *automate gentle rewordings*, show a therapist a client's bias frequency over time, or track a character’s descent into distorted thinking across a time arc.
 
 ---
-- ### 2.  **Erikson’s Psychosocial Development Model**
+
+### 2.  **Erikson’s Psychosocial Development Model**
 
   Used to infer *life-stage context* and help anchor narratives.
 
@@ -332,7 +373,9 @@ Graph Example:
   And it’s only just beginning.
 
   *(Human prompt, AI mindmap, and joint authorship: a fusion we call ethical augmentation.)*
+  
 ---
+
 ### Thanks GPT. I'm adding other features being 'scoped for testing' below as I work through them. 
 
 > Despite having spent two years 'geeking out' on AI, in recent weeks I've found this project opening my eye's to new avenues of possibility on a daily basis whilst I test to a more specific purpose. 
@@ -709,7 +752,7 @@ There are two main elements, three AI models involved, a bunch of UI/Interface t
 - *Note*: If you've not heard of knowledge graphs, they are vector based (as are LLM's and RAG's) graphs which are incredibly fast for data retrieval (Google uses it for its search). Most note-taking tools use them to connect your notes, but my 'go-to' LogSeq gives you a tab to view your notes and their relations. See 'Psychology
 
 - ### UI Therapist/Hospital:
-- The UI has the dashboard with the various graphs used, you can see an older version of the dashboard  (minus ModernBert utterance tagging) front-end on my git repo 'https://github.com/David-Barnes-Data-Imaginations/SentimentSuite'.
+- The UI has the dashboard with the various graphs used, you can see an older version of the dashboard  (minus ModernBert utterance tagging) front-end on my git [Psychology Sentiment Suite]'https://github.com/David-Barnes-Data-Imaginations/SentimentSuite'.
 - The Gradio interface from my smolagents will be added to the dash for:
   
   a) Chat-bot input for surveys / forms / transcription. Forms can be verbal or typed.  
