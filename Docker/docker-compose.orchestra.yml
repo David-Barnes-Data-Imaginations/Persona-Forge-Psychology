@@ -1,0 +1,23 @@
+# docker-compose.yml (orchestrator only)
+services:
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile
+    image: persona-forge:latest
+    container_name: persona-forge
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - HF_TOKEN=${HF_TOKEN}
+      - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
+      - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
+      - OLLAMA_HOST=${OLLAMA_HOST:-host.docker.internal}
+    volumes:
+      - ./:/app:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # allow orchestrator to manage exec containers
+      - ./src/data:/app/src/data:ro
+      - ./states:/app/states:rw
+      - ./embeddings:/app/embeddings:rw
+    ports:
+      - "7860:7860"
+    command: ["python", "main.py"]

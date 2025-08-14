@@ -1,11 +1,13 @@
 import asyncio, os, base64
-from fastapi import FastAPI, Request
+# from fastapi import FastAPI, Request
+# Python
+from src.executors.docker_python_executor import DockerPythonExecutor, DockerSandboxConfig
 from src.client.telemetry import TelemetryManager
 from src.utils.metadata_embedder import MetadataEmbedder
 from src.client.agent import ToolFactory, CustomAgent
 from src.client.ui.chat import GradioUI as gradio_ui
 from src.utils.ollama_utils import check_ollama_server, wait_for_ollama_server, start_ollama_server_background, pull_model
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 HF_TOKEN = os.getenv('HF_TOKEN')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -45,7 +47,7 @@ def main():
 
     # Create agent, tool factory and tools
     print("🛠️ Creating tools...")
-    tool_factory = ToolFactory(sandbox=None, metadata_embedder=metadata_embedder)  # No sandbox needed
+    tool_factory = ToolFactory(sandbox=None, metadata_embedder=metadata_embedder)
     tools = tool_factory.create_all_tools()
 
     # Embed tool help notes
@@ -53,7 +55,36 @@ def main():
     help_result = metadata_embedder.embed_tool_help_notes(tools)
     print(f"Tool help embedding result: {help_result}")
 
-    # Check if we should use the host's Ollama server
+    # Persistent executor container for Agent 1
+    exec1 = DockerPythonExecutor(
+        DockerSandboxConfig(
+            image="python:3.13-slim",
+            container_name="agent-exec-1",
+            workdir="/workspace",
+            user="nobody",
+            env={
+                "HF_TOKEN": os.getenv("HF_TOKEN", ""),
+                "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY", ""),
+            },
+            # Mount your project data read-only, and a dedicated work dir read-write
+            volumes={
+                os.path.abspath("./src/data"): {"bind": "/workspace/data", "mode": "ro"},
+                os.path.abspath("./states"): {"bind": "/workspace/states", "mode": "rw"},
+                os.path.abspath("./embeddings"): {"bind": "/workspace/embeddings", "mode": "rw"},
+            },
+            mem_limit="1g",
+            cpu_quota=100000,   # 1 CPU
+            pids_limit=256,
+            security_opt=("no-new-privileges",),
+            cap_drop=("ALL",),
+            read_only=False,    # set True if your code doesn’t need to write outside bind mounts
+            manage_container=True,
+            install_cmd="python -m pip install --upgrade pip && pip install --no-cache-dir pandas numpy matplotlib seaborn scikit-learn sqlalchemy plotly",
+        )
+    )
+
+
+# Check if we should use the host's Ollama server
     use_host_ollama = os.getenv("USE_HOST_OLLAMA", "").lower() == "true"
     
     if use_host_ollama:
@@ -76,18 +107,20 @@ def main():
     pull_model("gpt-oss:20b", host=OLLAMA_HOST)
 
     # Create agent with context manager support for cleanup
-    agent = CustomAgent(
+    agent1 = CustomAgent(
         tools=tools,
-        sandbox=None,  # No sandbox needed for local execution
+        sandbox=None,
         metadata_embedder=metadata_embedder,
-        model_id="gemma3:12b",
-        ollama_host=OLLAMA_HOST  # Pass the Ollama host to the agent
+        model_id="gpt-oss:20b",
+        ollama_host=os.getenv("OLLAMA_HOST", "localhost"),
+        python_executor=exec1,
     )
-    agent.telemetry = TelemetryManager()
+
+    agent1.telemetry = TelemetryManager()
 
     # Initialize chat interface using your custom GradioUI
     print("🌐 Initializing Gradio interface...")
-    ui = gradio_ui(agent)  # Pass the CustomAgent instance here!
+    ui = gradio_ui(agent1)  # Pass the CustomAgent instance here!
 
     print("✅ Application startup complete!")
 
@@ -99,10 +132,11 @@ def main():
     finally:
         # Cleanup agent resources
         print("🧹 Cleaning up agent resources...")
-        agent.cleanup()
+        agent1.cleanup()  # <-- was `agent.cleanup()`, correct to `agent1`
         if ollama_process:
             ollama_process.terminate()
         print("👋 Goodbye!")
+
 
 
 if __name__ == "__main__":

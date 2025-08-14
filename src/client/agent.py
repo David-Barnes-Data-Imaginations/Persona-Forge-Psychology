@@ -1,9 +1,9 @@
 import datetime
 import asyncio  # Add this
 import json     # Add this
-from smolagents import CodeAgent, PromptTemplates
+from smolagents import CodeAgent, PromptTemplates, Tool
 from smolagents.models import LiteLLMModel
-from typing import List, Any, AsyncGenerator
+from typing import List, Any, AsyncGenerator, Optional
 from smolagents import Tool
 from src.utils.prompts import CA_SYSTEM_PROMPT, DB_SYSTEM_PROMPT, PLANNING_INITIAL_FACTS, PLANNING_INITIAL_PLAN, \
     PLANNING_UPDATE_FACTS_PRE, PLANNING_UPDATE_FACTS_POST, PLANNING_UPDATE_PLAN_PRE, PLANNING_UPDATE_PLAN_POST, \
@@ -11,6 +11,7 @@ from src.utils.prompts import CA_SYSTEM_PROMPT, DB_SYSTEM_PROMPT, PLANNING_INITI
 import litellm
 from typing import Generator
 from smolagents.agent_types import AgentText
+import os
 
 from smolagents.local_python_executor import LocalPythonExecutor
 
@@ -71,44 +72,61 @@ class StepController:
             self.ready.set()  # Unblock any pending waits
 
 class CustomAgent:
-    def __init__(self, tools: List[Tool] = None, sandbox=None, metadata_embedder=None, model_id=None, executor=None, ollama_host="localhost"):
+    def __init__(
+            self,
+            tools: Optional[List[Tool]] = None,
+            sandbox=None,
+            metadata_embedder=None,
+            model_id: Optional[str] = None,
+            ollama_host: str = "localhost",
+            python_executor=None,
+    ):
         self.metadata_embedder = metadata_embedder
         self.tools = tools or []
         self.is_agentic_mode = False
-        self.ollama_host = ollama_host  # Store the Ollama host
+        self.sandbox = sandbox
+        self.ollama_host = ollama_host  # <-- ensure this is set so handle_chat_mode can use it
 
-        """Custom agent wrapper that configures ToolCallingAgent with our tools and settings"""
-
-        if model_id is None:
-            model_id = "gpt-oss:20b"
-
-        # Ensure correct LiteLLM + Ollama model name format
+        model_id = model_id or "gpt-oss:20b"
         if not model_id.startswith("ollama/"):
             model_id = f"ollama/{model_id}"
 
         model = LiteLLMModel(
             model_id=model_id,
-            api_base=f"http://{ollama_host}:11434",  # Use the configured Ollama host
-            api_key="dummy",                   # fine for Ollama
-            num_ctx=8192                        # fine to override context
+            api_base=f"http://{ollama_host}:11434",
+            api_key="dummy",
+            num_ctx=8192,
         )
 
-        # Store sandbox reference for tools to use
-        self.sandbox = sandbox
-        
         self.agent = CodeAgent(
             tools=self.tools,
             model=model,
             prompt_templates=prompt_templates,
-            additional_authorized_imports=["pandas", "sqlalchemy", "scikit-learn", "statistics", "smolagents", "seaborn", "random", "itertools", "queue", "math", "io", "numpy", "matplotlib", "plotly"],
-            executor_type="local",  # Use local execution
-            use_structured_outputs_internally=True,
+            additional_authorized_imports=[
+                "pandas",
+                "sqlalchemy",
+                "scikit-learn",
+                "statistics",
+                "smolagents",
+                "seaborn",
+                "random",
+                "itertools",
+                "queue",
+                "math",
+                "io",
+                "numpy",
+                "matplotlib",
+                "plotly",
+            ],
+            python_executor=python_executor,
+            add_base_tools=True,
             planning_interval=5,
-            add_base_tools=True,  # Enable base tools including python_interpreter
             max_steps=30,
             verbosity_level=2,
         )
-        
+
+
+
         # Files are now local - no need to copy from sandbox
         # self._setup_agent_data()  # Commented out as files are already local
 

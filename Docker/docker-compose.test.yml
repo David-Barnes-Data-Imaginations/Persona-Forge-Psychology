@@ -1,19 +1,27 @@
+# YAML
 services:
-  data-agent:
+  orchestrator:
     build:
-      context: ..
-      dockerfile: Docker/Dockerfile
+      context: ..                 # project root (one level up from this compose file)
+      dockerfile: Docker/Dockerfile  # path relative to the context
     image: persona-forge:latest
     container_name: persona-forge
-    network_mode: "host"  # This gives direct access to host network
-    
+    user: "0:0"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - HF_TOKEN=${HF_TOKEN}
       - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
       - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
-      - PYTHONUNBUFFERED=1
-      - USE_HOST_OLLAMA=true
-      - OLLAMA_HOST=localhost  # Use localhost since we're using host network mode
-    
+      - OLLAMA_HOST=${OLLAMA_HOST:-host.docker.internal}
+      - USE_DOCKER_EXECUTOR=true
+    volumes:
+      - ..:/app:rw,Z
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ../src/data:/app/src/data:ro,Z
+      - ../states:/app/states:rw,Z
+      - ../embeddings:/app/embeddings:rw,Z
+
+    ports:
+      - "7860:7860"
     command: ["python", "main.py"]
+
