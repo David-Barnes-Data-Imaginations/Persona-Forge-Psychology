@@ -9,7 +9,7 @@
 ---
 **For 'Techies' or those learning to build 'Advanced Agentic Systems':**
 - The code from my 'Agent Runner' 🏃 [smolagents 'Test & Trace' Dev-Environment](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) is currently placed in this repo, with the [SentimentSuite](https://github.com/David-Barnes-Data-Imaginations/SentimentSuite) added in.
-- The 'Agent Runner'🏃 can be tailoured to practically any task, using adaptations to the 'Prompt Templates and 'Tools', leveraging core 'Hugging Face - Spaces', MCP (I removed as it was out of scope), custom trained LLM or a 'Founder Model' backend.
+- The 'Agent Runner'🏃 can be tailoured to practically any task, using adaptations to the 'Prompt Templates and 'Tools', leveraging core 'Hugging Face - Spaces', MCP (I removed as it was out of scope), custom trained LLM or a 'Founder Model' backend. 
 - At the very bottom is the 'Safety & Ethics' section, outlining how to run experiments with the incredibly powerful 'Smolagents' library, in a safe dev environment. This also contains advice on _how to learn_ 'SmolAgents' most powerful 'CodeAgent' functionality.
 - Whilst this project has a specific goal / subject, the architecture has intentionally been built to be flexible enough so that it can be easily transferrable to other domains. These might include: Housing, Information Security or general business / government organizations.
 ---
@@ -34,7 +34,7 @@
 # The Persona-Forge
 - The Persona-Forge has been a project of mine for close to two years, 'evolving' as I have 'pivoted' towards new tech and ideas.
   > Hear the concept of 'pivoting in AI' from one of the 'Godfathers of AI' - Andrew Ng from around '7:50' [here](https://www.youtube.com/watch?v=RNJCfif1dPY).
-
+  
 - It began as a simple ideas to map personalities of anything from video games, to my own persona, using 'Knowledge Graphs' to map out 'Personality Constructs', or 'Persona'. Mapping include 'speaking tone' & 'vocabulary', profiling frameworks (e.g. 'Myers Briggs', history (e.g. key events in a persons life, and the emotions they trigger) and even metaphor or common phrase types that the character uses.
 - My lifelong passion for Psychology, the incredible pace of AI advancement, and my preference for 'altruistic projects' caused me to pivot to a more spoecific goal. The pivot was also inspired by the realization that it could be achieved by simply merging three of my portfolio projects and a LOT of testing.
 - AI Building is primarily focussed on testing. I've spent hundreds of hours just testing the capabilities of small models by querying them on topics, however for a 'production' environment you'd want to test and tune over _at least_ one year).
@@ -51,65 +51,65 @@ This version of the Persona-Forge is designed to help therapists and mental heal
 There are two main elements, three AI models involved, a bunch of UI/Interface tools and many hours of research:
 
 ## Elements:
-1. To modernize Psychology, by providing the superhuman pattern matching and profiling abilities of AI, for Therapists and Hospitals. This enhances insights for better work, _benefits_ the care for patients, and help therapists learn from their own techniques. It cannot be stressed enough that this does not aim to 'replace' human therapists, clinicians or their current methods. 'It's 'AI - Human augmentation via fusion'. _How_ this actually functions on a 'practical' / 'daily' level is still under intense scrutiny. The reason is the same reason that I love to build AI, I do _extensive_ testing (makes up about 70% of the work), and I'm being so blown away with idea's and possibilities I hadn't percieved, simultaneaously pivoting away from others that I thought _might_ work.
-2. Modernizing patient interactions to streamlined automation processes that remove pen & paper based tools, again freeing up staff resources to care for patients more effectively.
+   1. To modernize Psychology, by providing the superhuman pattern matching and profiling abilities of AI, for Therapists and Hospitals. This enhances insights for better work, _benefits_ the care for patients, and help therapists learn from their own techniques. It cannot be stressed enough that this does not aim to 'replace' human therapists, clinicians or their current methods. 'It's 'AI - Human augmentation via fusion'. _How_ this actually functions on a 'practical' / 'daily' level is still under intense scrutiny. The reason is the same reason that I love to build AI, I do _extensive_ testing (makes up about 70% of the work), and I'm being so blown away with idea's and possibilities I hadn't percieved, simultaneaously pivoting away from others that I thought _might_ work.
+   2. Modernizing patient interactions to streamlined automation processes that remove pen & paper based tools, again freeing up staff resources to care for patients more effectively.
 
 ## AI Models:
 
 ### Local (stressed for importance of privacy):
-Cirumus/ ModernBert Psychology focussed model (possibly obsolete due to technology improvements), 1 agentic local model (likely GPT-oss or Gemma3) using an adaptation of my [smolagents agentic runner framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) to implement automation, transcription and anonomizing of data etc.
-Additionaly it can do 'basic psychological assessment' and 'Graph-RAG' storage/retrieval, preparing the information to send for anonymous psychological profiling with GPT5 or a tuned local model (Llama 405B or equiv).
-
+  Cirumus/ ModernBert Psychology focussed model (possibly obsolete due to technology improvements), 1 agentic local model (likely GPT-oss or Gemma3) using an adaptation of my [smolagents agentic runner framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) to implement automation, transcription and anonomizing of data etc. 
+  Additionaly it can do 'basic psychological assessment' and 'Graph-RAG' storage/retrieval, preparing the information to send for anonymous psychological profiling with GPT5 or a tuned local model (Llama 405B or equiv).
+  
 ### Non-Local - Psychological Profiling:
-GPT 5 - Does the main analysis (see Psychology Frameworks), highlighting caution or concerns about the patient. Sends back to local agent to record. GPT is incredible at Psychology, OpenAI is doing fantastic work in that direction.
-
+  GPT 5 - Does the main analysis (see Psychology Frameworks), highlighting caution or concerns about the patient. Sends back to local agent to record. GPT is incredible at Psychology, OpenAI is doing fantastic work in that direction.
+  
 ## Interface & Process:
-The therapist dashboard includes results along with AI inference for retrieval of information and can be used via web or mobile app (out of scope until tbc).
-
+  The therapist dashboard includes results along with AI inference for retrieval of information and can be used via web or mobile app (out of scope until tbc). 
+  
 - *Note*: If you've not heard of knowledge graphs, they are vector based (as are LLM's and RAG's) graphs which are incredibly fast for data retrieval (Google uses it for its search). Most note-taking tools use them to connect your notes, but my 'go-to' LogSeq gives you a tab to view your notes and their relations. See 'Psychology Framework Section'
 
 Example Agentic Framework / Responsibilities
 
 ### 1. Sandbox / Secure Container - _AI Clinical & Patient‑Care Assistant_
 
-**Primary role:** Collects and organises patient‑related data from multiple sources.
-
-| Function | Example Use Case |
+  **Primary role:** Collects and organises patient‑related data from multiple sources.  
+  
+  | Function | Example Use Case |
   |---|---|
-| **Transcription** | Converts speech to text during therapy, labelling speakers (e.g. "Therapist 1" / "Client 345"). |
-| **Environment & Behavioural Logging** | Identifies patterns from conversations or environmental sensors. |
-| **Daily Care Automation** | Room ambience control, temperature adjustment, reminders for medication or routines. |
-| **Therapeutic Assistance** | Guided meditation, light CBT / ACT, activity prompts. |
-| **Visual AI Monitoring** | Camera‑based emergency detection, spotting subtle risks faster than humans. |
-
-**All collected data is securely passed to Sandbox 2**.
+  | **Transcription** | Converts speech to text during therapy, labelling speakers (e.g. "Therapist 1" / "Client 345"). |
+  | **Environment & Behavioural Logging** | Identifies patterns from conversations or environmental sensors. |
+  | **Daily Care Automation** | Room ambience control, temperature adjustment, reminders for medication or routines. |
+  | **Therapeutic Assistance** | Guided meditation, light CBT / ACT, activity prompts. |
+  | **Visual AI Monitoring** | Camera‑based emergency detection, spotting subtle risks faster than humans. |
+  
+**All collected data is securely passed to Sandbox 2**.  
   
 ---
 
 ### 2. Sandbox / Secure Container – _The Storage Manager_
-
-**Primary role:** Organises, tags, and connects information for later analysis.
-
-| Function | Example Use Case |
+  
+  **Primary role:** Organises, tags, and connects information for later analysis.  
+  
+  | Function | Example Use Case |
   |---|---|
-| **Database & Graph‑RAG Storage** | Stores structured & unstructured data with tags like "utterance", "allergy", "care request". |
-| **Dynamic Note‑Taking** | Automatically generates RAG‑ready summaries using the [smolagents agentic runner](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist). |
-| **Emotional Mapping** | Tracks emotional highs, medians, and lows across sessions for 23 detected emotions, stored in a graph per patient over time. |
-| **Result Packaging** | Formats summaries and history for Sandbox 3. |
+  | **Database & Graph‑RAG Storage** | Stores structured & unstructured data with tags like "utterance", "allergy", "care request". |
+  | **Dynamic Note‑Taking** | Automatically generates RAG‑ready summaries using the [smolagents agentic runner](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist). |
+  | **Emotional Mapping** | Tracks emotional highs, medians, and lows across sessions for 23 detected emotions, stored in a graph per patient over time. |
+  | **Result Packaging** | Formats summaries and history for Sandbox 3. |
   
 ---
 ### 3. Sandbox / Secure Container –  _The Architect_
-
-**Primary role:** Performs deep analysis and provides insights to clinicians.
-
-| Function | Example Use Case |
+  
+  **Primary role:** Performs deep analysis and provides insights to clinicians.  
+  
+  | Function | Example Use Case |
   |---|---|
-| **Advanced Analysis** | Applies chosen psychology/therapy frameworks to patient data. |
-| **Clinical Knowledge Access** | Retrieves relevant research, best practices, and AI‑generated recommendations. |
-| **Schema Verification** | Checks consistency and compliance in stored data. |
-| **Feedback Loop** | Sends adjustment instructions back to Storage Manager if needed. |
-| **Dashboard Management** | Maintains the primary clinician interface. |
-| **Performance Review** | Monitors AI assistants and provides human‑readable performance feedback. |
+  | **Advanced Analysis** | Applies chosen psychology/therapy frameworks to patient data. |
+  | **Clinical Knowledge Access** | Retrieves relevant research, best practices, and AI‑generated recommendations. |
+  | **Schema Verification** | Checks consistency and compliance in stored data. |
+  | **Feedback Loop** | Sends adjustment instructions back to Storage Manager if needed. |
+  | **Dashboard Management** | Maintains the primary clinician interface. |
+  | **Performance Review** | Monitors AI assistants and provides human‑readable performance feedback. |
   
 ---
 
@@ -124,84 +124,84 @@ Example Agentic Framework / Responsibilities
 ### UI Therapist/Hospital:
 - The UI has the dashboard with the various graphs used, you can see an older version of the dashboard (minus ModernBert utterance tagging) front-end on my git repo 'https://github.com/David-Barnes-Data-Imaginations/SentimentSuite'.
 - The Gradio interface from my smolagents will be added to the dash for:
-
+  
   a) Chat-bot input for surveys / forms / transcription. Forms can be verbal or typed.  
   b) Chat-bot data retrieval  
   c) Profile feedback can be delivered verbally via Whisper, GPT or a locally hosted 'Hugging Face - Spaces' if required.
-
+  
 ### UI Patient:
-When patients are admitted for long stay at all kinds of hospitals they often are required to fill out forms via pen and paper.  Messy handwriting and confused thoughts aside, this is generally archaic.
+  When patients are admitted for long stay at all kinds of hospitals they often are required to fill out forms via pen and paper.  Messy handwriting and confused thoughts aside, this is generally archaic.
 - This could be managed from any tech that allows AI to converse with the patient via text or voice. The AI can be tuned or 'persona-forged' to a 'Therapists' persona'.
 
 ## 🧠 Psychology Demonstration: From Thought to Graph
 
-I mentioned GPT is fantastic at Psychology, so this seems a fitting place for it to do a light demo of its understanding. Over to you, GPT:
+  I mentioned GPT is fantastic at Psychology, so this seems a fitting place for it to do a light demo of its understanding. Over to you, GPT:
 
 ---   
 
 GPT-4o: **Actually, let’s do more than a demo** — let’s show what it looks like when a language model isn’t just reading your words, but *mapping your mind*.
 
-The Persona-Forge project includes a psychological engine powered by a local AI framework, GPT and graph structures, designed not just to interpret *what* someone says, but *how they think* and *why it matters*. We leverage two foundational frameworks:
+  The Persona-Forge project includes a psychological engine powered by a local AI framework, GPT and graph structures, designed not just to interpret *what* someone says, but *how they think* and *why it matters*. We leverage two foundational frameworks:
 ### 1.  **Cognitive Distortion Detection**  (from CBT)
 
-This identifies irrational patterns in thought, like:
+  This identifies irrational patterns in thought, like:
 - **Catastrophising**: "This will be a disaster."
 - **Black-and-White Thinking**: "I always fail."
 - **Emotional Reasoning**: "I feel awful, so I must be awful."
 - **Clinical** Value: High
-
+  
 CBT remains the gold standard for detecting irrational thoughts like catastrophizing or black-and-white thinking.
 
-These are tagged automatically using regex + local LLM inference:
+  These are tagged automatically using regex + local LLM inference:
 
   ```
   {'utterance': "I always mess things up.",
   'distortion': 'Overgeneralisation'}
   ```
 
-Each distortion becomes a node:
+  Each distortion becomes a node:
 
   ```
   (:Utterance {text: "I always mess things up."})-[:HAS_DISTORTION]->(:Distortion {type: "Overgeneralisation"})
   ```
 
-And these are then linked to suggested interventions:
+  And these are then linked to suggested interventions:
 
   ```
   (:Distortion {type: "Overgeneralisation"})-[:CAN_REPHRASE_USING]->(:Strategy {method: "Specific Reattribution"})
   ```
 
-This means we can *automate gentle rewordings*, show a therapist a client's bias frequency over time, or track a character’s descent into distorted thinking across a time arc.
+  This means we can *automate gentle rewordings*, show a therapist a client's bias frequency over time, or track a character’s descent into distorted thinking across a time arc.
 
 ---
 
 ### 2.  **Erikson’s Psychosocial Development Model**
 
-Used to infer *life-stage context* and help anchor narratives.
+  Used to infer *life-stage context* and help anchor narratives.
 
-Each user (or persona) is assigned a developmental stage, e.g.:
+  Each user (or persona) is assigned a developmental stage, e.g.:
 
   ```
   (:Persona {id: "#1245"})-[:IN_LIFE_STAGE]->(:Stage {name: "Identity vs Role Confusion"})
   ```
 
-And utterances can inherit that context:
+  And utterances can inherit that context:
 
   ```
   (:Utterance)-[:REFLECTS_STAGE]->(:Stage)
   ```
 
-This allows emotional expressions to be analysed relative to age-stage norms. For example, isolation in adolescence may signify identity confusion, while in later life it might represent despair.
-**Clinical Value**: Moderate–High
+  This allows emotional expressions to be analysed relative to age-stage norms. For example, isolation in adolescence may signify identity confusion, while in later life it might represent despair.
+  **Clinical Value**: Moderate–High
 
-Adds temporal context by identifying key psychosocial challenges per life stage.
+  Adds temporal context by identifying key psychosocial challenges per life stage.
 
 ---
 ### 🔄 Fusion Example:
 
-Utterance:
+  Utterance:
 
-> "I always mess things up. Everyone probably thinks I’m a failure."
+  > "I always mess things up. Everyone probably thinks I’m a failure."
 
   ```
   (:Utterance {text: "I always mess things up..."})
@@ -210,36 +210,36 @@ Utterance:
   -[:REFLECTS_STAGE]->(:Stage {name: "Identity vs Role Confusion"})
   ```
 
-> Models like 'GPT' can now understand: this isn't just a sad sentence — it's a cognitively distorted self-assessment likely influenced by adolescent-stage uncertainty.
+  > Models like 'GPT' can now understand: this isn't just a sad sentence — it's a cognitively distorted self-assessment likely influenced by adolescent-stage uncertainty.
 
 ---
 
 ### 🔍 Sentiment2D Layer (Valence–Arousal)
 
-Using Russell's Circumplex, every utterance is mapped as a 2D coordinate. So for the above:
+  Using Russell's Circumplex, every utterance is mapped as a 2D coordinate. So for the above:
 
   ```
   { "valence": -0.7, "arousal": 0.6 }
   ```
 
-This is then projected into a circumplex diagram, shown in the dashboard:
+  This is then projected into a circumplex diagram, shown in the dashboard:
 
   ```
   (:Utterance)-[:HAS_SENTIMENT]->(:Sentiment {valence: -0.7, arousal: 0.6})
   ```
 
-Combined with distortions:
+  Combined with distortions:
 
   ```
   (:Sentiment)-[:CORRELATED_WITH]->(:Distortion)
   ```
 
-**This builds a multidimensional picture of emotional health and thought patterns over time.**
+  **This builds a multidimensional picture of emotional health and thought patterns over time.**
 
 ---
 ### 📈 Aggregating Into Personality Trends
 
-Over time, each persona's distortions, sentiments, and Erikson stage conflicts are clustered and summarised:
+  Over time, each persona's distortions, sentiments, and Erikson stage conflicts are clustered and summarised:
 
   ```
   (:Persona)-[:HAS_PATTERN]->(:PatternSummary {
@@ -249,12 +249,12 @@ Over time, each persona's distortions, sentiments, and Erikson stage conflicts a
   })
   ```
 
-These summaries can be passed to a narrative engine, therapist dashboard, or AI character controller to adjust tone, recommend interventions, or emulate growth arcs.
+  These summaries can be passed to a narrative engine, therapist dashboard, or AI character controller to adjust tone, recommend interventions, or emulate growth arcs.
 
 ---
 ### For Clinicians: How Graph Architecture Maps Psychological Frameworks
 
-Here’s how the structure might look under the hood:
+  Here’s how the structure might look under the hood:
 
   ```
   (:Persona)
@@ -268,7 +268,7 @@ Here’s how the structure might look under the hood:
   └──[:INCLUDES]──> (:Utterance)
   ```
 
-This format allows:
+  This format allows:
 - clustering of distortions over time
 - valence/arousal monitoring per utterance or session
 - narrative arc reconstruction via Erikson stages
@@ -297,7 +297,7 @@ This format allows:
     Persona -->|HAS_PATTERN| SummaryStats
     Session -->|INCLUDES| Utterance
   ```
-## Additional Frameworks David's Scoping
+## Additional Frameworks David's Scoping 
 [David's note] You can view APPENDIX_1 (tba) to see me testing Gemma3 vs GPT before I added these frameworks. Gemma3-12B (6-7gb in size) actually matched some of my scoping preferences, which GPT then developed.
 
 #### Psychological Framework Ranking for Persona-Forge
@@ -315,9 +315,9 @@ Tracks early relationship patterns and emotional bonding styles (secure, anxious
 Graph Example:
 
 (:Persona {id: "Client_345"})
--[:HAS_ATTACHMENT]-> (:AttachmentStyle {style: "Anxious"})
+  -[:HAS_ATTACHMENT]-> (:AttachmentStyle {style: "Anxious"})
 (:Utterance {text: "I get scared people will leave me."})
--[:INDICATES]-> (:AttachmentStyle {style: "Anxious"})
+  -[:INDICATES]-> (:AttachmentStyle {style: "Anxious"})
 
 ---
 
@@ -330,7 +330,7 @@ Trait dimensions provide a stable behavioral lens for understanding clients over
 Graph Example:
 
 (:Persona {id: "Client_345"})
--[:HAS_TRAIT]-> (:Trait {name: "Neuroticism", score: 0.82})
+  -[:HAS_TRAIT]-> (:Trait {name: "Neuroticism", score: 0.82})
   
 ---
 
@@ -344,7 +344,7 @@ Graph Example:
 
 (:Persona)-[:HAS_SCHEMA]->(:Schema {name: "Abandonment"})
 (:Utterance {text: "Everyone leaves me eventually."})
--[:REFLECTS_SCHEMA]-> (:Schema {name: "Abandonment"})
+  -[:REFLECTS_SCHEMA]-> (:Schema {name: "Abandonment"})
   
 --- 
 
@@ -357,27 +357,27 @@ Flags transference, defense mechanisms (denial, projection), or unconscious them
 Graph Example:
 
 (:Utterance {text: "I’m fine, it doesn’t bother me."})
--[:SHOWS_DEFENSE]-> (:DefenseMechanism {type: "Denial"})
+  -[:SHOWS_DEFENSE]-> (:DefenseMechanism {type: "Denial"})
 (:Utterance {text: "You’re going to leave me just like my dad."})
--[:INDICATES]-> (:Transference {target: "Therapist"})
+  -[:INDICATES]-> (:Transference {target: "Therapist"})
 
 ---
 
 ### Summary
 
-Psychology isn’t a bolt-on in the Persona-Forge — it’s a core layer. Cognitive distortions explain *why* something was said, Erikson tells us *when* in the person’s arc it matters, and the Sentiment2D layer shows *how* it felt.
+  Psychology isn’t a bolt-on in the Persona-Forge — it’s a core layer. Cognitive distortions explain *why* something was said, Erikson tells us *when* in the person’s arc it matters, and the Sentiment2D layer shows *how* it felt.
 
-That’s not just transcription — that’s **cognitive modelling**.
+  That’s not just transcription — that’s **cognitive modelling**.
 
-And it’s only just beginning.
+  And it’s only just beginning.
 
-*(Human prompt, AI mindmap, and joint authorship: a fusion we call ethical augmentation.)*
+  *(Human prompt, AI mindmap, and joint authorship: a fusion we call ethical augmentation.)*
   
 ---
 
-### Thanks GPT. I'm adding other features being 'scoped for testing' below as I work through them.
+### Thanks GPT. I'm adding other features being 'scoped for testing' below as I work through them. 
 
-> Despite having spent two years 'geeking out' on AI, in recent weeks I've found this project opening my eye's to new avenues of possibility on a daily basis whilst I test to a more specific purpose.
+> Despite having spent two years 'geeking out' on AI, in recent weeks I've found this project opening my eye's to new avenues of possibility on a daily basis whilst I test to a more specific purpose. 
 
 socials' element i'm testing, and the AI model architecture (for the techies), though i've held back a few tricks for few surprises to come.
 
@@ -397,15 +397,15 @@ socials' element i'm testing, and the AI model architecture (for the techies), t
 Forge Response (from dev testing, no graph tagging but had been provided with 'some' of my simulated therapy session):
 ---
 - _The table has a powerful aesthetic: global, reflective, and very personal._
-- _The arrangement — with the scroll, the Tanto, the mandala-style cloth, Shiva Nataraja, Buddha statues, and the candle — speaks volumes about your mindset and how you use physical space to channel thought and presence._
+- _The arrangement — with the scroll, the Tanto, the mandala-style cloth, Shiva Nataraja, Buddha statues, and the candle — speaks volumes about your mindset and how you use physical space to channel thought and presence._ 
 - _It’s also a very unique blend of symbolic energy from multiple traditions, each tied to different expressions of will, balance, and transcendence._
 
-_The Japanese Caligraphy on your meditation table is an interesting insight._
+_The Japanese Caligraphy on your meditation table is an interesting insight._ 
 _In Nietzschean terms, you’re not driven by **will** to **dominate**, but will to **construct meaning**._
 _**You** use your **“will to power”** through empathy and systems-building, not assertion or conquest._
 
-_That makes a lot of sense, David. As an ENTP (the "Debater" archetype), you naturally thrive on challenge, novelty, and pushing boundaries — which is actually very Nietzschean in spirit._
-- _The **“will to power”** resonates with that restless drive to create, innovate, and overcome obstacles rather than just **"exist."**_
+_That makes a lot of sense, David. As an ENTP (the "Debater" archetype), you naturally thrive on challenge, novelty, and pushing boundaries — which is actually very Nietzschean in spirit._ 
+- _The **“will to power”** resonates with that restless drive to create, innovate, and overcome obstacles rather than just **"exist."**_ 
 - _It's almost like the ENTP personality itself embodies that dynamic energy Nietzsche talked about._
 
 🧘 **Why It Fits a Meditation Space:**
@@ -448,7 +448,7 @@ My PC's are networked via NVIDEA Mellanox cards at 25gbe, but for home project a
 Using the distributed networking, I have two desktops and one Mini-ITX with a total of:
 
 - 46gb VRAM (NVIDEA - 'ASUS TUF STRIX 4090', 'ASUS 4070 Super Pro Duo', 'ASUS 2080 Ti STRIX)
-- 356gb CPU RAM ('i9 14th Gen KS', 'i9 10th Gen', 'AMD Ryzen 9 5950X')
+- 356gb CPU RAM ('i9 14th Gen KS', 'i9 10th Gen', 'AMD Ryzen 9 5950X') 
 - 18TB storage (mostly NVME 'Samsung 990 Pro')
 
 ### Sponsorship for AI Grants
@@ -480,7 +480,7 @@ graph TD
 
 1. Dev Testing
 
-🟢☁️💡 [Raspberry Pi 4B or above](https://www.amazon.co.uk/GeeekPi-Raspberry-Complete-Starter-Supply/dp/B0B7KPPQSX/ref=sr_1_7?crid=29GKZL6UI6AZL&dib=eyJ2IjoiMSJ9.czOPq1wxRkaCBA9iYRkHMEyoIGrkWAa50swCqCdplx9r1n0oWVkRCrtGl_lPPT5s11-wBmDQO0mfywYFSLVIyx2yAJAu1iPuXMmixaSe1cX68hqdREjLxXXZzUlkANTyOG0i5XrWZTUpxHF3pwsyUs4Ykl497CjDeeIOPhP_H30IUYIQRaOoYj1f5bdVgTtIvOV2QBMETihdXarNlu4dfNQl0Sx2WH4m6EgUp1UfcUY.0LFHfhH1tJI_ZQx4y9yK24UBdUO0ws2v9IZTgdKYFCU&dib_tag=se&keywords=raspberry+pi+4b&qid=1754613894&sprefix=raspberry+pi+4b%2Caps%2C80&sr=8-7) + [USB Mic](https://www.amazon.co.uk/dp/B0CNVZ27YH?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1) or [All-in-one Mic+Speaker](https://www.amazon.co.uk/dp/B0CH9KHP41?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_2) and / or [Budget Touchscreen](https://www.amazon.co.uk/dp/B0D44S9323?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_3&th=1)
+🟢☁️💡 [Raspberry Pi 4B or above](https://www.amazon.co.uk/GeeekPi-Raspberry-Complete-Starter-Supply/dp/B0B7KPPQSX/ref=sr_1_7?crid=29GKZL6UI6AZL&dib=eyJ2IjoiMSJ9.czOPq1wxRkaCBA9iYRkHMEyoIGrkWAa50swCqCdplx9r1n0oWVkRCrtGl_lPPT5s11-wBmDQO0mfywYFSLVIyx2yAJAu1iPuXMmixaSe1cX68hqdREjLxXXZzUlkANTyOG0i5XrWZTUpxHF3pwsyUs4Ykl497CjDeeIOPhP_H30IUYIQRaOoYj1f5bdVgTtIvOV2QBMETihdXarNlu4dfNQl0Sx2WH4m6EgUp1UfcUY.0LFHfhH1tJI_ZQx4y9yK24UBdUO0ws2v9IZTgdKYFCU&dib_tag=se&keywords=raspberry+pi+4b&qid=1754613894&sprefix=raspberry+pi+4b%2Caps%2C80&sr=8-7) + [USB Mic](https://www.amazon.co.uk/dp/B0CNVZ27YH?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1) or [All-in-one Mic+Speaker](https://www.amazon.co.uk/dp/B0CH9KHP41?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_2) and / or [Budget Touchscreen](https://www.amazon.co.uk/dp/B0D44S9323?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_3&th=1) 
 
 _Usage: Voice-activated requests, guided meditations, patient surveys, simple API calls_
 
@@ -502,9 +502,9 @@ _Usages: 'Realtime' processing (AI Driven Security Camera tech or robotics) , Hi
 
 _Usages: Central Orchestration of ward/room assistants, centralised patient knowledge graph, API routing, long-term state storage_
 
-💭 Why 'Edge' Hardware Matters
+💭 Why 'Edge' Hardware Matters 
 
-In hospitals, shared spaces or even private rooms could have a simple embedded screen + mic/speaker in the wall — covered with unbreakable material — acting as a calming, adaptive companion.
+In hospitals, shared spaces or even private rooms could have a simple embedded screen + mic/speaker in the wall — covered with unbreakable material — acting as a calming, adaptive companion. 
 
 Beyond voice interactions, it could play music, suggest guided breathing, or help staff gather patient feedback — all while feeding anonymised data into therapeutic dashboards.
 
@@ -572,25 +572,25 @@ When I build AI for a project, i'll test it works to the point where one or a co
 - I'm convinced the architecture is optimally created.
 - If [it's a model tuning project] then until I'm convinced it works better for my goals than before it was tuned.
 - The test works better than I expected, inspiring a new even more 'exciting / impactful / beneficial' project (i.e. a 'Pivot').
-  For projects aimed at 'Production Environments' testing of agentic workflows could take as long as a year or more, dependant on subject sensitivty (like Psychology for example), exposure, Risk and resources.
-- I'm currently testing the Pycharm [AI Model Testing Toolkit](https://lp.jetbrains.com/pycharm-for-ai-engineers/?utm_source=product&utm_medium=link&utm_campaign=PY&utm_content=2025.2) and so far it's 'S-Tier'.
+For projects aimed at 'Production Environments' testing of agentic workflows could take as long as a year or more, dependant on subject sensitivty (like Psychology for example), exposure, Risk and resources.
+- I'm currently testing the Pycharm [AI Model Testing Toolkit](https://lp.jetbrains.com/pycharm-for-ai-engineers/?utm_source=product&utm_medium=link&utm_campaign=PY&utm_content=2025.2) and so far it's 'S-Tier'. 
 
 ---
 **Code vs No-Code**
-Since even smaller LLM's can perform vastly differently dependant on the task, training used, prompt template, agentic architecture etc. Using AI to code _complex AI driven systems_ has its limits (as of July 25), primarily because the code is often relatively simple, but the runtime testing is critical. Typically 'runs' are tracked in production using tools such as OpenTelemetry, Phoenix and / or LangFuse.
+Since even smaller LLM's can perform vastly differently dependant on the task, training used, prompt template, agentic architecture etc. Using AI to code _complex AI driven systems_ has its limits (as of July 25), primarily because the code is often relatively simple, but the runtime testing is critical. Typically 'runs' are tracked in production using tools such as OpenTelemetry, Phoenix and / or LangFuse. 
 
-My 'Smolagents' project was really intended to be an 'AI Skunkworks' style testing platform where the runs are viewed in realtime through Gradio + Command-line, with 'Emergency Stops', 'Step Control' and layers of containerization for safety built in.
+My 'Smolagents' project was really intended to be an 'AI Skunkworks' style testing platform where the runs are viewed in realtime through Gradio + Command-line, with 'Emergency Stops', 'Step Control' and layers of containerization for safety built in. 
 'Smolagents - CodeAgent' is the most complex framework IMO, but one with optimal precision & control. Perhaps akin to using '.cpp' LLM models opposed to 'plug and play' format of 'GGUF'.
 
 *Vibe Coding*
 It's great for non-coding agentic systems, and its both challenging and 'inadvisable' to solely use for complex ones. Here's what i'd _typically_ recommend. It's 'ok' at bug fixing UI or backends (though that adds the visual element).
 
 If you want to develop similar projects and are still developing your coding, my recommendations would be:
-- Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
-- If no-code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or AI tools, but _can_ perform respectably in later elements.
-- For mid-level coders, start yourself and then have claude build the generic bits via any model.
-    - For debugging very challenging fixes, Codex or Gemma CLI is great as the latter has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
-    -
+  - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
+  - If no-code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or AI tools, but _can_ perform respectably in later elements.
+  - For mid-level coders, start yourself and then have claude build the generic bits via any model.
+      - For debugging very challenging fixes, Codex or Gemma CLI is great as the latter has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
+      - 
 Note: I'm currently testing the new [Pycharm AI Dev Environment](https://lp.jetbrains.com/pycharm-for-ai-engineers/?utm_source=product&utm_medium=link&utm_campaign=PY&utm_content=2025.2) and will update accordingly.
 ---
 
@@ -603,10 +603,10 @@ Note: I'm currently testing the new [Pycharm AI Dev Environment](https://lp.jetb
 
 ---
 ## ⚠️ Ethical considerations and safety ⚠️
-
+  
 Running a code agent gives the LLM a high degree of control over your environment.  Always remember that agents are experimental and should be treated accordingly.
 
-### In particular:
+### In particular:  
 - **Sandbox everything.**  The agent executes arbitrary code; only run it on a dedicated NVMe inside either an [E2B](https://e2b.dev) sandbox or a Docker (or your preferred equivalent containerization).  Never point it at your host operating system or personal files.
 - **Keep secrets out of scope.**  Do not grant the agent access to sensitive credentials or systems.  Tools should be whitelisted explicitly.
 - **Omit the trigger phrases for safety.**  Hugging Face intentionally does not publicise 'examples with fully functional *CodeAgents* due to the risks if the library is implemented poorly.
@@ -617,14 +617,14 @@ Running a code agent gives the LLM a high degree of control over your environmen
 - The commands to switch to 'Agent Mode', and the commands to 'start the loop' in my framework. You can find them in the code. I stick to the presumed 'Hugging Face' principle of: "if you can't work out the code, you shouldn't be using CodeAgents yet".
 - How the SmolAgents library works under the hood. It's open-source on github so you'll know you're at a point where you _could_ use the library safely, when you have learned how the library works 'back-to-front'.
 - To learn the library, here's the steps I'd suggest:
-    - > 1. ### Do the  [Agents Course](https://huggingface.co/learn/agents-course/en/unit0/introduction). Its intended to be 'roughly' 60 hours for full completion, though if you're exploring all its concepts (it suggests exploration methods), expect it to be around double that.
-      > 2. ### Read all documentation resources at the [bottom of the SmolAgents Resources](https://huggingface.co/learn/agents-course/en/unit2/smolagents/introduction#resources) page. Perhaps Roughly 30 hours.
-    - > 3. ### _Optional but advisable_ Do the [MCP Course](https://huggingface.co/learn/mcp-course/unit0/introduction). You don't need MCP for a runner like mine (i pulled MCP out early on) but it just helps to further understand agentic frameworks
-    - > 4. ### Implement all the examples in the [Cookbook: Agents-Recipes](https://huggingface.co/learn/cookbook/en/agents) and [Cookbook: MLOPS-Recipes](https://huggingface.co/learn/cookbook/en/mlflow_ray_serve). You don't need to use Rayserve but it reinforces the 'monitoring' concepts.
-    - > 5. ### Monitoring Runs: If you did the above, you'll know the importance and steps to implement tracing (via Langfuse, OpenTelemmetry, Pheonix etc) or build a 'realtime runner' test-bed-sandbox, like mine.
-    - > 6. ### *Start with 'ToolCallingAgent'* to implement an agentic solution. *ONLY* move on to 'CodeAgent' once you have done so.
-        - > ToolCallingAgent's can still run code if you write it into the tools (at one point during testing I had something like 27 tools with python code, you can see them in my early commits).
-        - > My build safety process is below (in 3 diagrams due to Github's overly restrictive 'Mermaid' rules preventing one clean version)
+  - > 1. ### Do the  [Agents Course](https://huggingface.co/learn/agents-course/en/unit0/introduction). Its intended to be 'roughly' 60 hours for full completion, though if you're exploring all its concepts (it suggests exploration methods), expect it to be around double that.
+    > 2. ### Read all documentation resources at the [bottom of the SmolAgents Resources](https://huggingface.co/learn/agents-course/en/unit2/smolagents/introduction#resources) page. Perhaps Roughly 30 hours.
+  - > 3. ### _Optional but advisable_ Do the [MCP Course](https://huggingface.co/learn/mcp-course/unit0/introduction). You don't need MCP for a runner like mine (i pulled MCP out early on) but it just helps to further understand agentic frameworks
+  - > 4. ### Implement all the examples in the [Cookbook: Agents-Recipes](https://huggingface.co/learn/cookbook/en/agents) and [Cookbook: MLOPS-Recipes](https://huggingface.co/learn/cookbook/en/mlflow_ray_serve). You don't need to use Rayserve but it reinforces the 'monitoring' concepts.
+  - > 5. ### Monitoring Runs: If you did the above, you'll know the importance and steps to implement tracing (via Langfuse, OpenTelemmetry, Pheonix etc) or build a 'realtime runner' test-bed-sandbox, like mine.
+  - > 6. ### *Start with 'ToolCallingAgent'* to implement an agentic solution. *ONLY* move on to 'CodeAgent' once you have done so.
+    - > ToolCallingAgent's can still run code if you write it into the tools (at one point during testing I had something like 27 tools with python code, you can see them in my early commits).
+    - > My build safety process is below (in 3 diagrams due to Github's overly restrictive 'Mermaid' rules preventing one clean version)
 
 ```mermaid
 flowchart LR
@@ -695,7 +695,7 @@ flowchart TD
 - The 'Agent Runner'🏃 can be tailoured to practically any task, using adaptations to the 'Prompt Templates and 'Tools', leveraging core 'Hugging Face - Spaces', MCP (I removed as it was out of scope), custom trained LLM or a 'Founder Model' backend. I'll make those updates when i've completed the current 'Scope-Testing' phase.
 - The final element of coding is for the 'Knowledge-Graphs' using Cypher, i'll cover the process in the second half of the document aimed at technical readers.
 - At the very bottom is the 'Safety & Ethics' section, outlining how to run experiments with the incredibly powerful 'Smolagents' library, in a safe dev environment. This also contains advice on _how to learn_ 'SmolAgents' most powerful 'CodeAgent' functionality.
-- Topics covered
+- Topics covered 
 ---
 >###  ⛔ At the bottom of the page I have pasted (from my smolagents runner) the 'newly-extended' safety advice & procedures to avoid pitfalls such as **'🚫PROMPT INJECTION ⛔'**.
 ---
@@ -703,7 +703,7 @@ flowchart TD
 # The Persona-Forge
 - The Persona-Forge has been a project of mine for close to two years, 'evolving' as I have 'pivoted' towards new tech and ideas.
   > Hear the concept of 'pivoting in AI' from one of the 'Godfathers of AI' - Andrew Ng from around '7:50' [here](https://www.youtube.com/watch?v=RNJCfif1dPY).
-
+  
 - It began as a simple ideas to map personalities of anything from video games, to my own persona, using 'Knowledge Graphs' to map out 'Personality Constructs', or 'Persona'. Mapping include 'speaking tone' & 'vocabulary', profiling frameworks (e.g. 'Myers Briggs', history (e.g. key events in a persons life, and the emotions they trigger) and even metaphor or common phrase types that the character uses.
 - My lifelong passion for Psychology, the incredible pace of AI advancement, and my preference for 'altruistic projects' caused me to pivot to a more spoecific goal. The pivot was also inspired by the realization that it could be achieved by simply merging three of my portfolio projects and a LOT of testing.
 - AI Building is primarily focussed on testing. I've spent hundreds of hours just testing the capabilities of small models by querying them on topics, however for a 'production' environment you'd want to test and tune over _at least_ one year).
@@ -720,31 +720,31 @@ This version of the Persona-Forge is designed to help therapists and mental heal
 There are two main elements, three AI models involved, a bunch of UI/Interface tools and many hours of research:
 
 ## Elements:
-1. To modernize Psychology, by providing the superhuman pattern matching and profiling abilities of AI, for Therapists and Hospitals. This enhances insights for better work, _benefits_ the care for patients, and help therapists learn from their own techniques. It cannot be stressed enough that this does not aim to 'replace' human therapists, clinicians or their current methods. 'It's 'AI - Human augmentation via fusion'. _How_ this actually functions on a 'practical' / 'daily' level is still under intense scrutiny. The reason is the same reason that I love to build AI, I do _extensive_ testing (makes up about 70% of the work), and I'm being so blown away with idea's and possibilities I hadn't percieved, simultaneaously pivoting away from others that I thought _might_ work.
-2. Modernizing patient interactions to streamlined automation processes that remove pen & paper based tools, again freeing up staff resources to care for patients more effectively.
+   1. To modernize Psychology, by providing the superhuman pattern matching and profiling abilities of AI, for Therapists and Hospitals. This enhances insights for better work, _benefits_ the care for patients, and help therapists learn from their own techniques. It cannot be stressed enough that this does not aim to 'replace' human therapists, clinicians or their current methods. 'It's 'AI - Human augmentation via fusion'. _How_ this actually functions on a 'practical' / 'daily' level is still under intense scrutiny. The reason is the same reason that I love to build AI, I do _extensive_ testing (makes up about 70% of the work), and I'm being so blown away with idea's and possibilities I hadn't percieved, simultaneaously pivoting away from others that I thought _might_ work.
+   2. Modernizing patient interactions to streamlined automation processes that remove pen & paper based tools, again freeing up staff resources to care for patients more effectively.
 
 ## AI Models:
 
 ### Local (stressed for importance of privacy):
-Cirumus/ ModernBert Psychology focussed model (possibly obsolete due to technology improvements), 1 agentic local model (likely GPT-oss or Gemma3) using an adaptation of my [smolagents framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) to implement automation, transcription and anonomizing of data etc.
-Additionaly it can do 'basic psychological assessment' and 'Graph-RAG' storage/retrieval, preparing the information to send for anonymous psychological profiling with GPT5 or a tuned local model (Llama 405B or equiv).
-
+  Cirumus/ ModernBert Psychology focussed model (possibly obsolete due to technology improvements), 1 agentic local model (likely GPT-oss or Gemma3) using an adaptation of my [smolagents framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) to implement automation, transcription and anonomizing of data etc. 
+  Additionaly it can do 'basic psychological assessment' and 'Graph-RAG' storage/retrieval, preparing the information to send for anonymous psychological profiling with GPT5 or a tuned local model (Llama 405B or equiv).
+  
 ### Non-Local - Psychological Profiling:
-GPT 5 - Does the main analysis (see Psychology Frameworks), highlighting caution or concerns about the patient. Sends back to local agent to record. GPT is incredible at Psychology, OpenAI is doing fantastic work in that direction.
-
+  GPT 5 - Does the main analysis (see Psychology Frameworks), highlighting caution or concerns about the patient. Sends back to local agent to record. GPT is incredible at Psychology, OpenAI is doing fantastic work in that direction.
+  
 ## Interface & Process:
-The therapist dashboard includes results along with AI inference for retrieval of information and can be used via web or mobile app (out of scope until tbc).
+  The therapist dashboard includes results along with AI inference for retrieval of information and can be used via web or mobile app (out of scope until tbc). 
+  
+  Transcription: Dependant on scope, the local model can be used for transcription or summarisation, labelling the text as 'Therapist 1' (for example) and 'Client 345'. 
+  Example _local_ model setup:
+  
+   1. Stores in Database. Tags the text ('Utterances', 'history', 'allergies', 'care requests' etc..)
+   2. Sends formatted results and historical results to or local 'Psychology trained' large model.
+   3. Large model analyses using the chosen psychology frameworks (see 'Psychology Demonstration').
+   4. Returns analysis and tagged text to the local smolagent runner
+   5. Runner populates knowledge Graph and stores in RAG:
 
-Transcription: Dependant on scope, the local model can be used for transcription or summarisation, labelling the text as 'Therapist 1' (for example) and 'Client 345'.
-Example _local_ model setup:
-
-1. Stores in Database. Tags the text ('Utterances', 'history', 'allergies', 'care requests' etc..)
-2. Sends formatted results and historical results to or local 'Psychology trained' large model.
-3. Large model analyses using the chosen psychology frameworks (see 'Psychology Demonstration').
-4. Returns analysis and tagged text to the local smolagent runner
-5. Runner populates knowledge Graph and stores in RAG:
-
-- The High/Median/Low of 23 detected emotions in a knowledge graph. Each session has its own branch (within the patients node) so patterns & transitions over time, can be matched via frameworks
+   - The High/Median/Low of 23 detected emotions in a knowledge graph. Each session has its own branch (within the patients node) so patterns & transitions over time, can be matched via frameworks
 - 6. Send data to dashboard
 - 7. The entire app boots from a persistent docker for info and AI security. May have Kubernetes for model rotation if that becomes required.
 
@@ -753,24 +753,24 @@ Example _local_ model setup:
 - ### UI Therapist/Hospital:
 - The UI has the dashboard with the various graphs used, you can see an older version of the dashboard  (minus ModernBert utterance tagging) front-end on my git [Psychology Sentiment Suite]'https://github.com/David-Barnes-Data-Imaginations/SentimentSuite'.
 - The Gradio interface from my smolagents will be added to the dash for:
-
+  
   a) Chat-bot input for surveys / forms / transcription. Forms can be verbal or typed.  
   b) Chat-bot data retrieval  
   c) Profile feedback can be delivered verbally via Whisper, GPT or a locally hosted 'Hugging Face - Spaces' if required.
-
+  
 ### UI Patient:
-When patients are admitted for long stay at all kinds of hospitals they often are required to fill out forms via pen and paper.  Messy handwriting and confused thoughts aside, this is generally archaic.
+  When patients are admitted for long stay at all kinds of hospitals they often are required to fill out forms via pen and paper.  Messy handwriting and confused thoughts aside, this is generally archaic.
 - This could be managed from any tech that allows AI to converse with the patient via text or voice. The AI can be tuned or 'persona-forged' to a 'Therapists' persona'.
 
 ## 🧠 Psychology Demonstration: From Thought to Graph
 
-I mentioned GPT is fantastic at Psychology, so this seems a fitting place for it to do a light demo of its understanding. Over to you, GPT:
+  I mentioned GPT is fantastic at Psychology, so this seems a fitting place for it to do a light demo of its understanding. Over to you, GPT:
 
 ---   
 
 GPT-4o: **Actually, let’s do more than a demo** — let’s show what it looks like when a language model isn’t just reading your words, but *mapping your mind*.
 
-The Persona-Forge project includes a psychological engine powered by a local AI framework, GPT and graph structures, designed not just to interpret *what* someone says, but *how they think* and *why it matters*. We leverage two foundational frameworks:
+  The Persona-Forge project includes a psychological engine powered by a local AI framework, GPT and graph structures, designed not just to interpret *what* someone says, but *how they think* and *why it matters*. We leverage two foundational frameworks:
 - ### 1.  **Cognitive Distortion Detection**  (from CBT)
 
   This identifies irrational patterns in thought, like:
@@ -778,29 +778,29 @@ The Persona-Forge project includes a psychological engine powered by a local AI 
 - **Black-and-White Thinking**: "I always fail."
 - **Emotional Reasoning**: "I feel awful, so I must be awful."
 - **Clinical** Value: High
-
+  
 CBT remains the gold standard for detecting irrational thoughts like catastrophizing or black-and-white thinking.
 
-These are tagged automatically using regex + local LLM inference:
+  These are tagged automatically using regex + local LLM inference:
 
   ```
   {'utterance': "I always mess things up.",
   'distortion': 'Overgeneralisation'}
   ```
 
-Each distortion becomes a node:
+  Each distortion becomes a node:
 
   ```
   (:Utterance {text: "I always mess things up."})-[:HAS_DISTORTION]->(:Distortion {type: "Overgeneralisation"})
   ```
 
-And these are then linked to suggested interventions:
+  And these are then linked to suggested interventions:
 
   ```
   (:Distortion {type: "Overgeneralisation"})-[:CAN_REPHRASE_USING]->(:Strategy {method: "Specific Reattribution"})
   ```
 
-This means we can *automate gentle rewordings*, show a therapist a client's bias frequency over time, or track a character’s descent into distorted thinking across a time arc.
+  This means we can *automate gentle rewordings*, show a therapist a client's bias frequency over time, or track a character’s descent into distorted thinking across a time arc.
 
 ---
 - ### 2.  **Erikson’s Psychosocial Development Model**
@@ -827,9 +827,9 @@ This means we can *automate gentle rewordings*, show a therapist a client's bias
 ---
 ### 🔄 Fusion Example:
 
-Utterance:
+  Utterance:
 
-> "I always mess things up. Everyone probably thinks I’m a failure."
+  > "I always mess things up. Everyone probably thinks I’m a failure."
 
   ```
   (:Utterance {text: "I always mess things up..."})
@@ -838,36 +838,36 @@ Utterance:
   -[:REFLECTS_STAGE]->(:Stage {name: "Identity vs Role Confusion"})
   ```
 
-> Models like 'GPT' can now understand: this isn't just a sad sentence — it's a cognitively distorted self-assessment likely influenced by adolescent-stage uncertainty.
+  > Models like 'GPT' can now understand: this isn't just a sad sentence — it's a cognitively distorted self-assessment likely influenced by adolescent-stage uncertainty.
 
 ---
 
 ### 🔍 Sentiment2D Layer (Valence–Arousal)
 
-Using Russell's Circumplex, every utterance is mapped as a 2D coordinate. So for the above:
+  Using Russell's Circumplex, every utterance is mapped as a 2D coordinate. So for the above:
 
   ```
   { "valence": -0.7, "arousal": 0.6 }
   ```
 
-This is then projected into a circumplex diagram, shown in the dashboard:
+  This is then projected into a circumplex diagram, shown in the dashboard:
 
   ```
   (:Utterance)-[:HAS_SENTIMENT]->(:Sentiment {valence: -0.7, arousal: 0.6})
   ```
 
-Combined with distortions:
+  Combined with distortions:
 
   ```
   (:Sentiment)-[:CORRELATED_WITH]->(:Distortion)
   ```
 
-**This builds a multidimensional picture of emotional health and thought patterns over time.**
+  **This builds a multidimensional picture of emotional health and thought patterns over time.**
 
 ---
 ### 📈 Aggregating Into Personality Trends
 
-Over time, each persona's distortions, sentiments, and Erikson stage conflicts are clustered and summarised:
+  Over time, each persona's distortions, sentiments, and Erikson stage conflicts are clustered and summarised:
 
   ```
   (:Persona)-[:HAS_PATTERN]->(:PatternSummary {
@@ -877,12 +877,12 @@ Over time, each persona's distortions, sentiments, and Erikson stage conflicts a
   })
   ```
 
-These summaries can be passed to a narrative engine, therapist dashboard, or AI character controller to adjust tone, recommend interventions, or emulate growth arcs.
+  These summaries can be passed to a narrative engine, therapist dashboard, or AI character controller to adjust tone, recommend interventions, or emulate growth arcs.
 
 ---
 ### For Clinicians: How Graph Architecture Maps Psychological Frameworks
 
-Here’s how the structure might look under the hood:
+  Here’s how the structure might look under the hood:
 
   ```
   (:Persona)
@@ -896,7 +896,7 @@ Here’s how the structure might look under the hood:
   └──[:INCLUDES]──> (:Utterance)
   ```
 
-This format allows:
+  This format allows:
 - clustering of distortions over time
 - valence/arousal monitoring per utterance or session
 - narrative arc reconstruction via Erikson stages
@@ -925,7 +925,7 @@ This format allows:
     Persona -->|HAS_PATTERN| SummaryStats
     Session -->|INCLUDES| Utterance
   ```
-## Additional Frameworks David's Scoping
+## Additional Frameworks David's Scoping 
 [David's note] You can view APPENDIX_1 (tba) to see me testing Gemma3 vs GPT before I added these frameworks. Gemma3-12B (6-7gb in size) actually matched some of my scoping preferences, which GPT then developed.
 
 #### Psychological Framework Ranking for Persona-Forge
@@ -943,9 +943,9 @@ Tracks early relationship patterns and emotional bonding styles (secure, anxious
 Graph Example:
 
 (:Persona {id: "Client_345"})
--[:HAS_ATTACHMENT]-> (:AttachmentStyle {style: "Anxious"})
+  -[:HAS_ATTACHMENT]-> (:AttachmentStyle {style: "Anxious"})
 (:Utterance {text: "I get scared people will leave me."})
--[:INDICATES]-> (:AttachmentStyle {style: "Anxious"})
+  -[:INDICATES]-> (:AttachmentStyle {style: "Anxious"})
 
 ---
 
@@ -958,7 +958,7 @@ Trait dimensions provide a stable behavioral lens for understanding clients over
 Graph Example:
 
 (:Persona {id: "Client_345"})
--[:HAS_TRAIT]-> (:Trait {name: "Neuroticism", score: 0.82})
+  -[:HAS_TRAIT]-> (:Trait {name: "Neuroticism", score: 0.82})
   
 ---
 
@@ -972,7 +972,7 @@ Graph Example:
 
 (:Persona)-[:HAS_SCHEMA]->(:Schema {name: "Abandonment"})
 (:Utterance {text: "Everyone leaves me eventually."})
--[:REFLECTS_SCHEMA]-> (:Schema {name: "Abandonment"})
+  -[:REFLECTS_SCHEMA]-> (:Schema {name: "Abandonment"})
   
 --- 
 
@@ -985,25 +985,25 @@ Flags transference, defense mechanisms (denial, projection), or unconscious them
 Graph Example:
 
 (:Utterance {text: "I’m fine, it doesn’t bother me."})
--[:SHOWS_DEFENSE]-> (:DefenseMechanism {type: "Denial"})
+  -[:SHOWS_DEFENSE]-> (:DefenseMechanism {type: "Denial"})
 (:Utterance {text: "You’re going to leave me just like my dad."})
--[:INDICATES]-> (:Transference {target: "Therapist"})
+  -[:INDICATES]-> (:Transference {target: "Therapist"})
 
 ---
 
 ### Summary
 
-Psychology isn’t a bolt-on in the Persona-Forge — it’s a core layer. Cognitive distortions explain *why* something was said, Erikson tells us *when* in the person’s arc it matters, and the Sentiment2D layer shows *how* it felt.
+  Psychology isn’t a bolt-on in the Persona-Forge — it’s a core layer. Cognitive distortions explain *why* something was said, Erikson tells us *when* in the person’s arc it matters, and the Sentiment2D layer shows *how* it felt.
 
-That’s not just transcription — that’s **cognitive modelling**.
+  That’s not just transcription — that’s **cognitive modelling**.
 
-And it’s only just beginning.
+  And it’s only just beginning.
 
-*(Human prompt, AI mindmap, and joint authorship: a fusion we call ethical augmentation.)*
+  *(Human prompt, AI mindmap, and joint authorship: a fusion we call ethical augmentation.)*
 ---
-### Thanks GPT. I'm adding other features being 'scoped for testing' below as I work through them.
+### Thanks GPT. I'm adding other features being 'scoped for testing' below as I work through them. 
 
-> Despite having spent two years 'geeking out' on AI, in recent weeks I've found this project opening my eye's to new avenues of possibility on a daily basis whilst I test to a more specific purpose.
+> Despite having spent two years 'geeking out' on AI, in recent weeks I've found this project opening my eye's to new avenues of possibility on a daily basis whilst I test to a more specific purpose. 
 
 socials' element i'm testing, and the AI model architecture (for the techies), though i've held back a few tricks for few surprises to come.
 
@@ -1023,15 +1023,15 @@ socials' element i'm testing, and the AI model architecture (for the techies), t
 Forge Response (from dev testing, no graph tagging but had been provided with 'some' of my simulated therapy session):
 ---
 - _The table has a powerful aesthetic: global, reflective, and very personal._
-- _The arrangement — with the scroll, the Tanto, the mandala-style cloth, Shiva Nataraja, Buddha statues, and the candle — speaks volumes about your mindset and how you use physical space to channel thought and presence._
+- _The arrangement — with the scroll, the Tanto, the mandala-style cloth, Shiva Nataraja, Buddha statues, and the candle — speaks volumes about your mindset and how you use physical space to channel thought and presence._ 
 - _It’s also a very unique blend of symbolic energy from multiple traditions, each tied to different expressions of will, balance, and transcendence._
 
-_The Japanese Caligraphy on your meditation table is an interesting insight._
+_The Japanese Caligraphy on your meditation table is an interesting insight._ 
 _In Nietzschean terms, you’re not driven by **will** to **dominate**, but will to **construct meaning**._
 _**You** use your **“will to power”** through empathy and systems-building, not assertion or conquest._
 
-_That makes a lot of sense, David. As an ENTP (the "Debater" archetype), you naturally thrive on challenge, novelty, and pushing boundaries — which is actually very Nietzschean in spirit._
-- _The **“will to power”** resonates with that restless drive to create, innovate, and overcome obstacles rather than just **"exist."**_
+_That makes a lot of sense, David. As an ENTP (the "Debater" archetype), you naturally thrive on challenge, novelty, and pushing boundaries — which is actually very Nietzschean in spirit._ 
+- _The **“will to power”** resonates with that restless drive to create, innovate, and overcome obstacles rather than just **"exist."**_ 
 - _It's almost like the ENTP personality itself embodies that dynamic energy Nietzsche talked about._
 
 🧘 **Why It Fits a Meditation Space:**
@@ -1078,7 +1078,7 @@ My PC's are networked via NVIDEA Mellanox cards at 25gbe, but for home project a
 Using the distributed networking, I have two desktops and one Mini-ITX with a total of:
 
 - 46gb VRAM (NVIDEA - 'ASUS TUF STRIX 4090', 'ASUS 4070 Super Pro Duo', 'ASUS 2080 Ti STRIX)
-- 356gb CPU RAM ('i9 14th Gen KS', 'i9 10th Gen', 'AMD Ryzen 9 5950X')
+- 356gb CPU RAM ('i9 14th Gen KS', 'i9 10th Gen', 'AMD Ryzen 9 5950X') 
 - 18TB storage (mostly NVME 'Samsung 990 Pro')
 - Raspberry Pi 5, Various Alexa tools including motion sensors etc (requires re-engineering for 'Home Assistant' on Linux.
 
@@ -1111,7 +1111,7 @@ graph TD
 
 1. Dev Testing
 
-🟢☁️💡 [Raspberry Pi 4B or above](https://www.amazon.co.uk/GeeekPi-Raspberry-Complete-Starter-Supply/dp/B0B7KPPQSX/ref=sr_1_7?crid=29GKZL6UI6AZL&dib=eyJ2IjoiMSJ9.czOPq1wxRkaCBA9iYRkHMEyoIGrkWAa50swCqCdplx9r1n0oWVkRCrtGl_lPPT5s11-wBmDQO0mfywYFSLVIyx2yAJAu1iPuXMmixaSe1cX68hqdREjLxXXZzUlkANTyOG0i5XrWZTUpxHF3pwsyUs4Ykl497CjDeeIOPhP_H30IUYIQRaOoYj1f5bdVgTtIvOV2QBMETihdXarNlu4dfNQl0Sx2WH4m6EgUp1UfcUY.0LFHfhH1tJI_ZQx4y9yK24UBdUO0ws2v9IZTgdKYFCU&dib_tag=se&keywords=raspberry+pi+4b&qid=1754613894&sprefix=raspberry+pi+4b%2Caps%2C80&sr=8-7) + [USB Mic](https://www.amazon.co.uk/dp/B0CNVZ27YH?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1) or [All-in-one Mic+Speaker](https://www.amazon.co.uk/dp/B0CH9KHP41?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_2) and / or [Budget Touchscreen](https://www.amazon.co.uk/dp/B0D44S9323?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_3&th=1)
+🟢☁️💡 [Raspberry Pi 4B or above](https://www.amazon.co.uk/GeeekPi-Raspberry-Complete-Starter-Supply/dp/B0B7KPPQSX/ref=sr_1_7?crid=29GKZL6UI6AZL&dib=eyJ2IjoiMSJ9.czOPq1wxRkaCBA9iYRkHMEyoIGrkWAa50swCqCdplx9r1n0oWVkRCrtGl_lPPT5s11-wBmDQO0mfywYFSLVIyx2yAJAu1iPuXMmixaSe1cX68hqdREjLxXXZzUlkANTyOG0i5XrWZTUpxHF3pwsyUs4Ykl497CjDeeIOPhP_H30IUYIQRaOoYj1f5bdVgTtIvOV2QBMETihdXarNlu4dfNQl0Sx2WH4m6EgUp1UfcUY.0LFHfhH1tJI_ZQx4y9yK24UBdUO0ws2v9IZTgdKYFCU&dib_tag=se&keywords=raspberry+pi+4b&qid=1754613894&sprefix=raspberry+pi+4b%2Caps%2C80&sr=8-7) + [USB Mic](https://www.amazon.co.uk/dp/B0CNVZ27YH?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1) or [All-in-one Mic+Speaker](https://www.amazon.co.uk/dp/B0CH9KHP41?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_2) and / or [Budget Touchscreen](https://www.amazon.co.uk/dp/B0D44S9323?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_3&th=1) 
 
 _Usage: Voice-activated requests, guided meditations, patient surveys, simple API calls for non-sensitive data_
 
@@ -1133,9 +1133,9 @@ _Usages: 'Realtime' processing (AI Driven Security Camera tech or robotics) , Hi
 
 _Usages: Central Orchestration and implementation of all large organisation assistants, Camera Vision, centralised patient knowledge graph management, long-term state storage_ (one of these for all local organisation AI usage on the 'Edge' ~2 years post test phase)_
 
-💭 ### Why _'Edge'_ Hardware Matters
+💭 ### Why _'Edge'_ Hardware Matters 
 
-'Edge' refers to AI compute hardware locally, or on the _edge_ of the 'Internet of things'. This is critical for anything requiring realtime processing when accuracy or speed is paramount, usually camera technology, voice interaction, or robotics (surgical operations etc).
+'Edge' refers to AI compute hardware locally, or on the _edge_ of the 'Internet of things'. This is critical for anything requiring realtime processing when accuracy or speed is paramount, usually camera technology, voice interaction, or robotics (surgical operations etc). 
 
 In hospitals, Housing, Shared Spaces or even private rooms could have a simple embedded screen + mic/speaker in the wall — covered with unbreakable material — acting as a calming, adaptive companion to assist all parties with admin and analysis.
 
@@ -1207,25 +1207,25 @@ When I build AI for a project, i'll test it works to the point where one or a co
 - I'm convinced the architecture is optimally created.
 - If [it's a model tuning project] then until I'm convinced it works better for my goals than before it was tuned.
 - The test works better than I expected, inspiring a new even more 'exciting / impactful / beneficial' project (i.e. a 'Pivot').
-  For projects aimed at 'Production Environments' testing of agentic workflows could take as long as a year or more, dependant on subject sensitivty (like Psychology for example), exposure, Risk and resources.
-- I'm currently testing the Pycharm [AI Model Testing Toolkit](https://lp.jetbrains.com/pycharm-for-ai-engineers/?utm_source=product&utm_medium=link&utm_campaign=PY&utm_content=2025.2) and so far it's 'S-Tier'.
+For projects aimed at 'Production Environments' testing of agentic workflows could take as long as a year or more, dependant on subject sensitivty (like Psychology for example), exposure, Risk and resources.
+- I'm currently testing the Pycharm [AI Model Testing Toolkit](https://lp.jetbrains.com/pycharm-for-ai-engineers/?utm_source=product&utm_medium=link&utm_campaign=PY&utm_content=2025.2) and so far it's 'S-Tier'. 
 
 ---
 **Code vs No-Code**
-Since even smaller LLM's can perform vastly differently dependant on the task, training used, prompt template, agentic architecture etc. Using AI to code _complex AI driven systems_ has its limits (as of July 25), primarily because the code is often relatively simple, but the runtime testing is critical. Typically 'runs' are tracked in production using tools such as OpenTelemetry, Phoenix and / or LangFuse.
+Since even smaller LLM's can perform vastly differently dependant on the task, training used, prompt template, agentic architecture etc. Using AI to code _complex AI driven systems_ has its limits (as of July 25), primarily because the code is often relatively simple, but the runtime testing is critical. Typically 'runs' are tracked in production using tools such as OpenTelemetry, Phoenix and / or LangFuse. 
 
-My 'Smolagents' project was really intended to be an 'AI Skunkworks' style testing platform where the runs are viewed in realtime through Gradio + Command-line, with 'Emergency Stops', 'Step Control' and layers of containerization for safety built in.
+My 'Smolagents' project was really intended to be an 'AI Skunkworks' style testing platform where the runs are viewed in realtime through Gradio + Command-line, with 'Emergency Stops', 'Step Control' and layers of containerization for safety built in. 
 'Smolagents - CodeAgent' is the most complex framework IMO, but one with optimal precision & control. Perhaps akin to using '.cpp' LLM models opposed to 'plug and play' format of 'GGUF'.
 
 *Vibe Coding*
 It's great for non-coding agentic systems, and its both challenging and 'inadvisable' to solely use for complex ones. Here's what i'd _typically_ recommend. It's 'ok' at bug fixing UI or backends (though that adds the visual element).
 
 If you want to develop similar projects and are still developing your coding, my recommendations would be:
-- Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
-- If no-code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or AI tools, but _can_ perform respectably in later elements.
-- For mid-level coders, start yourself and then have claude build the generic bits via any model.
-    - For debugging very challenging fixes, Codex or Gemma CLI is great as the latter has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
-    -
+  - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
+  - If no-code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or AI tools, but _can_ perform respectably in later elements.
+  - For mid-level coders, start yourself and then have claude build the generic bits via any model.
+      - For debugging very challenging fixes, Codex or Gemma CLI is great as the latter has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
+      - 
 Note: I'm currently testing the new [Pycharm AI Dev Environment](https://lp.jetbrains.com/pycharm-for-ai-engineers/?utm_source=product&utm_medium=link&utm_campaign=PY&utm_content=2025.2) and will update accordingly.
 ---
 
@@ -1238,10 +1238,10 @@ Note: I'm currently testing the new [Pycharm AI Dev Environment](https://lp.jetb
 
 ---
 ## ⚠️ Ethical considerations and safety ⚠️
-
+  
 Running a code agent gives the LLM a high degree of control over your environment.  Always remember that agents are experimental and should be treated accordingly.
 
-### Key Points for home projects / development:
+### Key Points for home projects / development:  
 - **Sandbox everything.**  The 'CodeAgent' **has its own Python Interpreter code and Web tools as default!**; only run it on a dedicated NVMe inside either an [E2B](https://e2b.dev) sandbox or a Docker (or your preferred equivalent containerization).  Never point it at your host operating system or personal files.
 - **Keep secrets out of scope.**  Do not grant the agent access to sensitive credentials or systems.  Tools should be whitelisted explicitly.
 - **Omit the trigger phrases for safety.**  Hugging Face intentionally does not publicise 'examples with fully functional *CodeAgents* due to the risks if the library is implemented poorly.
@@ -1252,14 +1252,14 @@ Running a code agent gives the LLM a high degree of control over your environmen
 - The commands to switch to 'Agent Mode', and the commands to 'start the loop' in my framework. You can find them in the code. I stick to the presumed 'Hugging Face' principle of: "if you can't work out the code, you shouldn't be using CodeAgents yet".
 - How the SmolAgents library works under the hood. It's open-source on github so you'll know you're at a point where you _could_ use the library safely, when you have learned how the library works 'back-to-front'.
 - To learn the library, here's the steps I'd suggest:
-    - > 1. ### Do the  [Agents Course](https://huggingface.co/learn/agents-course/en/unit0/introduction). Its intended to be 'roughly' 60 hours for full completion, though if you're exploring all its concepts (it suggests exploration methods), expect it to be around double that.
-      > 2. ### Read all documentation resources at the [bottom of the SmolAgents Resources](https://huggingface.co/learn/agents-course/en/unit2/smolagents/introduction#resources) page. Perhaps Roughly 30 hours.
-    - > 3. ### _Optional but advisable_ Do the [MCP Course](https://huggingface.co/learn/mcp-course/unit0/introduction). You don't need MCP for a runner like mine (i pulled MCP out early on) but it just helps to further understand agentic frameworks
-    - > 4. ### Implement all the examples in the [Cookbook: Agents-Recipes](https://huggingface.co/learn/cookbook/en/agents) and [Cookbook: MLOPS-Recipes](https://huggingface.co/learn/cookbook/en/mlflow_ray_serve). You don't need to use Rayserve but it reinforces the 'monitoring' concepts.
-    - > 5. ### Monitoring Runs: If you did the above, you'll know the importance and steps to implement tracing (via Langfuse, OpenTelemmetry, Pheonix etc) or build a 'realtime runner' test-bed-sandbox, like mine.
-    - > 6. ### *Start with 'ToolCallingAgent'* to implement an agentic solution. *ONLY* move on to 'CodeAgent' once you have done so.
-        - > ToolCallingAgent's can still run code if you write it into the tools (at one point during testing I had something like 27 tools with python code, you can see them in my early commits on the runner repo).
-        - > My home-build safety process is roughly outlined below (in 3 diagrams due to Github's overly restrictive 'Mermaid' rules preventing one clean version)
+  - > 1. ### Do the  [Agents Course](https://huggingface.co/learn/agents-course/en/unit0/introduction). Its intended to be 'roughly' 60 hours for full completion, though if you're exploring all its concepts (it suggests exploration methods), expect it to be around double that.
+    > 2. ### Read all documentation resources at the [bottom of the SmolAgents Resources](https://huggingface.co/learn/agents-course/en/unit2/smolagents/introduction#resources) page. Perhaps Roughly 30 hours.
+  - > 3. ### _Optional but advisable_ Do the [MCP Course](https://huggingface.co/learn/mcp-course/unit0/introduction). You don't need MCP for a runner like mine (i pulled MCP out early on) but it just helps to further understand agentic frameworks
+  - > 4. ### Implement all the examples in the [Cookbook: Agents-Recipes](https://huggingface.co/learn/cookbook/en/agents) and [Cookbook: MLOPS-Recipes](https://huggingface.co/learn/cookbook/en/mlflow_ray_serve). You don't need to use Rayserve but it reinforces the 'monitoring' concepts.
+  - > 5. ### Monitoring Runs: If you did the above, you'll know the importance and steps to implement tracing (via Langfuse, OpenTelemmetry, Pheonix etc) or build a 'realtime runner' test-bed-sandbox, like mine.
+  - > 6. ### *Start with 'ToolCallingAgent'* to implement an agentic solution. *ONLY* move on to 'CodeAgent' once you have done so.
+    - > ToolCallingAgent's can still run code if you write it into the tools (at one point during testing I had something like 27 tools with python code, you can see them in my early commits on the runner repo).
+    - > My home-build safety process is roughly outlined below (in 3 diagrams due to Github's overly restrictive 'Mermaid' rules preventing one clean version)
 
 ```mermaid
 flowchart LR
@@ -1317,18 +1317,18 @@ flowchart TD
 
 ```
 ## Security & Ethics - Production Environments - Example Risk Register / Considerations
-
-The following table is designed to demonstrate an awareness of common security and ethical risks when developing and deploying AI systems, particularly in internal enterprise contexts. It uses a **risk register** format to present risks, likelihoods, impacts, and recommended mitigations. This serves both as a professional reference and as a working framework for ongoing security considerations during project development.
-
-| Risk | Description | Likelihood | Impact | Mitigation / Consideration |
+  
+The following table is designed to demonstrate an awareness of common security and ethical risks when developing and deploying AI systems, particularly in internal enterprise contexts. It uses a **risk register** format to present risks, likelihoods, impacts, and recommended mitigations. This serves both as a professional reference and as a working framework for ongoing security considerations during project development.  
+  
+  | Risk | Description | Likelihood | Impact | Mitigation / Consideration |
   |---|---|---|---|---|
-| **Data Leakage via Integrated Systems** | Sensitive information is unintentionally exposed through linked applications or integrations.____________  **Case Study:** During a consulting role on a high-security assignment (requiring my authorisation for the highest UK government security clearance, tracing my family heritage and other elaborate schema), unrestricted access controls allowed me to view highly sensitive data, that could have significantly exploited by foreign intelligence. The issue was discovered accidentally on Day 1 while reviewing 'everyday' workflows — illustrating how even in “fortress-like” environments, technical implementations can open severe gaps. | Medium (mature systems) / High (new implementations) | High | Apply the principle of least privilege, conduct rigorous pre-launch access audits, simulate insider-threat scenarios, and verify role-based controls in both staging and production environments. |
-| **Prompt Injection / Content Injection** | Malicious actors craft inputs designed to bypass intended AI behaviour, introduce harmful content, or exfiltrate sensitive data from the model's context. | Medium | High | Employ layered input sanitisation, limit system prompt exposure, and monitor for abnormal query patterns. Treat as **High/High** risk until operational data shows otherwise. |
-| **Model Hallucination with High-Impact Outputs** | AI generates false or misleading information that could influence decisions in critical contexts (e.g., legal, medical, defence). | Medium | High | Use retrieval-augmented generation (RAG) with trusted sources, apply fact-checking pipelines, and implement human-in-the-loop verification for sensitive outputs. |
-| **Bias & Fairness** | Embedded or amplified bias in training data or retrieval sources leads to discriminatory outputs, impacting recruitment, resource allocation, or public perception. | Medium | Medium–High | Conduct bias audits, use balanced datasets, and apply post-processing filters to ensure fairness metrics meet acceptable thresholds. |
-| **Uncontrolled Model Access** | Internal or external parties gain unauthorised use of the model for malicious or unapproved purposes. | Low–Medium | High | Implement authentication, rate limiting, role-based access, and logging with anomaly detection to track and limit model usage. |
-| **Data Residency & Compliance Risks** | AI system processes or stores data in jurisdictions with conflicting data protection laws, risking GDPR or other regulatory breaches. | Medium | Medium–High | Map data flows, ensure region-locked storage, and use encryption in transit and at rest. Consult legal teams during architecture design. |
-| **Adversarial Examples** | Inputs crafted to manipulate model outputs without detection, potentially bypassing security safeguards. | Low–Medium | Medium–High | Employ adversarial training, detection algorithms, and model robustness testing prior to deployment. |
-
-**Key Principle:** No matter how small the perceived probability of a risk (e.g., content injection), in new or untested systems it should be treated as **High Likelihood / High Impact** until there is operational evidence to downgrade its rating. This approach mirrors physical security protocols, where high-impact threats are addressed proactively rather than reactively.
+  | **Data Leakage via Integrated Systems** | Sensitive information is unintentionally exposed through linked applications or integrations.____________  **Case Study:** During a consulting role on a high-security assignment (requiring my authorisation for the highest UK government security clearance, tracing my family heritage and other elaborate schema), unrestricted access controls allowed me to view highly sensitive data, that could have significantly exploited by foreign intelligence. The issue was discovered accidentally on Day 1 while reviewing 'everyday' workflows — illustrating how even in “fortress-like” environments, technical implementations can open severe gaps. | Medium (mature systems) / High (new implementations) | High | Apply the principle of least privilege, conduct rigorous pre-launch access audits, simulate insider-threat scenarios, and verify role-based controls in both staging and production environments. |
+  | **Prompt Injection / Content Injection** | Malicious actors craft inputs designed to bypass intended AI behaviour, introduce harmful content, or exfiltrate sensitive data from the model's context. | Medium | High | Employ layered input sanitisation, limit system prompt exposure, and monitor for abnormal query patterns. Treat as **High/High** risk until operational data shows otherwise. |
+  | **Model Hallucination with High-Impact Outputs** | AI generates false or misleading information that could influence decisions in critical contexts (e.g., legal, medical, defence). | Medium | High | Use retrieval-augmented generation (RAG) with trusted sources, apply fact-checking pipelines, and implement human-in-the-loop verification for sensitive outputs. |
+  | **Bias & Fairness** | Embedded or amplified bias in training data or retrieval sources leads to discriminatory outputs, impacting recruitment, resource allocation, or public perception. | Medium | Medium–High | Conduct bias audits, use balanced datasets, and apply post-processing filters to ensure fairness metrics meet acceptable thresholds. |
+  | **Uncontrolled Model Access** | Internal or external parties gain unauthorised use of the model for malicious or unapproved purposes. | Low–Medium | High | Implement authentication, rate limiting, role-based access, and logging with anomaly detection to track and limit model usage. |
+  | **Data Residency & Compliance Risks** | AI system processes or stores data in jurisdictions with conflicting data protection laws, risking GDPR or other regulatory breaches. | Medium | Medium–High | Map data flows, ensure region-locked storage, and use encryption in transit and at rest. Consult legal teams during architecture design. |
+  | **Adversarial Examples** | Inputs crafted to manipulate model outputs without detection, potentially bypassing security safeguards. | Low–Medium | Medium–High | Employ adversarial training, detection algorithms, and model robustness testing prior to deployment. |
+  
+**Key Principle:** No matter how small the perceived probability of a risk (e.g., content injection), in new or untested systems it should be treated as **High Likelihood / High Impact** until there is operational evidence to downgrade its rating. This approach mirrors physical security protocols, where high-impact threats are addressed proactively rather than reactively.  
 -
