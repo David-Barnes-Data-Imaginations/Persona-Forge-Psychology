@@ -81,7 +81,7 @@ class CustomAgent:
         """Custom agent wrapper that configures ToolCallingAgent with our tools and settings"""
 
         if model_id is None:
-            model_id = "gemma3:12b"
+            model_id = "gpt-oss:20b"
 
         # Ensure correct LiteLLM + Ollama model name format
         if not model_id.startswith("ollama/"):

@@ -60,7 +60,7 @@ def main():
         if ollama_process:
             ollama_process.terminate()
         return
-    pull_model("gemma3:12b")
+    pull_model("gpt-oss:20b")
 
     # Create agent with context manager support for cleanup
     agent = CustomAgent(

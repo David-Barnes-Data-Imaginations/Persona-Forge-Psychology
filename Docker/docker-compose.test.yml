@@ -30,7 +30,5 @@ services:
     environment:
       - OLLAMA_HOST=0.0.0.0
     restart: unless-stopped
-docker-compose:
-  yml:
 volumes:
   ollama_data:
