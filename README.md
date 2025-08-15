@@ -2,6 +2,8 @@
 
 ---
 ### This 'README' is more of a collation of various notes from my Logseq files that I write during breaks from testing, whilst the project is WIP. Therefore don't expect too much coherence or fancy writing, i'll do that once its finished.
+
+If you're really bored you can also read my first blog (whilst my website is WIP) [here](https://github.com/David-Barnes-Data-Imaginations/blog.github.io/blob/main/_posts/2025-08-10-titles.md).
 ---
 **For Clinicians / Non-Techies**:
 - I present the core 'Psychology principles' involved first, to spare the pain of technical jargon. I cover _some_ technical aspects related to 'Knowledge Graphs', but graph syntax is closer to 'Structured English' than it is to a 'Coding Language'.
@@ -37,25 +39,24 @@ _Eric Schmidt_ July 2025
 2. ~Replace E2b with Docker containerization~ (pushed to repo now, boots much faster)
 3. ~Add example risk-register / considerations for production environments~
 4. Remove Kinoite Operating system and replace with Ubuntu (Kinoite ironically reduces security by requiring agent has root access in docker)
-4. **_Revisit containerization in Docker to implement security using 4 seperate docker containers:_**
+5. Rebuild Distributed network on Ubuntu and bootable NVIDEA Triton server (Ollama no longer capable for project goals)
+6. **_Revisit containerization in Docker to implement security using four seperate docker containers:_**
 Part 1:
   - **_Container A (orchestrator/UI): runs the Dashboard/HTTP/UI, builds tools, telemetry, and orchestrates agents._**
   - **_Container B/C/D (agent executors): long-lived, isolated containers where each agent’s python_interpreter code runs. These are the “sandboxes,” one per agent._**
   - **Multi-Agent Orchestra scaffold in place, working to fix python_interpreter bug under all the new security**
-5. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation. 
-6. Test AI schema tagging, schema and a selection of models to optimize GPU usage.
-7. Generate schema instructions 'for AI, by AI' using GPT5.
-8. Finalise Graph schema and test data collection methods to test.
-9. Implement Triton to replace Ollama for distrubuted networking / multi container workflow.
+6. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation. 
+7. Test AI schema tagging, schema and a selection of models to optimize GPU usage. 
+8. Generate schema instructions 'for AI, by AI' using GPT5. 
+9. Finalise Graph schema and test data collection methods to test.
 10. **_Revisit containerization in Docker to implement security using 4 seperate docker containers:_**
 Part 2:
   - **Implement via distributed networking across 3 PC's, Full 'Orchestra' model rotation, adding secured agent executors with gVisor (runsc) for code-exec sandboxes and for _security critical_ operations, Kata as the runtime class (K8s RuntimeClass / containerd config). Orchestra to switch specific agents to Kata if they need kernel features / stronger tenant isolation.**
-  - This is a **BIG** job so I'll be here for a few days.
-11. Implement test scaffold for 'graph-informed' 'socials-Analysis'.
-12. Generate further therapy-simulator schema & content
-13. Set up 'Home Assistant' using mini-tx, Raspberry Pi 5 and re-engineered 'Alexa' hardware (as placeholder for [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) for motion detected 'Camera tagging with VLM.
-14. Test GPT-oss voice interface with tagging and Psychology / CBT / ACT knowledge-base for tagging, 'daily routine / event' information schema' and 'Care-plan / form Q&A.
-15. Build and test '3 container - Local Only' architecture with 'Agentic learning' & 'role-based security'
+  - This is a **BIG** job so I'll be here for a few days. Implement test scaffold for 'graph-informed' 'socials-Analysis'. 
+11. Generate further therapy-simulator schema & content
+12. Set up 'Home Assistant' using mini-tx, Raspberry Pi 5 and re-engineered 'Alexa' hardware (as placeholder for [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) for motion detected 'Camera tagging with VLM. 
+13. Test GPT-oss voice interface with tagging and Psychology / CBT / ACT knowledge-base for tagging, 'daily routine / event' information schema' and 'Care-plan / form Q&A.
+14. Build and test '3 container - Local Only' architecture with 'Agentic learning' & 'role-based security'
 ---
 >###  ⛔ Please Review and Consider Example 'Risk Register' Schema before implementing anything beyond Dev phase, found at bottom of document⛔'**.
 ---
