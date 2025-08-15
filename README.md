@@ -464,8 +464,9 @@ Learning should be both inclusive and imaginative, that’s why this section is 
 
 Below I have listed current technologies you _might_ use for any agentic implementation. However it's worth noting that once the (slightly delayed) [NVIDEA DGX Spark](https://www.nvidia.com/en-gb/products/workstations/dgx-spark/) is released, it renders most of the below obsolete aside from extremely specialised situations (for example the [NVIDIA Jetson AGX Orin](https://www.amazon.co.uk/NVIDIA-Jetson-Orin-64GB-Developer/dp/B0BYGB3WV4/ref=sr_1_2?crid=33CCWL1IBISS2&dib=eyJ2IjoiMSJ9.69vgNBFj_CdRHWPE_OPdtzawpTgSy7m7eYwZ4Zpd3qmNn2sSrsmOZG4bcs42HUmcy1ngGpW5cR1TCiY_Q96G4MQ8VWDGzE2DdSHdunjTG6o-L2ZcnGuqHqOJX7Y5xzgiQJi6V7vHG3oxZeFBl9erQWd-Aq4JCmSRbLh0sN52bcxl1jvUSJCtk3Fq8xIGcdJkSYwio6aq0trgaB62cP2tMQ.A2QEg87Q5k0XgEE2eEWUG-VEaLW2OhsXtXp3q4jQU2o&dib_tag=se&keywords=NVIDIA%2BJetson%2BAGX%2BOrin%2B%2F%2BNVIDIA%2BIGX&qid=1754615087&sprefix=nvidia%2Bjetson%2Bagx%2Borin%2B%2F%2Bnvidia%2Bigx%2B%2Caps%2C59&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1) is often used for automated Security Camera monitoring and tagging / timestamping). The Spark and / or [DGX Workstation](https://www.nvidia.com/en-us/products/workstations/dgx-station/) will likely redefine modern computers and laptops entirely. The Spark was rumoured to be around £3k (likely closer to £4k) and two networked via NV-Link can run a Llama-Nemo 405B (roughly half the size of GPT4o on release). The Spark fits in the palm of your hand (so goodbye laptops) whilst the Workstation is regular PC size.
 
-You can see [My Hardware Stack for Dev/Testing this Project](https://github.com/David-Barnes-Data-Imaginations/Persona-Forge-Psychology/blob/master/my_hardware_setup.md) for reference.
+### 🔧 Tech Stack (_Mine_ & 'Production Examples')
 
+You can see [My Hardware Stack for Dev/Testing this Project](https://github.com/David-Barnes-Data-Imaginations/Persona-Forge-Psychology/blob/master/my_hardware_setup.md) for reference.
 
 
 ### Sponsorship for AI Grants
@@ -481,11 +482,9 @@ graph TD
   C1[🚀 Production / Edge Use-Case<br>Stable deployment or specialist use<br><b>Use: Integrated room assistants, patient-interaction hubs</b>]
 ```
 
-### 🔧 Tech Stack
 
-**Example Hardware**
 
-**Use Case Examples**
+**Example Hardware & Use Case Examples**
 
 🧭 Legend
 
@@ -518,6 +517,15 @@ _Usages: 'Realtime' processing (AI Driven Security Camera tech or robotics) , Hi
 🔴💡 Business server / ☁️ Cloud-Connected — Uses API (e.g., GPT) or ☁️ hybrid inferenceCloud-hosted / NAS GPU box
 
 _Usages: Central Orchestration of ward/room assistants, centralised patient knowledge graph, API routing, long-term state storage_
+
+
+<h2 align='center'>  
+  The NVIDEA Jetson Orin AI / Robotics / Video Camera Family 
+  </h2>  
+  <br> 
+<p align="center">  
+  <img src="./jetson.png" alt="NGX diagram">  
+</p>
 
 💭 Why 'Edge' Hardware Matters 
 
