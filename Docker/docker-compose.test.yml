@@ -1,27 +1,62 @@
-# YAML
 services:
   orchestrator:
     build:
-      context: ..                 # project root (one level up from this compose file)
-      dockerfile: Docker/Dockerfile  # path relative to the context
+      context: ..
+      dockerfile: Docker/Dockerfile
     image: persona-forge:latest
     container_name: persona-forge
-    user: "0:0"
+    # This is a powerful flag that solves deep permission issues, especially
+    # with SELinux on systems like Kinoite. It gives the container extended
+    # privileges on the host. Use with caution, but it's often necessary for
+    # this "Docker-from-Docker" pattern.
+    privileged: true
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - HF_TOKEN=${HF_TOKEN}
       - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
       - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
-      - OLLAMA_HOST=${OLLAMA_HOST:-host.docker.internal}
       - USE_DOCKER_EXECUTOR=true
+      - USE_HOST_OLLAMA=false      # IMPORTANT: We now use the containerized Ollama
+      - OLLAMA_HOST=ollama         # Connect to the 'ollama' service by its name
     volumes:
-      - ..:/app:rw,Z
-      - /var/run/docker.sock:/var/run/docker.sock:rw
+      # This is still needed so the orchestrator can create the executor container
+      - /var/run/docker.sock:/var/run/docker.sock:rw,Z
       - ../src/data:/app/src/data:ro,Z
       - ../states:/app/states:rw,Z
       - ../embeddings:/app/embeddings:rw,Z
 
     ports:
       - "7860:7860"
+    networks:
+      - agent_network
     command: ["python", "main.py"]
+    depends_on:
+      - ollama
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-server
+    # You don't need to expose the port to the host, but it can be useful for debugging
+    # ports:
+    #  - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - agent_network
+    restart: unless-stopped
+
+# Define the shared network
+networks:
+  agent_network:
+    driver: bridge
+
+# Define the volume for Ollama's data
+volumes:
+  ollama_data:

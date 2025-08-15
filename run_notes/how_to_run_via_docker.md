@@ -62,4 +62,4 @@ In Docker/docker-compose.test.yml, I've commented out these lines (to remove per
 
 - It still isolates containered environment - From your local changes
 - It Verifies all files are properly copied - During Docker build
-
+---

@@ -1,19 +1,15 @@
 import datetime
-import asyncio  # Add this
-import json     # Add this
-from smolagents import CodeAgent, PromptTemplates, Tool
+import asyncio
+import json
+from smolagents.agent_types import AgentText
+from smolagents import CodeAgent, Tool
 from smolagents.models import LiteLLMModel
 from typing import List, Any, AsyncGenerator, Optional
-from smolagents import Tool
 from src.utils.prompts import CA_SYSTEM_PROMPT, DB_SYSTEM_PROMPT, PLANNING_INITIAL_FACTS, PLANNING_INITIAL_PLAN, \
     PLANNING_UPDATE_FACTS_PRE, PLANNING_UPDATE_FACTS_POST, PLANNING_UPDATE_PLAN_PRE, PLANNING_UPDATE_PLAN_POST, \
     CA_MAIN_PROMPT
 import litellm
-from typing import Generator
-from smolagents.agent_types import AgentText
 import os
-
-from smolagents.local_python_executor import LocalPythonExecutor
 
 # Prompt templates
 prompt_templates = {
@@ -81,25 +77,19 @@ class CustomAgent:
             ollama_host: str = "localhost",
             python_executor=None,
     ):
-        self.metadata_embedder = metadata_embedder
-        self.tools = tools or []
-        self.is_agentic_mode = False
-        self.sandbox = sandbox
-        self.ollama_host = ollama_host  # <-- ensure this is set so handle_chat_mode can use it
 
-        model_id = model_id or "gpt-oss:20b"
-        if not model_id.startswith("ollama/"):
-            model_id = f"ollama/{model_id}"
+        self.ollama_host = ollama_host
+        raw_model = model_id or "gpt-oss:20b"
 
         model = LiteLLMModel(
-            model_id=model_id,
-            api_base=f"http://{ollama_host}:11434",
-            api_key="dummy",
+            model_id=f"openai/{raw_model}",
+            api_base=f"http://{ollama_host}:11434/v1",
+            api_key="ollama",
             num_ctx=8192,
         )
 
         self.agent = CodeAgent(
-            tools=self.tools,
+            tools=tools,
             model=model,
             prompt_templates=prompt_templates,
             additional_authorized_imports=[
@@ -118,95 +108,59 @@ class CustomAgent:
                 "matplotlib",
                 "plotly",
             ],
-            python_executor=python_executor,
             add_base_tools=True,
             planning_interval=5,
             max_steps=30,
-            verbosity_level=2,
+            verbosity_level=3,  # increase to see parsed code/content in logs
         )
+        # Optional: set conservative defaults for code generation
+        if hasattr(self.agent, "default_additional_args"):
+            self.agent.default_additional_args = {"temperature": 0.2, "top_p": 0.9}
 
+        # Optional: docker-backed executor injection
+        if python_executor is not None:
+            try:
+                self.agent.python_executor = python_executor
+                if hasattr(self.agent, "executor_type"):
+                    self.agent.executor_type = "local"
+            except Exception as e:
+                print(f"⚠️ Failed to set custom python executor: {e}")
 
-
-        # Files are now local - no need to copy from sandbox
-        # self._setup_agent_data()  # Commented out as files are already local
-
+        # Sanity check via OpenAI-compatible route
         try:
             test_response = litellm.completion(
-                model="ollama/gpt-oss:20b",
-                messages=[{"role": "user", "content": "." }],
-                api_base=f"http://{ollama_host}:11434",  # Use the configured Ollama host here too
-                stream=False
+                model=f"openai/{raw_model}",
+                messages=[{"role": "user", "content": "ping"}],
+                api_base=f"http://{ollama_host}:11434/v1",
+                api_key="ollama",
+                stream=False,
             )
-            print("✅ Ollama test response:", test_response['choices'][0]['message']['content'])
+            print("✅ Ollama (OpenAI-compatible) test response:",
+                  test_response['choices'][0]['message']['content'][:80], "...")
         except Exception as e:
-            print("❌ Ollama sanity check failed:", str(e))
-
-
-    def _setup_agent_data(self):
-        """Setup data files for local execution - files are already local in Docker"""
-        try:
-            # Verify that data files exist locally
-            data_files = [
-                "./src/data/turtle_reviews.csv",
-                "./src/data/turtle_sales.csv", 
-                "./src/data/tg_database.db",
-                "./src/data/metadata/turtle_games_dataset_metadata.md"
-            ]
-            
-            for file_path in data_files:
-                if os.path.exists(file_path):
-                    print(f"✅ Found: {file_path}")
-                else:
-                    print(f"❌ Missing: {file_path}")
-                    
-        except Exception as e:
-            print(f"⚠️ Warning: Error checking data files: {str(e)}")
-
-    def run(self, task: str, images=None, stream=False, reset=False, additional_args=None):
-        print(f"🔍 Agent.run called with task: '{task}', agentic_mode: {self.is_agentic_mode}")
-        
-        # Check if user wants to begin agentic workflow
-        if task.lower().strip() == "begin":
-            self.is_agentic_mode = True
-            print("🚀 Switching to agentic mode")
-            return self.start_agentic_workflow()
-            # Check if user wants to begin agentic workflow
-
-        if task.lower().strip() == "stop":
-            self.is_agentic_mode = False
-            # Otherwise, run in normal chat mode
-            print("💬 Good! Moving back to chat mode")
-            return self.handle_chat_mode(task, images, stream, reset, additional_args)
-
-        # If in agentic mode, handle differently
-        if self.is_agentic_mode:
-            print("🤖 Handling in agentic mode")
-            return self.handle_agentic_mode(task, images, stream, reset, additional_args)
-        
-        # Otherwise, run in normal chat mode
-        print("💬 Handling in chat mode")
-        return self.handle_chat_mode(task, images, stream, reset, additional_args)
+            print("❌ Ollama OpenAI-compatible sanity check failed:", str(e))
 
     def handle_chat_mode(self, task: str, images=None, stream=False, reset=False, additional_args=None):
         """Handle normal chat interactions"""
-        # Use the same model as the agent for consistency
         try:
-            # Get the model_id from the agent's model
             model_id = self.agent.model.model_id
+            if not model_id.startswith("openai/"):
+                model_id = f"openai/{model_id}"
 
             response = litellm.completion(
                 model=model_id,
                 messages=[{"role": "user", "content": task}],
-                api_base=f"http://{self.ollama_host}:11434",  # Use the stored Ollama host
+                api_base=f"http://{self.ollama_host}:11434/v1",
+                api_key="ollama",
                 stream=stream
             )
-
             if stream:
                 return response
             else:
                 return response['choices'][0]['message']['content']
         except Exception as e:
-         return f"Error in chat mode: {str(e)}"
+            return f"Error in chat mode: {str(e)}"
+
 
     def handle_agentic_mode(self, task: str, images=None, stream=False, reset=False, additional_args=None):
         """Handle agentic workflow execution"""

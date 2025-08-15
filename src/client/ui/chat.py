@@ -356,16 +356,18 @@ class GradioUI:
                             messages[-1].content = msg
                         else:
                             messages.append(gr.ChatMessage(role="assistant", content=msg, metadata={"status": "pending"}))
-                    yield messages
+                yield messages
             else:
-                print("💬 UI: Agent is in chat mode, calling agent.run directly")
+                print(" UI: Agent is in chat mode, calling agent.run directly")
                 # Handle chat mode - direct response from agent
-                response = session_state["agent"].run(prompt, stream=False)
-                print(f"💬 UI: Got response: {response}")
+                response = session_state["agent"].handle_chat_mode(prompt, stream=False)
+                print(f" UI: Got response: {response}")
                 messages.append(gr.ChatMessage(role="assistant", content=response, metadata={"status": "done"}))
                 yield messages
 
             yield messages
+
+
         except Exception as e:
             print(f"❌ UI: Error in interaction: {str(e)}")
             yield messages

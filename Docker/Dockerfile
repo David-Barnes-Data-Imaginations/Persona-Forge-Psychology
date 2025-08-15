@@ -18,7 +18,7 @@ WORKDIR /app
 
 # IMPORTANT: these paths must be relative to the build context (project root),
 # since docker-compose sets build.context: ..
-COPY requirements.txt /app/requirements.txt
+COPY ../requirements.txt /app/requirements.txt
 
 ENV VENV=/app/.venv
 RUN python -m venv ${VENV} && \
