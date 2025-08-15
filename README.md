@@ -3,30 +3,58 @@
 ---
 ### This 'README' is more of a collation of various notes from my Logseq files that I write during breaks from testing, whilst the project is WIP. Therefore don't expect too much coherence or fancy writing, i'll do that once its finished.
 ---
-**For Clinicians / Non-Techies:**
+**For Clinicians / Non-Techies**:
 - I present the core 'Psychology principles' involved first, to spare the pain of technical jargon. I cover _some_ technical aspects related to 'Knowledge Graphs', but graph syntax is closer to 'Structured English' than it is to a 'Coding Language'.
 - The concept was developed from a [project](https://github.com/David-Barnes-Data-Imaginations/SentimentSuite) that was intended to be a 'light demo' for a friend, using 'Russells Cicumplex' and 'utterances' to evaluate therapy session transcripts (Carl & Gloria etc.)
 ---
-**For 'Techies' or those learning to build 'Advanced Agentic Systems':**
+**For 'Techies' or those learning to build 'Advanced Agentic Systems'**: 
 - The code from my 'Agent Runner' 🏃 [smolagents 'Test & Trace' Dev-Environment](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist) is currently placed in this repo, with the [SentimentSuite](https://github.com/David-Barnes-Data-Imaginations/SentimentSuite) added in.
 - The 'Agent Runner'🏃 can be tailoured to practically any task, using adaptations to the 'Prompt Templates and 'Tools', leveraging core 'Hugging Face - Spaces', MCP (I removed as it was out of scope), custom trained LLM or a 'Founder Model' backend. 
 - At the very bottom is the 'Safety & Ethics' section, outlining how to run experiments with the incredibly powerful 'Smolagents' library, in a safe dev environment. This also contains advice on _how to learn_ 'SmolAgents' most powerful 'CodeAgent' functionality.
 - Whilst this project has a specific goal / subject, the architecture has intentionally been built to be flexible enough so that it can be easily transferrable to other domains. These might include: Housing, Information Security or general business / government organizations.
 ---
-# TODO's (Redone after a file saving mishap)
+
+❗**Important note:** for any references to my [smolagents agentic framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist), switch to the smolagents branch as the main / default branch is months old and incorrect. I've just noticed and need to sort ssh out on this os before i can update it. This will be done shortly but worth noting if previously referenced. The runner code in this repo is correct, albeit in transition to docker❗
+
+---
+
+### **_Why_ agentic frameworks?**
+
+- Now if you're still getting to grip with the concept of agentic frameworks, who better to summarise than a former 'Google CEO' and 'Whitehouse Advisor' to multiple US Presidents: [Eric Schmidt](https://en.wikipedia.org/wiki/Eric_Schmidt).
+- Bear in mind this was recorded a month ago, and a hell of a lot has happened in that month.
+- The key segment is at [10:57] in this [video](https://www.youtube.com/watch?v=qaPHK1fJL5s). The process he describes in perfectly feasible, even 'easy' once you have a smolagents runner like mine.
+
+### Here's a trimmed snippet if you want the tldr:
+
+---
+**_"The remarkable thing... and this is to me is shocking... is you can in 'an enterprise', write the task that you want and then connect your databases with an LLM which can produce the code for your enterprise.
+If you built a brand new enterprise architecture, you would be highly tempted use open- source libraries, and essentially build that architecture, giving you infinite flexibility and the computer system and writes most of the code."_**
+
+_Eric Schmidt_ July 2025
+
+---
 1. ~Finish Simulated-therapy script~
 2. ~Replace E2b with Docker containerization~ (pushed to repo now, boots much faster)
 3. ~Add example risk-register / considerations for production environments~
-4. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation. **(WIP)**
-5. Test AI schema tagging, schema and a selection of models to optimize GPU usage.
-6. Generate schema instructions 'for AI, by AI' using GPT5.
-7. Finalise Graph schema and test data collection methods to test.
-8. Implement Triton to replace Ollama for distrubuted networking / multi container workflow.
-9. Implement test scaffold for 'graph-informed' 'socials-Analysis'.
-10. Generate further therapy-simulator schema & content
-11. Set up 'Home Assistant' using mini-tx, Raspberry Pi 5 and re-engineered 'Alexa' hardware (as placeholder for [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) for motion detected 'Camera tagging with VLM.
-12. Test GPT-oss voice interface with tagging and Psychology / CBT / ACT knowledge-base for tagging, 'daily routine / event' information schema' and 'Care-plan / form Q&A.
-13. Build and test '3 container - Local Only' architecture with 'Agentic learning' & 'role-based security'
+4. **_Revisit containerization in Docker to implement security using 4 seperate docker containers:_**
+Part 1:
+  - **_Container A (orchestrator/UI): runs the Dashboard/HTTP/UI, builds tools, telemetry, and orchestrates agents._**
+  - **_Container B/C/D (agent executors): long-lived, isolated containers where each agent’s python_interpreter code runs. These are the “sandboxes,” one per agent._**
+  - **Multi-Agent Orchestra scaffold in place, working to fix python_interpreter bug under all the new security**
+5. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation. 
+6. Test AI schema tagging, schema and a selection of models to optimize GPU usage.
+7. Generate schema instructions 'for AI, by AI' using GPT5.
+8. Finalise Graph schema and test data collection methods to test.
+9. Implement Triton to replace Ollama for distrubuted networking / multi container workflow.
+10. **_Revisit containerization in Docker to implement security using 4 seperate docker containers:_**
+Part 2:
+  - **Implement via distributed networking across 3 PC's, Full 'Orchestra' model rotation, adding secured agent executors with gVisor (runsc) for code-exec sandboxes and for _security critical_ operations, Kata as the runtime class (K8s RuntimeClass / containerd config). Orchestra to switch specific agents to Kata if they need kernel features / stronger tenant isolation.**
+  - This is a **BIG** job so I'll be here for a few days.
+11. Implement test scaffold for 'graph-informed' 'socials-Analysis'.
+12. Generate further therapy-simulator schema & content
+13. Set up 'Home Assistant' using mini-tx, Raspberry Pi 5 and re-engineered 'Alexa' hardware (as placeholder for [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) for motion detected 'Camera tagging with VLM.
+14. Test GPT-oss voice interface with tagging and Psychology / CBT / ACT knowledge-base for tagging, 'daily routine / event' information schema' and 'Care-plan / form Q&A.
+15. Build and test '3 container - Local Only' architecture with 'Agentic learning' & 'role-based security'
 ---
 >###  ⛔ Please Review and Consider Example 'Risk Register' Schema before implementing anything beyond Dev phase, found at bottom of document⛔'**.
 ---
