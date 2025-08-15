@@ -14,11 +14,6 @@ If you're really bored you can also read my first blog (whilst my website is WIP
 - The 'Agent Runner'🏃 can be tailoured to practically any task, using adaptations to the 'Prompt Templates and 'Tools', leveraging core 'Hugging Face - Spaces', MCP (I removed as it was out of scope), custom trained LLM or a 'Founder Model' backend. 
 - At the very bottom is the 'Safety & Ethics' section, outlining how to run experiments with the incredibly powerful 'Smolagents' library, in a safe dev environment. This also contains advice on _how to learn_ 'SmolAgents' most powerful 'CodeAgent' functionality.
 - Whilst this project has a specific goal / subject, the architecture has intentionally been built to be flexible enough so that it can be easily transferrable to other domains. These might include: Housing, Information Security or general business / government organizations.
----
-
-❗**Important note:** for any references to my [smolagents agentic framework](https://github.com/David-Barnes-Data-Imaginations/llm_data_scientist), switch to the smolagents branch as the main / default branch is months old and incorrect. I've just noticed and need to sort ssh out on this os before i can update it. This will be done shortly but worth noting if previously referenced. The runner code in this repo is correct, albeit in transition to docker❗
-
----
 
 ### **_Why_ agentic frameworks?**
 
