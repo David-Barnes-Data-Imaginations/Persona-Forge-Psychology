@@ -36,6 +36,7 @@ _Eric Schmidt_ July 2025
 1. ~Finish Simulated-therapy script~
 2. ~Replace E2b with Docker containerization~ (pushed to repo now, boots much faster)
 3. ~Add example risk-register / considerations for production environments~
+4. Remove Kinoite Operating system and replace with Ubuntu (Kinoite ironically reduces security by requiring agent has root access in docker)
 4. **_Revisit containerization in Docker to implement security using 4 seperate docker containers:_**
 Part 1:
   - **_Container A (orchestrator/UI): runs the Dashboard/HTTP/UI, builds tools, telemetry, and orchestrates agents._**

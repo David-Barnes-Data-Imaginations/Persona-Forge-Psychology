@@ -317,6 +317,7 @@ class GradioUI:
             outputs=self.status_display
         )
 
+
     def interact_with_agent(self, prompt, messages, session_state):
 
         # Run the agent if not running
@@ -328,45 +329,50 @@ class GradioUI:
             messages.append(gr.ChatMessage(role="user", content=prompt, metadata={"status": "done"}))
             yield messages
 
-            # Check if agent is in agentic mode and handle final answer
-            if hasattr(session_state["agent"], 'is_agentic_mode') and session_state["agent"].is_agentic_mode:
-                print("🤖 UI: Agent is in agentic mode, using stream_to_gradio")
+            # Simple routing based on prompt content
+            if prompt.strip().lower() == "begin":
+                print("🚀 UI: 'begin' detected, starting agentic workflow...")
+                response = session_state["agent"].start_agentic_workflow()
+                messages.append(gr.ChatMessage(role="assistant", content=response, metadata={"status": "done"}))
+                yield messages
+            elif hasattr(session_state["agent"], 'is_agentic_mode') and session_state["agent"].is_agentic_mode:
+                print("⚙️ UI: Agent is in agentic mode, using stream_to_gradio")
                 # Use the smolagents stream for agentic mode - use the underlying agent directly
                 for msg in stream_to_gradio(
                         session_state["agent"].agent, task=prompt, reset_agent_memory=self.reset_agent_memory
                 ):
-                    print(f"📧 UI: Received message type: {type(msg)}")
+                    print(f"📦 UI: Received message type: {type(msg)}")
                     if isinstance(msg, gr.ChatMessage):
-                        messages[-1].metadata["status"] = "done"
+                        if messages and messages[-1].metadata.get("status") == "pending":
+                            messages[-1].metadata["status"] = "done"
                         messages.append(msg)
-                        
+
                         # Check if this is a final answer step
                         if hasattr(msg, 'content') and '**Final answer:**' in str(msg.content):
                             # Signal return to chat mode
                             session_state["agent"].return_to_chat_mode()
                             messages.append(gr.ChatMessage(
-                                role="assistant", 
+                                role="assistant",
                                 content="✅ Analysis complete! I'm back in chat mode. Feel free to ask me questions about the analysis or request new tasks.",
                                 metadata={"status": "done"}
                             ))
-                            
+
                     elif isinstance(msg, str):  # Then it's only a completion delta
                         msg = msg.replace("<", r"\<").replace(">", r"\>")  # HTML tags seem to break Gradio Chatbot
-                        if messages[-1].metadata["status"] == "pending":
+                        if messages and messages[-1].metadata.get("status") == "pending":
                             messages[-1].content = msg
                         else:
                             messages.append(gr.ChatMessage(role="assistant", content=msg, metadata={"status": "pending"}))
-                yield messages
+                    yield messages
             else:
-                print(" UI: Agent is in chat mode, calling agent.run directly")
+                print("💬 UI: Agent is in chat mode, calling agent.handle_chat_mode directly")
                 # Handle chat mode - direct response from agent
                 response = session_state["agent"].handle_chat_mode(prompt, stream=False)
-                print(f" UI: Got response: {response}")
+                print(f"🗣️ UI: Got response: {response}")
                 messages.append(gr.ChatMessage(role="assistant", content=response, metadata={"status": "done"}))
                 yield messages
 
             yield messages
-
 
         except Exception as e:
             print(f"❌ UI: Error in interaction: {str(e)}")

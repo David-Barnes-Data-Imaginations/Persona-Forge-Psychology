@@ -46,10 +46,20 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - OLLAMA_GPU_LAYERS=999
+      - OLLAMA_USE_CPU_FALLBACK=false
+      - OLLAMA_FLASH_ATTENTION=true
+      - OLLAMA_NUM_PARALLEL=2
+      - OLLAMA_KEEP_ALIVE=5m0s
+      - OLLAMA_VERBOSE=1
     volumes:
       - ollama_data:/root/.ollama
     networks:
       - agent_network
+
     restart: unless-stopped
 
 # Define the shared network

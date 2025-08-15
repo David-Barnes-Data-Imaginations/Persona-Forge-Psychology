@@ -172,9 +172,11 @@ class CustomAgent:
 
     def start_agentic_workflow(self):
         """Start the agentic workflow. The following tools are available:"""
+        self.is_agentic_mode = True
         print(self.agent.tools)
         print(self.agent.tools.values())
         return """🚀 Starting agentic workflow! I'm now in analysis mode. 
+
 
 I can help you clean and analyze this data using a systematic, chunk-based approach.
 
