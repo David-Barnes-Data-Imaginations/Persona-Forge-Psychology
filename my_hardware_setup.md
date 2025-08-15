@@ -1,3 +1,8 @@
+## My Project Hardware Stack
+Below is an outline of the stack i'm using for the project. 
+For learners, you don't need anything quite so elaaborate to get started, you just want to max out available VRAM & CPU RAM then use LMStudio or Triton for model caching across both.
+You _can_ run GPT-oss:20b on CPU, but even on my i9/14th it took around 500-1000 seconds per loop. _Not_ fun for testing!
+
 ### Dev PC / Homelab -
 
 - Storage:2TB and 4TB HDD.
@@ -22,7 +27,7 @@
 
 - Case: Corsair 4000D - Infinirail
 
-  ### Mini-ITX:
+## Mini-ITX:
 
 - Operating System: Ubunto 24.04.3 - Noble:Lastest
 
@@ -42,7 +47,7 @@
 
 - Case: 'Fractal Terra' - Jade (Heavily Customised for 'Bottom->Top' Fans)
 
-  ### Triton Inference Server
+## Triton Inference Server
 
 - Operating System: Ubunto 24.04.3 - Noble:Lastest
 
@@ -63,7 +68,7 @@
 - Case: 'Fractal Design Meshify C' (on its way to me in the post)
 
 
-### My VLM Runner - For Camera Tagging of 4-8 Camera's
+## VLM Runner - For Camera Tagging of 4-8 Camera's
 
 1 x NVIDEA Jetson Orin Nano Super 'Developer Kit' - 8GB
 1 x Lexar Silver Plus 128GB Micro SD card - 205MB/s
@@ -76,7 +81,7 @@
   <img src="./jetson.png" alt="NGX diagram">  
 </p>
 
-### My Pi 5 (Home Assistant Controller)
+## My Pi 5 (Home Assistant Controller)
 
 1 x iRasptek Raspberry Pi 5 16GB Starter Kit
 
@@ -84,7 +89,7 @@
 
 Operating System: Ubuntu server
 
-### Alexa 'Home Assistant' Frankenstein Build Peripherals
+## Alexa 'Home Assistant' Frankenstein Build Peripherals
 
 2 x Echo Dot (5th generation, 2022 release)
 
