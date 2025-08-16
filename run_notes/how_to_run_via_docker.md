@@ -7,13 +7,13 @@ Workflow:
 
 For Testing (Fresh Runs):
 - Use docker-compose.test.yml (without volumes for testing)
-  `docker-compose -f docker-compose.test.yml up --build`
+  `docker compose -f docker-compose.test.yml up --build`
   For Build Runs:
 - Use docker-compose.yml (with volumes for development)
-  `docker-compose -f docker-compose.yml up --build`
+  `docker compose -f docker-compose.yml up --build`
 
 Then to stop run:
-`docker-compose down`
+`docker compose down`
 Regardless of which used.
 
 **Docker will then boot up the env in this order:**
