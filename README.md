@@ -37,12 +37,14 @@ _Eric Schmidt_ July 2025
     - Re-Build 3rd PC when parts arrive.
 5. ~Add in Multi-Agent Orchestra scaffold~
 - ### TODO Note: I've spent 3 days frantically trying to get GPT-OSS to work via Ollama, Triton, vLLM and even by changing operating systems. 
-- After a quick google I found that it needs a further 4-bit quantization to run the 20B model on 14GB unified RAM, or the GPT-120b requires 66GB unified RAM
-- I should be able to fit 2 x GPT-oss 120gb on my main PC with those numbers so am working on a quantization.
-- This means using Hugging Face Transformers, which is probably better overall anyway Q_4_KM (I may switch to Q_4_XL later)
-- The sensible thing would have been to _google first_ but thats no fun (plus they hadn't worked that out yet)
-- Note: Whilst single-node KV cache is a given on windows with things like LMStudio, on Linux its not so simple. The other option would be Tensor RT, NV-link (waaaay outside my budget) and lots of pain.
-- Note: If you're running into the same problems, visit [unsloth](https://docs.unsloth.ai/basics/gpt-oss-how-to-run-and-fine-tune) to set up quant, fine-tuning or just to use the model with **70%** less RAM.
+  - Note): I finally deduced that it wasn't the inference server as the problem. GPT-oss was released in an uncommon 'MXFP4' quantization.
+  - The 'M' in MXFP4' I assume stands for 'magic', since it magically added 70% RAM and 'Blackwell Architecture' requirements. It also prevents the model from working on unified memory.
+  - This means that in its official form, it can only be used by consumers via 'paid inference servers'.
+  - Since this must clearly have been a mistake on their part, I have a 4-bit version of the 20B and 120B models in `bits'n'bytes` format.
+  - This boots up and runs a persistent docker with Hugging Face Transformers and the models inside, with FastAPI implemented to mimic Ollama/GPT's 'OpenAI' format (I basically just created my own Ollama). 
+  - _If you'd like such a tool, copy my 'hf_gpt_docker' directory then visit [unsloth](https://docs.unsloth.ai/basics/gpt-oss-how-to-run-and-fine-tune) to set up quant, fine-tuning._ 
+  - _You can now run 4-bit gpt-oss, with errors from the original removed and using the same RAM (unified per my settings) as the size of the model._
+  - gpt-oss-20b runs off around 14GB unified RAM, and gpt-oss-120b from 65GB unified RAM. If you don't have a GPU of 12MB+ VRAM its probably quicker to stick to the 20b.
 6. Rebuild 3rd PC & Distributed network on Ubuntu as its in pieces on my floor currently.
 7. Test various different quants of GPT-oss.
 8. Adjust the agents docker requirements so they aren't just a mirror of mine (ALWAYS check this before anything beyond early dev).
