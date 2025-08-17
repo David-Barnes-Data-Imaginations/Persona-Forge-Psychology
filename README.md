@@ -42,7 +42,7 @@ _Eric Schmidt_ July 2025
 - Ironically this means changing all the code back to Ollama again since that unifies memory really well for Q_4_KM (I may switch to Q_4_XL later)
 - The sensible thing would have been to _google first_ but thats no fun (plus they hadn't worked that out yet)
 - Note: Whilst single-node KV cache is a given on windows with things like LMStudio, on Linux its not so simple. The other option would be Tensor RT, NV-link (waaaay outside my budget) and lots of pain.
-
+- Note: If you're running into the same problems, visit [unsloth](https://docs.unsloth.ai/basics/gpt-oss-how-to-run-and-fine-tune) to set up quant, fine-tuning or just to use the model with **70%** less RAM. 
 6. Rebuild 3rd PC & Distributed network on Ubuntu as its in pieces on my floor currently.
 7. Test various different quants of GPT-oss.
 8. Adjust the agents docker requirements so they aren't just a mirror of mine (ALWAYS check this before anything beyond early dev).
