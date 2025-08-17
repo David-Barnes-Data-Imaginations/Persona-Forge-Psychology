@@ -179,7 +179,7 @@ class GPTOSSAgent(CodeAgent):
             response = self.gpt_oss_client.chat_completion(
                 messages=messages,
                 temperature=temperature,
-                max_tokens=1024
+                max_tokens=8000 # will tune later
             )
             return response
         except Exception as e:
