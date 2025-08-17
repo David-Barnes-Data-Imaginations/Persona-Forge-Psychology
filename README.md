@@ -38,22 +38,22 @@ _Eric Schmidt_ July 2025
 5. ~Add in Multi-Agent Orchestra scaffold~
 - ### TODO Note: I've spent 3 days frantically trying to get GPT-OSS to work via Ollama, Triton, vLLM and even by changing operating systems. 
 - After a quick google I found that it needs a further 4-bit quantization to run the 20B model on 14GB unified RAM, or the GPT-120b requires 66GB unified RAM
-- I should be able to fit 2 x GPT-oss 120gb on my main PC with those numbers so am working on a quantization and will probably use Huffing Face transformers to run it.
-- The sensible thing would have been to _google first_ but thats no fun.
+- I should be able to fit 2 x GPT-oss 120gb on my main PC with those numbers so am working on a quantization.
+- Ironically this means changing all the code back to Ollama again since that unifies memory really well for Q_4_KM (I may switch to Q_4_XL later)
+- The sensible thing would have been to _google first_ but thats no fun (plus they hadn't worked that out yet)
+- Note: Whilst single-node KV cache is a given on windows with things like LMStudio, on Linux its not so simple. The other option would be Tensor RT, NV-link (waaaay outside my budget) and lots of pain.
+
 6. Rebuild Distributed network on Ubuntu and bootable vLLM (I forgot Triton doesn't do 'single-node, hybrid RAM via KV offload') server.
-    - Note: Whilst single-node KV cache is a given on windows with things like LMStudio, on Linux its not so simple. The other option would be Tensor RT, NV-link (waaaay outside my budget) and lots of pain.
-    - Note2: For the easiest offloading vLLM works a charm, uses OpenAI_API format and is fast, easy-to-use (comparatively to Tensor RT) and gives more control than ollama.
 7. Test various different quants of GPT-oss.
 8. Adjust the agents docker requirements so they aren't just a mirror of mine (ALWAYS check this before anything beyond early dev).
-9. 
-**_Revisit containerization in Docker to implement security using four seperate docker containers:_**
-6. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation. 
-7. Test 'Graph-RAG' schema and 'Graph-RAG' storage.
-8. Test AI schema tagging, erroneous data input.
-8. Generate schema instructions 'for AI, by AI' using GPT5. 
-9. Finalise Graph schema and test data collection methods to test.
+9. **_Revisit containerization in Docker to implement security using four seperate docker containers:_**
+10. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation. 
+11. Test 'Graph-RAG' schema and 'Graph-RAG' storage. 
+12. Test AI schema tagging, erroneous data input. 
+13. Generate schema instructions 'for AI, by AI' using GPT5. 
+14. Finalise Graph schema and test data collection methods to test.
     - Test 'Graph R1' architecture to see if it actually adds the value it promises.
-10. **_Revisit containerization in Docker to implement security using 5 separate docker containers:_**
+15. **_Revisit containerization in Docker to implement security using 5 separate docker containers:_**
 Part 1:
   - **_Container A (orchestrator/UI): runs the Dashboard/HTTP/UI, builds tools, telemetry, and orchestrates agents._**
   - **_Container B/C/D (agent executors): long-lived, isolated containers where each agent’s python_interpreter code runs. These are the “sandboxes,” one per agent._**
@@ -64,17 +64,17 @@ Part 2:
     - Running one vLLM container per model on different host ports:
         - vllm-oss20b → 8006
         - vllm-small → 8106
-11. Implement test scaffold for 'graph-informed' 'socials-Analysis'. 
-12. Generate further therapy-simulator schema & content 
-13. Set up 'Home Assistant' using re-engineered 'Alexa' hardware along with a [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) (Jetson - ordered to arrive around '22-27/08/25') for motion detected 'Camera tagging with VLM (not to be confused with vLLM).
+16. Implement test scaffold for 'graph-informed' 'socials-Analysis'. 
+17. Generate further therapy-simulator schema & content 
+18. Set up 'Home Assistant' using re-engineered 'Alexa' hardware along with a [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) (Jetson - ordered to arrive around '22-27/08/25') for motion detected 'Camera tagging with VLM (not to be confused with vLLM).
     - Testing various different 'form' / 'survey' input types via voice, text (or combination inference). 
-14. Test GPT-oss voice interface with tagging and Psychology / CBT / ACT knowledge-base for tagging, 'daily routine / event' information schema' and 'Care-plan / form Q&A.
-15. Build and test '5 (so far) container - Local Only' architecture with 'Agentic learning' & 'role-based security'
-16. Test full framework with 'Agentic learning' & 'role-based security' on bootable persistent dockers.
-17. Graph optimizations for 'Agentic learning'. 
+19. Test GPT-oss voice interface with tagging and Psychology / CBT / ACT knowledge-base for tagging, 'daily routine / event' information schema' and 'Care-plan / form Q&A. 
+20. Build and test '5 (so far) container - Local Only' architecture with 'Agentic learning' & 'role-based security' 
+21. Test full framework with 'Agentic learning' & 'role-based security' on bootable persistent dockers. 
+22. Graph optimizations for 'Agentic learning'. 
     - Almost every day it seems like there is some new 'Graph' optimization framework that increases speed by x100 speed. 
     - R1 looks reasonably promising but this is again months of work to perfect speed, and the graph's in this architecture are comparatively tiny anyway.
-18. LLM Oscar Awards!: AI Patient vs AI Therapist tournament with GPT, Claude, Gemini and some locals using an elaborate prompt template to have them play their roles
+23. LLM Oscar Awards!: AI Patient vs AI Therapist tournament with GPT, Claude, Gemini and some locals using an elaborate prompt template to have them play their roles
         - This is partly for fun since i like them to battle each other, partly because i'll need a variety of Therapy-Sim personality types to test the architecture.
         - I can feed them persona using the graph, to have them behave with different behavioural patterns.
         - Winners will be assigned based on my judgement of their performance passing the 'Turing Test'. No prizes, but they can thank their mum in their victory speech.
