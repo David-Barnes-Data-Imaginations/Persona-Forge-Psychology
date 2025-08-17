@@ -43,7 +43,7 @@ _Eric Schmidt_ July 2025
 - The sensible thing would have been to _google first_ but thats no fun (plus they hadn't worked that out yet)
 - Note: Whilst single-node KV cache is a given on windows with things like LMStudio, on Linux its not so simple. The other option would be Tensor RT, NV-link (waaaay outside my budget) and lots of pain.
 
-6. Rebuild Distributed network on Ubuntu and bootable vLLM (I forgot Triton doesn't do 'single-node, hybrid RAM via KV offload') server.
+6. Rebuild 3rd PC & Distributed network on Ubuntu as its in pieces on my floor currently.
 7. Test various different quants of GPT-oss.
 8. Adjust the agents docker requirements so they aren't just a mirror of mine (ALWAYS check this before anything beyond early dev).
 9. **_Revisit containerization in Docker to implement security using four seperate docker containers:_**
