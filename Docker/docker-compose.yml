@@ -8,18 +8,17 @@ services:
       - "8006:8000"      # HTTP (OpenAI-compatible)
       - "8007:8001"      # Prometheus metrics (optional)
     environment:
-      - MODEL_ID=gpt-oss-20b
+      - MODEL_ID="openai/gpt-oss-20b"
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - HF_TOKEN=${HF_TOKEN:-}
       - VLLM_WORKER_CONCURRENCY=1
       - VLLM_LOGGING_LEVEL=INFO
     command: >
-      --model ${MODEL_ID}
+      --model "openai/gpt-oss-20b"
       --dtype auto
       --download-dir /models
       --max-model-len 8192
       --api-key dummy
-      --metrics-port 8001
     volumes:
       - ./models:/models
     deploy:

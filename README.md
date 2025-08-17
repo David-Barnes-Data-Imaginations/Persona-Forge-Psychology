@@ -36,6 +36,10 @@ _Eric Schmidt_ July 2025
 4. ~Remove Kinoite Operating system and replace with Ubuntu (Kinoite ironically reduces security by requiring agent has root access in docker)~
     - Re-Build 3rd PC when parts arrive.
 5. ~Add in Multi-Agent Orchestra scaffold~
+- ### TODO Note: I've spent 3 days frantically trying to get GPT-OSS to work via Ollama, Triton, vLLM and even by changing operating systems. 
+- After a quick google I found that it needs a further 4-bit quantization to run the 20B model on 14GB unified RAM, or the GPT-120b requires 66GB unified RAM
+- I should be able to fit 2 x GPT-oss 120gb on my main PC with those numbers so am working on a quantization and will probably use Huffing Face transformers to run it.
+- The sensible thing would have been to _google first_ but thats no fun.
 6. Rebuild Distributed network on Ubuntu and bootable vLLM (I forgot Triton doesn't do 'single-node, hybrid RAM via KV offload') server.
     - Note: Whilst single-node KV cache is a given on windows with things like LMStudio, on Linux its not so simple. The other option would be Tensor RT, NV-link (waaaay outside my budget) and lots of pain.
     - Note2: For the easiest offloading vLLM works a charm, uses OpenAI_API format and is fast, easy-to-use (comparatively to Tensor RT) and gives more control than ollama.
