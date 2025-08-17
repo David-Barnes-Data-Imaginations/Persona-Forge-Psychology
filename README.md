@@ -39,10 +39,10 @@ _Eric Schmidt_ July 2025
 - ### TODO Note: I've spent 3 days frantically trying to get GPT-OSS to work via Ollama, Triton, vLLM and even by changing operating systems. 
 - After a quick google I found that it needs a further 4-bit quantization to run the 20B model on 14GB unified RAM, or the GPT-120b requires 66GB unified RAM
 - I should be able to fit 2 x GPT-oss 120gb on my main PC with those numbers so am working on a quantization.
-- Ironically this means changing all the code back to Ollama again since that unifies memory really well for Q_4_KM (I may switch to Q_4_XL later)
+- This means using Hugging Face Transformers, which is probably better overall anyway Q_4_KM (I may switch to Q_4_XL later)
 - The sensible thing would have been to _google first_ but thats no fun (plus they hadn't worked that out yet)
 - Note: Whilst single-node KV cache is a given on windows with things like LMStudio, on Linux its not so simple. The other option would be Tensor RT, NV-link (waaaay outside my budget) and lots of pain.
-- Note: If you're running into the same problems, visit [unsloth](https://docs.unsloth.ai/basics/gpt-oss-how-to-run-and-fine-tune) to set up quant, fine-tuning or just to use the model with **70%** less RAM. 
+- Note: If you're running into the same problems, visit [unsloth](https://docs.unsloth.ai/basics/gpt-oss-how-to-run-and-fine-tune) to set up quant, fine-tuning or just to use the model with **70%** less RAM.
 6. Rebuild 3rd PC & Distributed network on Ubuntu as its in pieces on my floor currently.
 7. Test various different quants of GPT-oss.
 8. Adjust the agents docker requirements so they aren't just a mirror of mine (ALWAYS check this before anything beyond early dev).
@@ -640,7 +640,7 @@ If you want to develop similar projects and are still developing your coding, my
   - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
   - If no-code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or AI tools, but _can_ perform respectably in later elements.
   - For mid-level coders, start yourself and then have claude build the generic bits via any model.
-      - For debugging very challenging fixes, Codex or Gemma CLI is great as the latter has (almost) the speed of Claude CLI but also checks it's answers by running the code on its own computer.
+      - For debugging very challenging fixes, Codex or Claude or Gemma CLI is great as they are fast but also checks their code on their own computer.
       - 
 Note: I'm currently testing the new [Pycharm AI Dev Environment](https://lp.jetbrains.com/pycharm-for-ai-engineers/?utm_source=product&utm_medium=link&utm_campaign=PY&utm_content=2025.2) and will update accordingly.
 ---
