@@ -1,0 +1,17 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm
+    ports:
+      - "8005:8000"   # gRPC → host 8005
+      - "8006:8001"   # HTTP → host 8006
+      - "8007:8002"   # Metrics → host 8007
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ./models:/models
+    runtime: nvidia
+    command: >
+      python3 -m vllm.entrypoints.openai.api_server
+        --model /models/gpt-oss-20b
+        --host 0.0.0.0 --port 8000

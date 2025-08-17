@@ -35,7 +35,9 @@ _Eric Schmidt_ July 2025
 3. ~Add example risk-register / considerations for production environments~
 4. ~Remove Kinoite Operating system and replace with Ubuntu (Kinoite ironically reduces security by requiring agent has root access in docker)~
     - Re-Build 3rd PC when parts arrive.
-5. Rebuild Distributed network on Ubuntu and bootable NVIDEA Triton server (Ollama no longer capable for project goals)
+5. Rebuild Distributed network on Ubuntu and bootable vLLM (I forgot Triton doesn't do 'single-node, hybrid RAM via KV offload') server.
+    - Note: Whilst single-node KV cache is a given on windows with things like LMStudio, on Linux its not so simple. The other option would be Tensor RT, NV-link (waaaay outside my budget) and lots of pain.
+    - For the easiest offloading vLLM works a charm, uses OpenAI_API format and is fast, easy-to-use (comparatively to Tensor RT) and gives more control than ollama.
 6. **_Revisit containerization in Docker to implement security using four seperate docker containers:_**
 Part 1:
   - **_Container A (orchestrator/UI): runs the Dashboard/HTTP/UI, builds tools, telemetry, and orchestrates agents._**
