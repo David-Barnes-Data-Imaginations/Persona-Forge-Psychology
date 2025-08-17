@@ -42,19 +42,23 @@ _Eric Schmidt_ July 2025
 Part 1:
   - **_Container A (orchestrator/UI): runs the Dashboard/HTTP/UI, builds tools, telemetry, and orchestrates agents._**
   - **_Container B/C/D (agent executors): long-lived, isolated containers where each agent’s python_interpreter code runs. These are the “sandboxes,” one per agent._**
+  - **_Container E vLLM API (vLLM API): runs the vLLM API, i've spent far too long experimenting with different container setups so am leaving this until the end now as a production build would require more test hours than I have._**
+  - **_Another option I tried was giving them all their own 'internal network' which only the agents could use to communicate with each other, but this was a pain to implement and again would require too long to test for optimization._**
+Part 2:
   - **Multi-Agent Orchestra scaffold in place, working to fix python_interpreter bug under all the new security**
 6. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation. 
 7. Test AI schema tagging, schema and a selection of models to optimize GPU usage. 
 8. Generate schema instructions 'for AI, by AI' using GPT5. 
 9. Finalise Graph schema and test data collection methods to test.
-10. **_Revisit containerization in Docker to implement security using 4 seperate docker containers:_**
+    - Test 'Graph R1' architecture to see if it actually adds the value it promises.
+10. **_Revisit containerization in Docker to implement security using 4 separate docker containers:_**
 Part 2:
   - **Implement via distributed networking across 3 PC's, Full 'Orchestra' model rotation, adding secured agent executors with gVisor (runsc) for code-exec sandboxes and for _security critical_ operations, Kata as the runtime class (K8s RuntimeClass / containerd config). Orchestra to switch specific agents to Kata if they need kernel features / stronger tenant isolation.**
-  - This is a **BIG** job so I'll be here for a few days. Implement test scaffold for 'graph-informed' 'socials-Analysis'. 
+  - Implement test scaffold for 'graph-informed' 'socials-Analysis'. 
 11. Generate further therapy-simulator schema & content
-12. Set up 'Home Assistant' using mini-tx, Raspberry Pi 5 and re-engineered 'Alexa' hardware along with a [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) (Jetson - ordered to arrive around '22-27/08/25') for motion detected 'Camera tagging with VLM. 
+12. Set up 'Home Assistant' using re-engineered 'Alexa' hardware along with a [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) (Jetson - ordered to arrive around '22-27/08/25') for motion detected 'Camera tagging with VLM (not to be confused with vLLM). 
 13. Test GPT-oss voice interface with tagging and Psychology / CBT / ACT knowledge-base for tagging, 'daily routine / event' information schema' and 'Care-plan / form Q&A.
-14. Build and test '3 container - Local Only' architecture with 'Agentic learning' & 'role-based security'
+14. Build and test '5 (so far) container - Local Only' architecture with 'Agentic learning' & 'role-based security'
 ---
 >###  ⛔ Please Review and Consider Example 'Risk Register' Schema before implementing anything beyond Dev phase, found at bottom of document⛔'**.
 ---

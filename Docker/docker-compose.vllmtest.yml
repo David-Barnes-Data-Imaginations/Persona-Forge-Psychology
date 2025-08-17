@@ -1,5 +1,8 @@
 version: "3.9"
 
+networks:
+  persona_net:
+
 services:
   vllm:
     image: vllm/vllm-openai:latest
@@ -9,12 +12,9 @@ services:
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
     ports:
-      - "8005:8000"   # gRPC (container 8001) is optional; see command below
-      - "8006:8001"   # HTTP → host 8006
-      - "8007:8002"   # Metrics → host 8007
-    volumes:
-      # Point this at your HF model folder with config.json, tokenizer, and sharded model.safetensors
-      - /ABS/PATH/TO/HF_MODEL_DIR:/models/gpt-oss-20b:ro
+      - "8005:8000"   # gRPC (container 8000)
+      - "8006:8001"   # HTTP (container 8001)
+      - "8007:8002"   # Metrics (container 8002)
     command: >
       python3 -m vllm.entrypoints.openai.api_server
       --model /models/gpt-oss-20b
@@ -27,8 +27,33 @@ services:
       --max-model-len 8192
       --swap-space 32
       --enforce-eager
+    volumes:
+      - /ABS/PATH/TO/HF_MODEL_DIR:/models/gpt-oss-20b:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8001/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
+    networks: [persona_net]
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: persona-psychology-app
+    restart: unless-stopped
+    environment:
+      - VLLM_BASE_URL=http://vllm:8001/v1
+      - MODEL_ID=gpt-oss-20b
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - HF_TOKEN=${HF_TOKEN:-}
+      - USE_DOCKER_EXECUTOR=true
+    ports:
+      - "7860:7860"  # Gradio/UI
+    depends_on:
+      vllm:
+        condition: service_healthy
+    networks: [persona_net]
+    # (optional) volumes if for /app bind-mounts during testing
+    # volumes:
+    #   - ../:/app:rw
