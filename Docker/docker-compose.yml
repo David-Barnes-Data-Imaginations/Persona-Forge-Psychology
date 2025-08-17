@@ -1,25 +1,34 @@
+# vllm/docker-compose.yml for single use outside framework
 services:
-  data-agent:
-    build:
-      context: ..
-      dockerfile: Docker/Dockerfile
-    image: persona-forge:latest
-    container_name: persona-forge
-
-    volumes:
-      - ../:/app
-      - ../src/data:/app/data
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm
+    restart: unless-stopped
     ports:
-      - "7860:7860"   # Gradio interface
-      - "8000:8000"   # FastAPI if needed
-    #  - "11434:11434" # Ollama server
-    
+      - "8006:8000"      # HTTP (OpenAI-compatible)
+      - "8007:8001"      # Prometheus metrics (optional)
     environment:
+      - MODEL_ID=gpt-oss-20b
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - HF_TOKEN=${HF_TOKEN}
-      - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
-      - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
-      - PYTHONUNBUFFERED=1
-    
-    command: ["python", "main.py"]
+      - HF_TOKEN=${HF_TOKEN:-}
+      - VLLM_WORKER_CONCURRENCY=1
+      - VLLM_LOGGING_LEVEL=INFO
+    command: >
+      --model ${MODEL_ID}
+      --dtype auto
+      --download-dir /models
+      --max-model-len 8192
+      --api-key dummy
+      --metrics-port 8001
+    volumes:
+      - ./models:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia
+    networks: [llmnet]
 
+networks:
+  llmnet: {}

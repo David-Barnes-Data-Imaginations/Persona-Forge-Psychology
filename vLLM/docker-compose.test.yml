@@ -60,3 +60,4 @@ services:
     #  - ../src/data:/app/src/data:ro
     #  - ../states:/app/states:rw
     #  - ../embeddings:/app/embeddings:rw
+

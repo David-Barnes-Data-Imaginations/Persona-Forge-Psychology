@@ -15,7 +15,8 @@ LANGFUSE_SECRET_KEY= os.getenv('LANGFUSE_SECRET_KEY')
 LANGFUSE_AUTH=base64.b64encode(f"{LANGFUSE_PUBLIC_KEY}:{LANGFUSE_SECRET_KEY}".encode()).decode()
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "localhost")
+VLLM_BASE_URL = os.getenv("VLLM_BASE_URL", "http://vllm:8001/v1")
+MODEL_ID = os.getenv("MODEL_ID", "gpt-oss-20b")
 
 global agent, chat_interface, metadata_embedder
 
@@ -51,7 +52,8 @@ def main():
     print(f"OPENAI_API_KEY is set: {'✅' if openai_api_key else '❌'}")
     print(f"HF_TOKEN is set: {'✅' if HF_TOKEN else '❌'}")
     print(f"LANGFUSE keys set: {'✅' if LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY else '❌'}")
-    print(f"Using Ollama host: {OLLAMA_HOST}")
+    print(f"Using OpenAI-compatible base: {VLLM_BASE_URL}")
+    print(f"Serving model: {MODEL_ID}")
 
     print("📚 Setting up metadata embeddings...")
     metadata_embedder = MetadataEmbedder(sandbox=None)
@@ -94,7 +96,10 @@ def main():
                     cap_drop=("ALL",),
                     read_only=False,
                     manage_container=True,
-                    install_cmd="python -m pip install --upgrade pip && pip install --no-cache-dir pandas numpy matplotlib seaborn scikit-learn sqlalchemy plotly",
+                    install_cmd="bash -lc 'curl -LsSf https://astral.sh/uv/install.sh | sh -s -- --yes && \
+                    /root/.local/bin/uv pip install -U pip && \
+                    /root/.local/bin/uv pip install -r /workspace/agent_requirements.txt || \
+                    /root/.local/bin/uv pip install pandas numpy matplotlib seaborn scikit-learn sqlalchemy plotly'",
                 )
             )
             print("✅ Docker-backed executor ready.")
@@ -104,22 +109,11 @@ def main():
     else:
         print("ℹ️ Docker executor disabled or socket not present. Using local execution.")
 
-    # --- Start of new, simplified Ollama connection logic ---
-    print(f"🔌 Connecting to Ollama server at {OLLAMA_HOST}:11434")
-    ollama_process = None  # We are not managing the process from this container
-    if not wait_for_ollama_server(host=OLLAMA_HOST):
-        print(f"❌ Cannot connect to Ollama server at {OLLAMA_HOST}:11434. Please ensure it is running and reachable.")
-        return
-    # --- End of new logic ---
-
-    pull_model("gpt-oss:20b", host=OLLAMA_HOST)
-
     agent1 = CustomAgent(
         tools=tools,
         sandbox=None,
         metadata_embedder=metadata_embedder,
-        model_id="gpt-oss:20b",
-        ollama_host=OLLAMA_HOST,
+        model_id=MODEL_ID,
     )
     agent1.telemetry = TelemetryManager()
 
@@ -134,8 +128,6 @@ def main():
     finally:
         print("🧹 Cleaning up agent resources...")
         agent1.cleanup()
-        if ollama_process:
-            ollama_process.terminate()
         print("👋 Goodbye!")
 
 

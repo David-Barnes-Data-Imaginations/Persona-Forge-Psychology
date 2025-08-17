@@ -78,14 +78,14 @@ class CustomAgent:
             python_executor=None,
     ):
 
-        self.ollama_host = ollama_host
-        raw_model = model_id or "gpt-oss:20b"
+        vllm_base = os.getenv("VLLM_BASE_URL", "http://vllm:8001/v1").rstrip("/")
+        raw_model = (model_id or os.getenv("MODEL_ID", "gpt-oss-20b")).strip()
 
         model = LiteLLMModel(
-            model_id=f"openai/{raw_model}",
-            api_base=f"http://{ollama_host}:11434/v1",
-            api_key="ollama",
-            num_ctx=8192,
+        model_id = f"openai/{raw_model}",
+        api_base = vllm_base,
+        api_key = os.getenv("OPENAI_API_KEY", "dummy"),
+        num_ctx=8192,
         )
 
         self.agent = CodeAgent(
@@ -129,16 +129,16 @@ class CustomAgent:
         # Sanity check via OpenAI-compatible route
         try:
             test_response = litellm.completion(
-                model=f"openai/{raw_model}",
-                messages=[{"role": "user", "content": "ping"}],
-                api_base=f"http://{ollama_host}:11434/v1",
-                api_key="ollama",
-                stream=False,
+            model = f"openai/{raw_model}",
+            messages = [{"role": "user", "content": "ping"}],
+            api_base = vllm_base,
+            api_key = os.getenv("OPENAI_API_KEY", "dummy"),
+            stream = False,
             )
-            print("✅ Ollama (OpenAI-compatible) test response:",
+            print("✅ vLLM (OpenAI-compatible) test response:",
                   test_response['choices'][0]['message']['content'][:80], "...")
         except Exception as e:
-            print("❌ Ollama OpenAI-compatible sanity check failed:", str(e))
+            print("❌ OpenAI-compatible sanity check failed (vLLM):", str(e))
 
     def handle_chat_mode(self, task: str, images=None, stream=False, reset=False, additional_args=None):
         """Handle normal chat interactions"""
@@ -150,8 +150,8 @@ class CustomAgent:
             response = litellm.completion(
                 model=model_id,
                 messages=[{"role": "user", "content": task}],
-                api_base=f"http://{self.ollama_host}:11434/v1",
-                api_key="ollama",
+                api_base=os.getenv("VLLM_BASE_URL", "http://vllm:8001/v1"),
+                api_key = os.getenv("OPENAI_API_KEY", "dummy"),
                 stream=stream
             )
             if stream:
@@ -176,7 +176,6 @@ class CustomAgent:
         print(self.agent.tools)
         print(self.agent.tools.values())
         return """🚀 Starting agentic workflow! I'm now in analysis mode. 
-
 
 I can help you clean and analyze this data using a systematic, chunk-based approach.
 
