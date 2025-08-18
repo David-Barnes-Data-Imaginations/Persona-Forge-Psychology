@@ -115,10 +115,12 @@ class CustomAgent:
                 "hashlib",
                 "re",
             ],
-            add_base_tools=True,
+            executor_type="e2b",
+            use_structured_outputs_internally=True,
             planning_interval=5,
+            add_base_tools=True,  # Enable base tools including python_interpreter
             max_steps=30,
-            verbosity_level=3,  # increase to see parsed code/content in logs
+            verbosity_level=2,  # increase to see parsed code/content in logs
         )
         # Optional: set conservative defaults for code generation
         if hasattr(self.agent, "default_additional_args"):

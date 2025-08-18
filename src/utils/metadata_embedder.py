@@ -1,58 +1,76 @@
 import os
 import json
 import numpy as np
-from openai import OpenAI
-from dotenv import load_dotenv
+from typing import Callable
+import requests  # add for Ollama embeddings
 
-# Load environment variables at module level
+# Optional OpenAI client
+try:
+    from openai import OpenAI
+except Exception:
+    OpenAI = None  # Handle absence gracefully
+
+from dotenv import load_dotenv
 load_dotenv()
 
-
 class MetadataEmbedder:
-    """Class for embedding metadata and storing them locally"""
-
+    """Class for embedding metadata and storing them in a sandbox"""
     def __init__(self, sandbox=None):
-        self.sandbox = sandbox  # Keep for backward compatibility but use local files
+        self.sandbox = sandbox
 
-        # Try multiple approaches to get the API key
-        openai_api_key = os.getenv("OPENAI_API_KEY")
+        # Embedding backends
+        self.use_openai = os.getenv("USE_OPENAI_EMBEDDINGS", "false").lower() == "true"
+        self.use_ollama = os.getenv("USE_OLLAMA_EMBEDDINGS", "false").lower() == "true"
 
-        # Debug print - will be removed in production
-        if not openai_api_key:
-            print("WARNING: No OpenAI API key found in environment!")
-            print(f"Current environment keys: {[k for k in os.environ.keys() if not k.startswith('_')]}")
-
-        try:
+        # OpenAI init (opt-in)
+        self.openai_client = None
+        if self.use_openai:
+            if OpenAI is None:
+                raise RuntimeError("USE_OPENAI_EMBEDDINGS=true but the 'openai' package is not installed.")
+            openai_api_key = os.getenv("OPENAI_API_KEY")
+            if not openai_api_key:
+                raise RuntimeError("USE_OPENAI_EMBEDDINGS=true but OPENAI_API_KEY is missing.")
             self.openai_client = OpenAI(api_key=openai_api_key)
-        except Exception as e:
-            print(f"Error initializing OpenAI client: {e}")
-            print("Creating mock client for development")
-            # Create a mock client for development
-            self.openai_client = None
 
-        # Separate storage for metadata vs agent notes (using numpy instead of faiss)
+        # Ollama settings (opt-in)
+        self.ollama_host = os.getenv("OLLAMA_HOST", "localhost")
+        self.ollama_port = int(os.getenv("OLLAMA_PORT", "11434"))
+        self.ollama_embed_model = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
+
+        # Choose embedding function by precedence: OpenAI -> Ollama -> Local
+        if self.openai_client:
+            self._embed_fn: Callable[[str], list[float]] = self._embed_with_openai
+        elif self.use_ollama:
+            self._embed_fn = self._embed_with_ollama
+        else:
+            self._embed_fn = self._embed_locally  # deterministic local fallback
+
+        # Separate storage for metadata vs agent notes
         self.metadata_store_path = "embeddings/metadata_store.json"
         self.agent_notes_store_path = "embeddings/agent_notes_store.json"
 
-        # Initialize stores (numpy-based)
         self.metadata_store = []
         self.agent_notes_store = []
 
     def _check_metadata_exists(self) -> bool:
-        """Check if metadata embeddings already exist locally"""
-        try:
-            # Check if metadata store exists locally
-            return os.path.exists(self.metadata_store_path)
-        except:
-            return False
+        """Check if metadata embeddings already exist"""
+        if self.sandbox:
+            try:
+                self.sandbox.files.read(self.metadata_store_path)
+                return True
+            except:
+                return False
+        return os.path.exists(self.metadata_store_path)
 
     def _load_existing_metadata(self):
         """Load existing metadata embeddings"""
         try:
-            # Load metadata store from local file
-            with open(self.metadata_store_path, 'r') as f:
-                self.metadata_store = json.load(f)
-
+            if self.sandbox:
+                store_data = self.sandbox.files.read(self.metadata_store_path).decode()
+            else:
+                with open(self.metadata_store_path, "r", encoding="utf-8") as f:
+                    store_data = f.read()
+            self.metadata_store = json.loads(store_data)
             print(f"Loaded existing metadata embeddings: {len(self.metadata_store)} items")
             return True
         except Exception as e:
@@ -61,45 +79,35 @@ class MetadataEmbedder:
 
     def embed_metadata_file(self, file_path: str, force_refresh: bool = False) -> str:
         """Embed the metadata markdown file at startup"""
-
-        # Check if already exists and not forcing refresh
         if not force_refresh and self._check_metadata_exists():
             print("Metadata embeddings already exist, loading...")
             if self._load_existing_metadata():
                 return "Metadata embeddings loaded successfully"
 
-        # If no OpenAI client is available, return early with a message
-        if self.openai_client is None:
-            print("⚠️ Skipping metadata embedding - OpenAI client not available")
-            return "Metadata embedding skipped - OpenAI client not available"
-
         print("Creating new metadata embeddings...")
 
-        # Read the metadata file locally
+        # Read metadata content
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                metadata_content = f.read()
+            if self.sandbox:
+                metadata_content = self.sandbox.files.read(file_path)
+                if isinstance(metadata_content, bytes):
+                    metadata_content = metadata_content.decode()
+            else:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    metadata_content = f.read()
         except Exception as e:
             return f"Error reading metadata file: {e}"
 
-        # Split into chunks to make the file easier for the llm to read
         chunks = self._chunk_markdown(metadata_content)
 
-        # Create embeddings
         embeddings = []
         for i, chunk in enumerate(chunks):
             try:
-                response = self.openai_client.embeddings.create(
-                    input=chunk,
-                    model="text-embedding-3-small"
-                )
-                embedding = response.data[0].embedding
+                embedding = self._embed_fn(chunk)
                 embeddings.append(embedding)
-
-                # Store metadata about this chunk including embedding
                 self.metadata_store.append({
                     "type": "metadata",
-                    "source": "turtle_games_dataset_metadata.md",
+                    "source": os.path.basename(file_path),
                     "chunk_id": i,
                     "content": chunk,
                     "embedding": embedding,
@@ -112,23 +120,48 @@ class MetadataEmbedder:
         if not embeddings:
             return "Error: No embeddings created"
 
-        # Save locally (embeddings are now stored in metadata_store)
+        # Save store (sandbox or local)
         try:
-            # Ensure embeddings directory exists
-            os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
-
-            # Save metadata store with embeddings
-            with open(self.metadata_store_path, 'w') as f:
-                json.dump(self.metadata_store, f, indent=2)
-
+            store_json = json.dumps(self.metadata_store, indent=2)
+            if self.sandbox:
+                self.sandbox.files.write(self.metadata_store_path, store_json.encode())
+            else:
+                os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
+                with open(self.metadata_store_path, "w", encoding="utf-8") as f:
+                    f.write(store_json)
             return f"Successfully embedded metadata file: {len(chunks)} chunks created"
-
         except Exception as e:
             return f"Error saving metadata embeddings: {e}"
 
+    def _embed_with_openai(self, text: str) -> list[float]:
+        """Create an embedding using OpenAI"""
+        response = self.openai_client.embeddings.create(
+            input=text,
+            model="text-embedding-3-small"
+        )
+        return response.data[0].embedding
+
+    def _embed_with_ollama(self, text: str) -> list[float]:
+        """Create an embedding using Ollama's /api/embeddings"""
+        url = f"http://{self.ollama_host}:{self.ollama_port}/api/embeddings"
+        r = requests.post(url, json={"model": self.ollama_embed_model, "prompt": text}, timeout=60)
+        r.raise_for_status()
+        data = r.json()
+        # Ollama returns {"embedding": [floats], ...}
+        embedding = data.get("embedding")
+        if not embedding:
+            raise RuntimeError(f"Ollama embedding response missing 'embedding' field: {data}")
+        return embedding
+
+    def _embed_locally(self, text: str, dim: int = 384) -> list[float]:
+        """Deterministic local fallback embedding (hash-based)"""
+        rng = np.random.default_rng(abs(hash(text)) % (2**32))
+        vec = rng.standard_normal(dim)
+        vec = vec / np.linalg.norm(vec)
+        return vec.astype(float).tolist()
+
     def _chunk_markdown(self, content: str, chunk_size: int = 1000) -> list:
         """Split markdown content into chunks"""
-        # Simple chunking by lines - you might want more sophisticated chunking
         lines = content.split('\n')
         chunks = []
         current_chunk = []
@@ -152,69 +185,32 @@ class MetadataEmbedder:
         """Search metadata embeddings using numpy cosine similarity"""
         if not self.metadata_store:
             return []
-
-        # If no OpenAI client is available, return a placeholder message
-        if self.openai_client is None:
-            print("⚠️ Skipping metadata search - OpenAI client not available")
-            return [
-                {"content": "Metadata search not available - OpenAI client not configured", "similarity_score": 1.0}]
-
         try:
-            # Create query embedding
-            response = self.openai_client.embeddings.create(
-                input=query,
-                model="text-embedding-3-small"
-            )
-            query_embedding = np.array(response.data[0].embedding)
-
-            # Calculate similarities with all stored embeddings
+            query_embedding = np.array(self._embed_fn(query))
             similarities = []
             for i, item in enumerate(self.metadata_store):
                 if "embedding" in item:
                     stored_embedding = np.array(item["embedding"])
-
-                    # Normalize embeddings
                     norm_query = query_embedding / np.linalg.norm(query_embedding)
                     norm_stored = stored_embedding / np.linalg.norm(stored_embedding)
-
-                    # Calculate cosine similarity
                     similarity = np.dot(norm_query, norm_stored)
                     similarities.append((similarity, i))
-
-            # Sort by similarity and take top k
             similarities.sort(key=lambda x: x[0], reverse=True)
-            top_similarities = similarities[:k]
-
-            # Build results
+            top = similarities[:k]
             results = []
-            for similarity, idx in top_similarities:
+            for sim, idx in top:
                 result = self.metadata_store[idx].copy()
-                result['similarity_score'] = float(similarity)
+                result["similarity_score"] = float(sim)
                 results.append(result)
-
             return results
-
         except Exception as e:
             print(f"Error searching metadata: {e}")
             return []
 
     def embed_tool_help_notes(self, tools: list) -> str:
-        """
-        Embeds the help_notes field from each tool into the metadata index.
-
-        Args:
-            tools (list): List of tool instances
-
-        Returns:
-            str: Success message with count of embedded help notes
-        """
+        """Embeds the help_notes field from each tool into the metadata index."""
         if not tools:
             return "No tools provided"
-
-        # If no OpenAI client is available, return early with a message
-        if self.openai_client is None:
-            print("⚠️ Skipping tool help notes embedding - OpenAI client not available")
-            return "Tool help notes embedding skipped - OpenAI client not available"
 
         help_notes_count = 0
         embeddings = []
@@ -222,37 +218,29 @@ class MetadataEmbedder:
         for tool in tools:
             if hasattr(tool, "help_notes") and tool.help_notes:
                 try:
-                    # Create embedding for the help notes
-                    response = self.openai_client.embeddings.create(
-                        input=tool.help_notes,
-                        model="text-embedding-3-small"
-                    )
-                    embedding = response.data[0].embedding
+                    embedding = self._embed_fn(tool.help_notes)
                     embeddings.append(embedding)
-
-                    # Store metadata about this tool help including embedding
                     self.metadata_store.append({
                         "type": "tool_help",
-                        "tool_name": tool.name,
+                        "tool_name": getattr(tool, "name", tool.__class__.__name__),
                         "content": tool.help_notes,
                         "embedding": embedding,
                         "created_at": "startup"
                     })
                     help_notes_count += 1
-
                 except Exception as e:
-                    print(f"Error embedding help notes for tool {tool.name}: {e}")
+                    print(f"Error embedding help notes for tool {getattr(tool, 'name', tool.__class__.__name__)}: {e}")
                     continue
 
         if embeddings:
-            # Save updated store with embeddings locally
             try:
-                # Ensure embeddings directory exists
-                os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
-
-                with open(self.metadata_store_path, 'w') as f:
-                    json.dump(self.metadata_store, f, indent=2)
-
+                store_json = json.dumps(self.metadata_store, indent=2)
+                if self.sandbox:
+                    self.sandbox.files.write(self.metadata_store_path, store_json.encode())
+                else:
+                    os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
+                    with open(self.metadata_store_path, "w", encoding="utf-8") as f:
+                        f.write(store_json)
             except Exception as e:
                 return f"Error saving tool help embeddings: {e}"
 

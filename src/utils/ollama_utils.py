@@ -69,43 +69,41 @@ def start_ollama_server_background() -> Optional[subprocess.Popen]:
         return None
 
 
-def pull_model(model_name: str, host: str = "localhost", port: int = 11434, timeout: int = 300) -> bool:
-    """Pull a model from Ollama if not already present"""
+def pull_model(model_name: str, host: str = "localhost", port: int = 11434) -> bool:
+    """Pull a model if it doesn't exist"""
     try:
-        print(f"📥 Checking if model {model_name} is already pulled...")
-        
         # Check if model exists
-        response = requests.get(f"http://{host}:{port}/api/tags", timeout=10)
-        if response.status_code == 200:
-            models = response.json().get("models", [])
-            for model in models:
-                if model.get("name") == model_name:
-                    print(f"✅ Model {model_name} is already pulled")
-                    return True
-        
-        # If we get here, need to pull model
+        models = get_available_models(host, port)
+        existing_models = [model['name'] for model in models]
+
+        if model_name in existing_models or f"{model_name}:latest" in existing_models:
+            print(f"✅ Model {model_name} already available")
+            return True
+
         print(f"📥 Pulling model {model_name}...")
-        response = requests.post(
-            f"http://{host}:{port}/api/pull",
-            json={"name": model_name},
-            timeout=timeout
+
+        # Pull the model
+        process = subprocess.run(
+            ["ollama", "pull", model_name],
+            capture_output=True,
+            text=True
         )
-        
-        if response.status_code == 200:
+
+        if process.returncode == 0:
             print(f"✅ Successfully pulled model {model_name}")
             return True
         else:
-            print(f"❌ Failed to pull model {model_name}: {response.text}")
+            print(f"❌ Failed to pull model {model_name}: {process.stderr}")
             return False
-            
-    except requests.RequestException as e:
-        print(f"❌ Error pulling model {model_name}: {str(e)}")
+
+    except Exception as e:
+        print(f"❌ Error pulling model {model_name}: {e}")
         return False
 
 
 def generate_completion(
         prompt: str,
-        model: str = "gpt-oss:20b",
+        model: str = "DeepSeek-R1",
         host: str = "localhost",
         port: int = 11434,
         stream: bool = True
@@ -136,7 +134,7 @@ def generate_completion(
 
 def chat_completion(
         messages: List[Dict],
-        model: str = "gpt-oss:20b",
+        model: str = "DeepSeek-R1",
         host: str = "localhost",
         port: int = 11434,
         stream: bool = False
@@ -163,3 +161,5 @@ def chat_completion(
     except Exception as e:
         print(f"❌ Error generating chat completion: {e}")
     return ""
+
+            
