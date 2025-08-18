@@ -202,35 +202,57 @@ class GPTOSSManager:
             raise HTTPException(status_code=500, detail=f"Generation error: {str(e)}")
 
     def _format_messages(self, messages: List[Dict[str, str]]) -> str:
-        """Format messages for the model"""
+        """Format messages using Jinja chat template (Unsloth format)"""
+        try:
+            # Try to use the model's chat template if available
+            if hasattr(self.tokenizer, 'chat_template') and self.tokenizer.chat_template:
+                formatted = self.tokenizer.apply_chat_template(
+                    messages,
+                    tokenize=False,
+                    add_generation_prompt=True
+                )
+                return formatted
+        except Exception as e:
+            logger.warning(f"Chat template failed, using fallback: {e}")
+
+        # Fallback to manual formatting for Unsloth/standard format
         formatted = ""
         for msg in messages:
             role = msg.get('role', 'user')
             content = msg.get('content', '')
 
             if role == 'system':
-                formatted += f"System: {content}\n\n"
+                formatted += f"<|system|>\n{content}<|end|>\n"
             elif role == 'user':
-                formatted += f"User: {content}\n\n"
+                formatted += f"<|user|>\n{content}<|end|>\n"
             elif role == 'assistant':
-                formatted += f"Assistant: {content}\n\n"
+                formatted += f"<|assistant|>\n{content}<|end|>\n"
 
-        formatted += "Assistant: "
+        # Add generation prompt
+        formatted += "<|assistant|>\n"
         return formatted
+
+
+# FastAPI app with lifespan
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler for startup and shutdown"""
+    # Startup
+    logger.info("Starting GPT-OSS API server...")
+    await gpt_manager.load_model()
+    yield
+    # Shutdown (if needed)
+    logger.info("Shutting down GPT-OSS API server...")
 
 
 # Initialize the manager
 gpt_manager = GPTOSSManager()
 
 # FastAPI app
-app = FastAPI(title="GPT-OSS API", version="1.0.0")
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Load model on startup"""
-    logger.info("Starting GPT-OSS API server...")
-    await gpt_manager.load_model()
+app = FastAPI(title="GPT-OSS API", version="1.0.0", lifespan=lifespan)
 
 
 @app.get("/health", response_model=HealthResponse)

@@ -1,0 +1,36 @@
+services:
+  gpt-oss-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gpt-oss-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512,expandable_segments:True
+      - HF_TOKEN=${HF_TOKEN}
+      - TRANSFORMERS_CACHE=/models
+      - LOCAL_MODEL_PATH=/models/gpt-oss-20b-4bit  # Point to your local model
+    volumes:
+      - ./models:/models:rw  # Mount entire models directory
+      - /tmp:/tmp:rw
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    runtime: nvidia
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+networks:
+  default:
+    name: gpt-oss-network
