@@ -1,228 +1,319 @@
 """
-GPT-OSS Client for Smolagents integration
-Provides a clean interface to the dockerized GPT-OSS API (which runs HF Transformers)
+Optimized GPT-OSS API Server with 4-bit quantization
+Provides OpenAI-compatible endpoints for smolagents integration
 """
 
 import os
-import requests
+import asyncio
 import logging
+import yaml
 from typing import Dict, List, Optional, Union
-from dataclasses import dataclass
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+import uvicorn
+import json
+import time
+import gc
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Load configuration
+with open('config.yaml', 'r') as f:
+    config = yaml.safe_load(f)
 
-@dataclass
-class GPTOSSConfig:
-    base_url: str = "http://localhost:8000"
-    model_name: str = "openai/gpt-oss-20b"
-    timeout: int = 120
-    max_retries: int = 3
+class ChatCompletionRequest(BaseModel):
+    model: str
+    messages: List[Dict[str, str]]
+    max_tokens: Optional[int] = 1024
+    temperature: Optional[float] = 0.7
+    top_p: Optional[float] = 0.9
+    stream: Optional[bool] = False
+    stop: Optional[Union[str, List[str]]] = None
 
+class ChatCompletionResponse(BaseModel):
+    id: str
+    object: str = "chat.completion"
+    created: int
+    model: str
+    choices: List[Dict]
+    usage: Dict[str, int]
 
-class GPTOSSClient:
-    """Client for communicating with the dockerized GPT-OSS API"""
+class HealthResponse(BaseModel):
+    status: str
+    model_loaded: bool
+    gpu_memory_used: Optional[float] = None
+    gpu_memory_total: Optional[float] = None
 
-    def __init__(self, config: Optional[GPTOSSConfig] = None):
-        self.config = config or GPTOSSConfig()
-        self.session = requests.Session()
-        self.session.timeout = self.config.timeout
+class GPTOSSManager:
+    def __init__(self):
+        self.model = None
+        self.tokenizer = None
+        self.device = None
+        self.model_loaded = False
 
-        # Override with environment variables if available
-        if os.getenv("GPT_OSS_BASE_URL"):
-            self.config.base_url = os.getenv("GPT_OSS_BASE_URL")
-
-    def is_healthy(self) -> bool:
-        """Check if the GPT-OSS service is healthy and model is loaded"""
+    async def load_model(self):
+        """Load the GPT-OSS model with optimized 4-bit quantization"""
         try:
-            response = self.session.get(f"{self.config.base_url}/health")
-            response.raise_for_status()
-            health_data = response.json()
-            return health_data.get("model_loaded", False)
-        except Exception as e:
-            logger.error(f"Health check failed: {e}")
-            return False
+            logger.info("Starting model loading process...")
 
-    def wait_for_service(self, max_wait: int = 300) -> bool:
-        """Wait for the service to become healthy"""
-        import time
-        start_time = time.time()
+            # Check GPU availability
+            if not torch.cuda.is_available():
+                raise RuntimeError("CUDA not available")
 
-        while time.time() - start_time < max_wait:
-            if self.is_healthy():
-                logger.info("GPT-OSS service is ready!")
-                return True
+            self.device = torch.device("cuda:0")
+            logger.info(f"Using device: {self.device}")
 
-            logger.info("Waiting for GPT-OSS service to become ready...")
-            time.sleep(10)
+            # Model configuration
+            model_id = config['model']['name']
+            cache_dir = config['model']['cache_dir']
 
-        logger.error(f"GPT-OSS service not ready after {max_wait} seconds")
-        return False
+            logger.info(f"Loading model: {model_id}")
 
-    def chat_completion(
-            self,
-            messages: List[Dict[str, str]],
-            max_tokens: int = 1024,
-            temperature: float = 0.7,
-            top_p: float = 0.9,
-            **kwargs
-    ) -> str:
-        """Generate a chat completion using GPT-OSS"""
-        try:
-            payload = {
-                "model": self.config.model_name,
-                "messages": messages,
-                "max_tokens": max_tokens,
-                "temperature": temperature,
-                "top_p": top_p,
-                **kwargs
-            }
-
-            response = self.session.post(
-                f"{self.config.base_url}/v1/chat/completions",
-                json=payload
+            # Load tokenizer first
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                model_id,
+                cache_dir=cache_dir,
+                use_fast=True,
+                trust_remote_code=True
             )
-            response.raise_for_status()
 
-            data = response.json()
-            return data["choices"][0]["message"]["content"]
+            # Set pad token if not exists
+            if self.tokenizer.pad_token is None:
+                self.tokenizer.pad_token = self.tokenizer.eos_token
+
+            # Configure 4-bit quantization
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_storage=torch.uint8
+            )
+
+            # Calculate memory allocation
+            total_gpu_memory = torch.cuda.get_device_properties(0).total_memory / 1024**3
+            max_gpu_memory = min(22, total_gpu_memory * 0.9)  # Leave some headroom
+
+            logger.info(f"Total GPU memory: {total_gpu_memory:.2f}GB")
+            logger.info(f"Allocated GPU memory: {max_gpu_memory:.2f}GB")
+
+            # Load model with optimized settings
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                quantization_config=bnb_config,
+                device_map="auto",
+                max_memory={0: f"{max_gpu_memory}GiB", "cpu": "100GiB"},
+                torch_dtype=torch.float16,
+                low_cpu_mem_usage=True,
+                trust_remote_code=True,
+                cache_dir=cache_dir,
+                offload_folder="/tmp/offload"
+            )
+
+            # Set to evaluation mode
+            self.model.eval()
+
+            # Clear cache
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                gc.collect()
+
+            self.model_loaded = True
+            logger.info("Model loaded successfully!")
+
+            # Log memory usage
+            if torch.cuda.is_available():
+                memory_used = torch.cuda.memory_allocated(0) / 1024**3
+                logger.info(f"GPU memory used: {memory_used:.2f}GB")
 
         except Exception as e:
-            logger.error(f"Chat completion failed: {e}")
+            logger.error(f"Error loading model: {str(e)}")
+            self.model_loaded = False
             raise
 
-    def get_models(self) -> List[str]:
-        """Get list of available models"""
+    def get_gpu_stats(self) -> Dict[str, float]:
+        """Get current GPU memory statistics"""
+        if not torch.cuda.is_available():
+            return {}
+
+        return {
+            "memory_used": torch.cuda.memory_allocated(0) / 1024**3,
+            "memory_total": torch.cuda.get_device_properties(0).total_memory / 1024**3,
+            "memory_cached": torch.cuda.memory_reserved(0) / 1024**3
+        }
+
+    async def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
+        """Generate response using the loaded model"""
+        if not self.model_loaded:
+            raise HTTPException(status_code=503, detail="Model not loaded")
+
         try:
-            response = self.session.get(f"{self.config.base_url}/v1/models")
-            response.raise_for_status()
-            data = response.json()
-            return [model["id"] for model in data["data"]]
+            # Format messages for the model
+            formatted_prompt = self._format_messages(messages)
+
+            # Tokenize input
+            inputs = self.tokenizer(
+                formatted_prompt,
+                return_tensors="pt",
+                truncation=True,
+                max_length=config['generation']['max_input_length']
+            ).to(self.device)
+
+            # Generation parameters
+            gen_kwargs = {
+                "max_new_tokens": kwargs.get('max_tokens', config['generation']['max_new_tokens']),
+                "temperature": kwargs.get('temperature', config['generation']['temperature']),
+                "top_p": kwargs.get('top_p', config['generation']['top_p']),
+                "do_sample": True,
+                "pad_token_id": self.tokenizer.eos_token_id,
+                "eos_token_id": self.tokenizer.eos_token_id,
+                "repetition_penalty": 1.1,
+                "no_repeat_ngram_size": 3
+            }
+
+            # Generate response
+            with torch.no_grad():
+                outputs = self.model.generate(
+                    inputs.input_ids,
+                    attention_mask=inputs.attention_mask,
+                    **gen_kwargs
+                )
+
+            # Decode response
+            generated_text = self.tokenizer.decode(
+                outputs[0][inputs.input_ids.shape[1]:],
+                skip_special_tokens=True
+            ).strip()
+
+            return generated_text
+
         except Exception as e:
-            logger.error(f"Failed to get models: {e}")
-            return []
+            logger.error(f"Error generating response: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Generation error: {str(e)}")
 
+    def _format_messages(self, messages: List[Dict[str, str]]) -> str:
+        """Format messages using Jinja chat template (Unsloth format)"""
+        try:
+            # Try to use the model's chat template if available
+            if hasattr(self.tokenizer, 'chat_template') and self.tokenizer.chat_template:
+                formatted = self.tokenizer.apply_chat_template(
+                    messages,
+                    tokenize=False,
+                    add_generation_prompt=True
+                )
+                return formatted
+        except Exception as e:
+            logger.warning(f"Chat template failed, using fallback: {e}")
 
-# src/agents/gpt_oss_agent.py
-"""
-Enhanced agent that uses GPT-OSS for specific tasks
-"""
+        # Fallback to manual formatting for Unsloth/standard format
+        formatted = ""
+        for msg in messages:
+            role = msg.get('role', 'user')
+            content = msg.get('content', '')
 
-from smolagents import CodeAgent, Tool
-from typing import Dict, List, Any
-from .gpt_oss_client import GPTOSSClient, GPTOSSConfig
+            if role == 'system':
+                formatted += f"<|system|>\n{content}<|end|>\n"
+            elif role == 'user':
+                formatted += f"<|user|>\n{content}<|end|>\n"
+            elif role == 'assistant':
+                formatted += f"<|assistant|>\n{content}<|end|>\n"
 
+        # Add generation prompt
+        formatted += "<|assistant|>\n"
+        return formatted
 
-class GPTOSSAgent(CodeAgent):
-    """
-    Enhanced CodeAgent that can use GPT-OSS for specialized tasks
-    """
+# FastAPI app with lifespan
+from contextlib import asynccontextmanager
 
-    def __init__(self, tools: List[Tool], **kwargs):
-        super().__init__(tools=tools, **kwargs)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler for startup and shutdown"""
+    # Startup
+    logger.info("Starting GPT-OSS API server...")
+    await gpt_manager.load_model()
+    yield
+    # Shutdown (if needed)
+    logger.info("Shutting down GPT-OSS API server...")
 
-        # Initialize GPT-OSS client
-        self.gpt_oss_client = GPTOSSClient(
-            GPTOSSConfig(
-                base_url=kwargs.get("gpt_oss_url", "http://localhost:8000"),
-                model_name=kwargs.get("gpt_oss_model", "openai/gpt-oss-20b")
-            )
+# Initialize the manager
+gpt_manager = GPTOSSManager()
+
+# FastAPI app
+app = FastAPI(title="GPT-OSS API", version="1.0.0", lifespan=lifespan)
+
+@app.get("/health", response_model=HealthResponse)
+async def health_check():
+    """Health check endpoint"""
+    gpu_stats = gpt_manager.get_gpu_stats()
+    return HealthResponse(
+        status="healthy" if gpt_manager.model_loaded else "unhealthy",
+        model_loaded=gpt_manager.model_loaded,
+        gpu_memory_used=gpu_stats.get("memory_used"),
+        gpu_memory_total=gpu_stats.get("memory_total")
+    )
+
+@app.post("/v1/chat/completions")
+async def create_chat_completion(request: ChatCompletionRequest):
+    """OpenAI-compatible chat completions endpoint"""
+    try:
+        # Generate response
+        response_text = await gpt_manager.generate_response(
+            request.messages,
+            max_tokens=request.max_tokens,
+            temperature=request.temperature,
+            top_p=request.top_p
         )
 
-        # Wait for service on initialization
-        if not self.gpt_oss_client.wait_for_service():
-            raise RuntimeError("GPT-OSS service not available")
-
-    async def use_gpt_oss_for_task(
-            self,
-            task_description: str,
-            context: Dict[str, Any] = None,
-            temperature: float = 0.7
-    ) -> str:
-        """
-        Use GPT-OSS for specific tasks that benefit from its capabilities
-
-        Args:
-            task_description: The task to perform
-            context: Additional context for the task
-            temperature: Sampling temperature
-
-        Returns:
-            Generated response from GPT-OSS
-        """
-
-        # Build messages for GPT-OSS
-        messages = [
-            {
-                "role": "system",
-                "content": "You are a helpful AI assistant specialized in code analysis, "
-                           "data processing, and complex reasoning tasks. Provide clear, "
-                           "accurate, and well-structured responses."
+        # Create response
+        response = ChatCompletionResponse(
+            id=f"chatcmpl-{int(time.time())}",
+            created=int(time.time()),
+            model=request.model,
+            choices=[{
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": response_text
+                },
+                "finish_reason": "stop"
+            }],
+            usage={
+                "prompt_tokens": len(gpt_manager.tokenizer.encode(" ".join([m["content"] for m in request.messages]))),
+                "completion_tokens": len(gpt_manager.tokenizer.encode(response_text)),
+                "total_tokens": len(gpt_manager.tokenizer.encode(" ".join([m["content"] for m in request.messages]))) + len(gpt_manager.tokenizer.encode(response_text))
             }
-        ]
+        )
 
-        # Add context if provided
-        if context:
-            context_str = "\n".join([f"{k}: {v}" for k, v in context.items()])
-            messages.append({
-                "role": "user",
-                "content": f"Context:\n{context_str}\n\nTask: {task_description}"
-            })
-        else:
-            messages.append({
-                "role": "user",
-                "content": task_description
-            })
+        return response
 
-        # Generate response
-        try:
-            response = self.gpt_oss_client.chat_completion(
-                messages=messages,
-                temperature=temperature,
-                max_tokens=8000 # will tune later
-            )
-            return response
-        except Exception as e:
-            self.logger.error(f"GPT-OSS task failed: {e}")
-            # Fallback to regular agent behavior
-            return await self.run(task_description)
+    except Exception as e:
+        logger.error(f"Error in chat completion: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/v1/models")
+async def list_models():
+    """List available models"""
+    return {
+        "object": "list",
+        "data": [{
+            "id": config['model']['name'],
+            "object": "model",
+            "created": int(time.time()),
+            "owned_by": "local"
+        }]
+    }
 
-# Integration with existing main.py
-def create_gpt_oss_enhanced_agent(tools: List[Tool]) -> GPTOSSAgent:
-    """
-    Factory function to create a GPT-OSS enhanced agent
-    """
-    return GPTOSSAgent(
-        tools=tools,
-        gpt_oss_url=os.getenv("GPT_OSS_BASE_URL", "http://localhost:8000"),
-        gpt_oss_model="openai/gpt-oss-20b"
+if __name__ == "__main__":
+    # Run the server
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000,
+        log_level="info",
+        access_log=True
     )
-
-
-# Example usage in your smolagents framework
-async def example_gpt_oss_usage():
-    """Example of how to use GPT-OSS for specific tasks"""
-
-    # Create tools (your existing tools)
-    tools = []  # Your tool list here
-
-    # Create enhanced agent
-    agent = create_gpt_oss_enhanced_agent(tools)
-
-    # Use GPT-OSS for complex reasoning
-    analysis_result = await agent.use_gpt_oss_for_task(
-        task_description="Analyze this code for potential security vulnerabilities",
-        context={
-            "code": "def process_user_input(user_data): exec(user_data)",
-            "language": "python",
-            "context": "web application"
-        },
-        temperature=0.3  # Lower temperature for analysis tasks
-    )
-
-    print(f"Security analysis: {analysis_result}")
-
-    # Use regular agent for other tasks
-    regular_result = await agent.run("Generate a simple data visualization")
-    print(f"Regular task result: {regular_result}")

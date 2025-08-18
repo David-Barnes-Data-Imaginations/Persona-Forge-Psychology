@@ -72,6 +72,9 @@ curl http://localhost:8000/health
 ### Stop the service
 `docker-compose -f docker-compose.gpt-oss.yml down` or just `docker compose down` if in same directory still.
 
+### Rebuilt the service
+`docker compose -f docker-compose.gpt-oss.yml up --build --force-recreate`
+
 ### Considerations:
 I'm still testing the context_window, typically OpenAI recommends 16k, but I'll confirm once tested fully.
 - The context window is set in 'config.yml':
@@ -113,7 +116,25 @@ curl -X POST http://localhost:8000/v1/chat/completions \
     "max_tokens": 100
   }'
 ```
+# Testing the Docker:
+### Build and start
+`docker compose -f docker-compose.gpt-oss.yml up --build`
 
+### Test health (wait for model loading)
+`curl http://localhost:8000/health`
+
+### Test inference
+``` 
+curl -X POST http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-oss-20b", 
+    "messages": [{"role": "user", "content": "Hello!"}],
+    "max_tokens": 100
+  }'
+ ```
+ ### Check the container logs to see when loading completes
+`docker logs gpt-oss-api -f`
 
 ## Credits
 - Claude for the amazing work with the implementation.

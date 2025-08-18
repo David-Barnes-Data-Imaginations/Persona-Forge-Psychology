@@ -26,7 +26,7 @@ prompt_templates = {
         "task": CA_MAIN_PROMPT,
         "report": ""
     },
-        "final_answer": {
+    "final_answer": {
         "pre_messages": "",
         "post_messages": ""
     }
@@ -46,6 +46,8 @@ debug_templates = {
         "post_messages": ""
     }
 }
+
+
 # StepController handles step management by adding a time delay, alongside the manual controls
 class StepController:
     def __init__(self):
@@ -67,6 +69,7 @@ class StepController:
         if not manual:
             self.ready.set()  # Unblock any pending waits
 
+
 class CustomAgent:
     def __init__(
             self,
@@ -78,14 +81,14 @@ class CustomAgent:
             python_executor=None,
     ):
 
-        vllm_base = os.getenv("VLLM_BASE_URL", "http://vllm:8001/v1").rstrip("/")
-        raw_model = (model_id or os.getenv("MODEL_ID", "gpt-oss-20b")).strip()
+        self.ollama_host = ollama_host
+        raw_model = model_id or "gpt-oss:20b"
 
         model = LiteLLMModel(
-        model_id = f"openai/{raw_model}",
-        api_base = vllm_base,
-        api_key = os.getenv("OPENAI_API_KEY", "dummy"),
-        num_ctx=8192,
+            model_id=f"openai/{raw_model}",
+            api_base=f"http://{ollama_host}:11434/v1",
+            api_key="ollama",
+            num_ctx=8192,
         )
 
         self.agent = CodeAgent(
@@ -129,16 +132,16 @@ class CustomAgent:
         # Sanity check via OpenAI-compatible route
         try:
             test_response = litellm.completion(
-            model = f"openai/{raw_model}",
-            messages = [{"role": "user", "content": "ping"}],
-            api_base = vllm_base,
-            api_key = os.getenv("OPENAI_API_KEY", "dummy"),
-            stream = False,
+                model=f"openai/{raw_model}",
+                messages=[{"role": "user", "content": "ping"}],
+                api_base=f"http://{ollama_host}:11434/v1",
+                api_key="ollama",
+                stream=False,
             )
-            print("✅ vLLM (OpenAI-compatible) test response:",
+            print("✅ Ollama (OpenAI-compatible) test response:",
                   test_response['choices'][0]['message']['content'][:80], "...")
         except Exception as e:
-            print("❌ OpenAI-compatible sanity check failed (vLLM):", str(e))
+            print("❌ Ollama OpenAI-compatible sanity check failed:", str(e))
 
     def handle_chat_mode(self, task: str, images=None, stream=False, reset=False, additional_args=None):
         """Handle normal chat interactions"""
@@ -150,8 +153,8 @@ class CustomAgent:
             response = litellm.completion(
                 model=model_id,
                 messages=[{"role": "user", "content": task}],
-                api_base=os.getenv("VLLM_BASE_URL", "http://vllm:8001/v1"),
-                api_key = os.getenv("OPENAI_API_KEY", "dummy"),
+                api_base=f"http://{self.ollama_host}:11434/v1",
+                api_key="ollama",
                 stream=stream
             )
             if stream:
@@ -160,7 +163,6 @@ class CustomAgent:
                 return response['choices'][0]['message']['content']
         except Exception as e:
             return f"Error in chat mode: {str(e)}"
-
 
     def handle_agentic_mode(self, task: str, images=None, stream=False, reset=False, additional_args=None):
         """Handle agentic workflow execution"""
@@ -177,6 +179,7 @@ class CustomAgent:
         print(self.agent.tools.values())
         return """🚀 Starting agentic workflow! I'm now in analysis mode. 
 
+
 I can help you clean and analyze this data using a systematic, chunk-based approach.
 
 I have access to the Turtle Games dataset with the following files:
@@ -187,7 +190,6 @@ I have access to the Turtle Games dataset with the following files:
 I should clean the dataset in chunks of 200 rows and use the SaveCleanedDataframe tool to save the results.
 Once all chunks are cleaned, I will print the dataframe and submit "Dataframe cleaned" as my final answer.
 """
-
 
     def return_to_chat_mode(self):
         """Return to chat mode after agentic workflow completes"""
@@ -227,6 +229,7 @@ Once all chunks are cleaned, I will print the dataframe and submit "Dataframe cl
         print("🧠 AGENT STEP saved to log.")
         return event
 
+
 # --- Context Manager ---
 class SmartContextManager:
     def __init__(self, limit_tokens=80000):
@@ -244,10 +247,10 @@ class SmartContextManager:
     def get(self) -> str:
         return "\n".join(self.history)
 
-
     async def agent_runner(self, task: str) -> AsyncGenerator[dict[str, Any] | dict[str, str], None]:
         """Run agent with context management and return to chat mode after final_answer"""
-        reasoning_preface = AgentText(text=f"Can you reason through this step by step before taking any action?\n{task}")
+        reasoning_preface = AgentText(
+            text=f"Can you reason through this step by step before taking any action?\n{task}")
         self.context = SmartContextManager()
         trace = self.agent.run(reasoning_preface)
         self.controller = StepController()
@@ -298,6 +301,7 @@ class SmartContextManager:
     def next_step(self):
         self.controller.next()
 
+
 class ToolFactory:
     """Factory for creating all tools with proper dependencies"""
 
@@ -314,8 +318,6 @@ class ToolFactory:
                                                ValidateCleaningResults)
         from tools.dataframe_storage import SaveCleanedDataframe
 
-        
-
         # Create instances of your custom tools
         tools = [
             DocumentLearningInsights(sandbox=self.sandbox),
@@ -323,6 +325,6 @@ class ToolFactory:
             RetrieveSimilarChunks(sandbox=self.sandbox),
             ValidateCleaningResults(sandbox=self.sandbox),
             SaveCleanedDataframe(sandbox=self.sandbox),
-            
+
         ]
         return tools
