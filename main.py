@@ -7,12 +7,19 @@ from src.client.ui.chat import GradioUI as gradio_ui
 from src.utils.ollama_utils import check_ollama_server, wait_for_ollama_server, start_ollama_server_background, \
     pull_model
 from dotenv import load_dotenv
+from src.executors import docker_python_executor
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Print environment variables for debugging (remove in production)
+print("Environment variables loaded from .env file")
 
 HF_TOKEN = os.getenv('HF_TOKEN')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 LANGFUSE_PUBLIC_KEY = os.getenv('LANGFUSE_PUBLIC_KEY')
 LANGFUSE_SECRET_KEY = os.getenv('LANGFUSE_SECRET_KEY')
-LANGFUSE_AUTH = base64.b64encode(f"{LANGFUSE_PUBLIC_KEY}:{LANGFUSE_SECRET_KEY}".encode()).decode()
+LANGFUSE_AUTH = base64.b64encode(f"{LANGFUSE_PUBLIC_KEY or ''}:{LANGFUSE_SECRET_KEY or ''}".encode()).decode()
 
 # Get API key from host env
 openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -22,6 +29,14 @@ OLLAMA_HOST = os.getenv("OLLAMA_HOST", "localhost")
 
 # Global memory (replace these with a controlled registry in production / CA via the below 'with open' etc..)
 global agent, chat_interface, metadata_embedder
+
+
+# Check if Docker is available for agent executor
+def _has_docker_access() -> bool:
+    # True if a socket/host is present; SELinux perms are checked during actual connect
+    if os.environ.get("DOCKER_HOST"):
+        return True
+    return os.path.exists("/var/run/docker.sock")
 
 
 # In your main function:
@@ -55,6 +70,47 @@ def main():
     help_result = metadata_embedder.embed_tool_help_notes(tools)
     print(f"Tool help embedding result: {help_result}")
 
+    # Try to init Docker-backed executor for the agent
+    python_executor = docker_python_executor
+    want_docker = os.getenv("USE_DOCKER_EXECUTOR", "false").lower() == "true"
+
+    if want_docker and _has_docker_access():
+        try:
+            # Import here to avoid errors if Docker is not available
+            from src.executors.docker_python_executor import DockerPythonExecutor, DockerSandboxConfig
+
+            print("🐳 Initializing Docker-backed Python executor...")
+            DockerSandboxConfig(
+                image="python:3.12-slim",
+                container_name="agent-exec-1",
+                workdir="/workspace",
+                user="nobody",
+                env={
+                    "HF_TOKEN": os.getenv("HF_TOKEN", ""),
+                    "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY", ""),
+                },
+                volumes={
+                    os.path.abspath("./src/data"): {"bind": "/workspace/data", "mode": "ro"},
+                    os.path.abspath("./states"): {"bind": "/workspace/states", "mode": "rw"},
+                    os.path.abspath("./embeddings"): {"bind": "/workspace/embeddings", "mode": "rw"},
+                },
+                mem_limit="1g",
+                cpu_quota=100000,
+                pids_limit=256,
+                security_opt=("no-new-privileges",),
+                cap_drop=("ALL",),
+                read_only=False,
+                manage_container=True,
+                install_cmd="python -m pip install --upgrade pip && pip install --no-cache-dir pandas numpy matplotlib seaborn smolagents datetime json pathlib hashlib re"
+            )
+
+            print("✅ Docker-backed executor ready.")
+        except Exception as e:
+            print(f"⚠️ Docker executor unavailable ({type(e).__name__}: {e}). Falling back to local execution.")
+            python_executor = None
+    else:
+        print("ℹ️ Docker executor disabled or socket not present. Using local execution.")
+
     # Check if we should use the host's Ollama server
     use_host_ollama = os.getenv("USE_HOST_OLLAMA", "").lower() == "true"
 
@@ -83,7 +139,8 @@ def main():
         sandbox=None,  # No sandbox needed for local execution
         metadata_embedder=metadata_embedder,
         model_id="gpt-oss:20b",
-        ollama_host=OLLAMA_HOST  # Pass the Ollama host to the agent
+        ollama_host=OLLAMA_HOST,  # Pass the Ollama host to the agent
+        # python_executor=docker_python_executor,  # Pass the executor (which might be None)
     )
     agent.telemetry = TelemetryManager()
 

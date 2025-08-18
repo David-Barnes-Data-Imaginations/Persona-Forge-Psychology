@@ -177,8 +177,6 @@ class DocumentLearningInsights(Tool):
         except Exception as e:
             return f"Error processing notes: {e}"
 
-
-
 class RetrieveSimilarChunks(Tool):
     name = "RetrieveSimilarChunks"
     description = "Retrieves the most similar past notes based on semantic similarity."

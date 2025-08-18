@@ -5,6 +5,8 @@ from smolagents.agent_types import AgentText
 from smolagents import CodeAgent, Tool
 from smolagents.models import LiteLLMModel
 from typing import List, Any, AsyncGenerator, Optional
+
+from src.executors import docker_python_executor
 from src.utils.prompts import CA_SYSTEM_PROMPT, DB_SYSTEM_PROMPT, PLANNING_INITIAL_FACTS, PLANNING_INITIAL_PLAN, \
     PLANNING_UPDATE_FACTS_PRE, PLANNING_UPDATE_FACTS_POST, PLANNING_UPDATE_PLAN_PRE, PLANNING_UPDATE_PLAN_POST, \
     CA_MAIN_PROMPT
@@ -97,11 +99,8 @@ class CustomAgent:
             prompt_templates=prompt_templates,
             additional_authorized_imports=[
                 "pandas",
-                "sqlalchemy",
-                "scikit-learn",
                 "statistics",
                 "smolagents",
-                "seaborn",
                 "random",
                 "itertools",
                 "queue",
@@ -110,6 +109,11 @@ class CustomAgent:
                 "numpy",
                 "matplotlib",
                 "plotly",
+                "datetime",
+                "json",
+                "pathlib",
+                "hashlib",
+                "re",
             ],
             add_base_tools=True,
             planning_interval=5,
@@ -120,15 +124,15 @@ class CustomAgent:
         if hasattr(self.agent, "default_additional_args"):
             self.agent.default_additional_args = {"temperature": 0.2, "top_p": 0.9}
 
-        # Optional: docker-backed executor injection
-        if python_executor is not None:
-            try:
-                self.agent.python_executor = python_executor
-                if hasattr(self.agent, "executor_type"):
-                    self.agent.executor_type = "local"
-            except Exception as e:
-                print(f"⚠️ Failed to set custom python executor: {e}")
-
+        """    # Optional: docker-backed executor injection
+            if python_executor is not None:
+                try:
+                    self.agent.python_executor = python_executor
+                    if hasattr(self.agent, "executor_type"):
+                        self.agent.executor_type = "docker"
+                except Exception as e:
+                    print(f"⚠️ Failed to set custom python executor: {e}")
+    """
         # Sanity check via OpenAI-compatible route
         try:
             test_response = litellm.completion(

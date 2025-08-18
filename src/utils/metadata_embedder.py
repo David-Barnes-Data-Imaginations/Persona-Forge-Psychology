@@ -2,16 +2,33 @@ import os
 import json
 import numpy as np
 from openai import OpenAI
-# Fix OPENAI_API_KEY passing from OS to Sandbox
-import os
 from dotenv import load_dotenv
+
+# Load environment variables at module level
+load_dotenv()
+
 
 class MetadataEmbedder:
     """Class for embedding metadata and storing them locally"""
+
     def __init__(self, sandbox=None):
         self.sandbox = sandbox  # Keep for backward compatibility but use local files
+
+        # Try multiple approaches to get the API key
         openai_api_key = os.getenv("OPENAI_API_KEY")
-        self.openai_client = OpenAI(api_key=openai_api_key)
+
+        # Debug print - will be removed in production
+        if not openai_api_key:
+            print("WARNING: No OpenAI API key found in environment!")
+            print(f"Current environment keys: {[k for k in os.environ.keys() if not k.startswith('_')]}")
+
+        try:
+            self.openai_client = OpenAI(api_key=openai_api_key)
+        except Exception as e:
+            print(f"Error initializing OpenAI client: {e}")
+            print("Creating mock client for development")
+            # Create a mock client for development
+            self.openai_client = None
 
         # Separate storage for metadata vs agent notes (using numpy instead of faiss)
         self.metadata_store_path = "embeddings/metadata_store.json"
@@ -50,6 +67,11 @@ class MetadataEmbedder:
             print("Metadata embeddings already exist, loading...")
             if self._load_existing_metadata():
                 return "Metadata embeddings loaded successfully"
+
+        # If no OpenAI client is available, return early with a message
+        if self.openai_client is None:
+            print("⚠️ Skipping metadata embedding - OpenAI client not available")
+            return "Metadata embedding skipped - OpenAI client not available"
 
         print("Creating new metadata embeddings...")
 
@@ -94,7 +116,7 @@ class MetadataEmbedder:
         try:
             # Ensure embeddings directory exists
             os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
-            
+
             # Save metadata store with embeddings
             with open(self.metadata_store_path, 'w') as f:
                 json.dump(self.metadata_store, f, indent=2)
@@ -131,6 +153,12 @@ class MetadataEmbedder:
         if not self.metadata_store:
             return []
 
+        # If no OpenAI client is available, return a placeholder message
+        if self.openai_client is None:
+            print("⚠️ Skipping metadata search - OpenAI client not available")
+            return [
+                {"content": "Metadata search not available - OpenAI client not configured", "similarity_score": 1.0}]
+
         try:
             # Create query embedding
             response = self.openai_client.embeddings.create(
@@ -144,11 +172,11 @@ class MetadataEmbedder:
             for i, item in enumerate(self.metadata_store):
                 if "embedding" in item:
                     stored_embedding = np.array(item["embedding"])
-                    
+
                     # Normalize embeddings
                     norm_query = query_embedding / np.linalg.norm(query_embedding)
                     norm_stored = stored_embedding / np.linalg.norm(stored_embedding)
-                    
+
                     # Calculate cosine similarity
                     similarity = np.dot(norm_query, norm_stored)
                     similarities.append((similarity, i))
@@ -183,6 +211,11 @@ class MetadataEmbedder:
         if not tools:
             return "No tools provided"
 
+        # If no OpenAI client is available, return early with a message
+        if self.openai_client is None:
+            print("⚠️ Skipping tool help notes embedding - OpenAI client not available")
+            return "Tool help notes embedding skipped - OpenAI client not available"
+
         help_notes_count = 0
         embeddings = []
 
@@ -216,7 +249,7 @@ class MetadataEmbedder:
             try:
                 # Ensure embeddings directory exists
                 os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
-                
+
                 with open(self.metadata_store_path, 'w') as f:
                     json.dump(self.metadata_store, f, indent=2)
 
