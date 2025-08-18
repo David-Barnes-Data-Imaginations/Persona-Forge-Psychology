@@ -36,20 +36,22 @@ _Eric Schmidt_ July 2025
 4. ~Remove Kinoite Operating system and replace with Ubuntu (Kinoite ironically reduces security by requiring agent has root access in docker)~
     - Re-Build 3rd PC when parts arrive.
 5. ~Add in Multi-Agent Orchestra scaffold~
+6. ~Waste 5 days setting 5 different inference servers only to return to Ollama~
 - ### TODO Note: After spending nearly 5 days trying to get gpt-oss to run across unified memory on Ollama, building servers for Triton, vLLM, Llama.cpp, and even a Custom Hugging Face API docker, Ollama is finally fixed on ubuntu.
+  
   - Having wasted 5 days messing around with inference servers, i've reinstated the old code and will leave the security until the end.
 
-6. Rebuild 3rd PC & Distributed network on Ubuntu as its in pieces on my floor currently.
-7. Use GPT-oss to clean the Therapy-Simulator text, using the same data cleansing loop from my smolagents runner.
-8. Adjust the agents docker requirements so they aren't just a mirror of mine (ALWAYS check this before anything beyond early dev).
-9. **_Revisit containerization in Docker to implement security using four seperate docker containers:_**
-10. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation. 
-11. Test 'Graph-RAG' schema and 'Graph-RAG' storage. 
-12. Test AI schema tagging, erroneous data input. 
-13. Generate schema instructions 'for AI, by AI' using GPT5. 
-14. Finalise Graph schema and test data collection methods to test.
+7. Rebuild 3rd PC & Distributed network on Ubuntu as its in pieces on my floor currently. 
+8. Use GPT-oss to clean the Therapy-Simulator text, using the same data cleansing loop from my smolagents runner. 
+9. Adjust the agents docker requirements so they aren't just a mirror of mine (ALWAYS check this before anything beyond early dev).
+10. **_Revisit containerization in Docker to implement security using four seperate docker containers:_**
+11. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation.
+12. Test 'Graph-RAG' schema and 'Graph-RAG' storage. 
+13. Test AI schema tagging, erroneous data input. 
+14. Generate schema instructions 'for AI, by AI' using GPT5. 
+15. Finalise Graph schema and test data collection methods to test.
     - Test 'Graph R1' architecture to see if it actually adds the value it promises.
-15. **_Revisit containerization in Docker to implement security using 5 separate docker containers:_**
+16. **_Revisit containerization in Docker to implement security using 5 separate docker containers:_**
 Part 1:
   - **_Container A (orchestrator/UI): runs the Dashboard/HTTP/UI, builds tools, telemetry, and orchestrates agents._**
   - **_Container B/C/D (agent executors): long-lived, isolated containers where each agent’s python_interpreter code runs. These are the “sandboxes,” one per agent._**
@@ -59,9 +61,9 @@ Part 2:
   - **Implement via distributed networking across 3 PC's, Full 'Orchestra' model rotation, adding secured agent executors with gVisor (runsc) for code-exec sandboxes and for _security critical_ operations, Kata as the runtime class (K8s RuntimeClass / containerd config). Orchestra to switch specific agents to Kata if they need kernel features / stronger tenant isolation.**
     - Running one vLLM container per model on different host ports:
         - vllm-oss20b → 8006
-        - vllm-small → 8106
-16. Implement test scaffold for 'graph-informed' 'socials-Analysis'. 
-17. Generate further therapy-simulator schema & content 
+        - vllm-small → 8106 
+        - Implement test scaffold for 'graph-informed' 'socials-Analysis'. 
+17. Generate further therapy-simulator schema & content
 18. Set up 'Home Assistant' using re-engineered 'Alexa' hardware along with a [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) (Jetson - ordered to arrive around '22-27/08/25') for motion detected 'Camera tagging with VLM (not to be confused with vLLM).
     - Testing various different 'form' / 'survey' input types via voice, text (or combination inference). 
 19. Test GPT-oss voice interface with tagging and Psychology / CBT / ACT knowledge-base for tagging, 'daily routine / event' information schema' and 'Care-plan / form Q&A. 
