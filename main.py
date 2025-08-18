@@ -82,7 +82,7 @@ def main():
         tools=tools,
         sandbox=None,  # No sandbox needed for local execution
         metadata_embedder=metadata_embedder,
-        model_id="gemma3:12b",
+        model_id="gpt-oss:20b",
         ollama_host=OLLAMA_HOST  # Pass the Ollama host to the agent
     )
     agent.telemetry = TelemetryManager()
