@@ -106,6 +106,24 @@ _Checkpoint: Export graphs and show visualizations in SentimentSuite._
 - Hugging Face AI Sheets → optional CSV formatting / QA review.
 - Graph R1 → advanced graph ops once base graph is solid.
 - Meta DINOv3 VLM → Jetson later for camera-based patient monitoring.
+- **_Leverage all AI and new AI tools to return to previous pace of development_**
+
+### New Persistent Storage Mechanism
+```
+src/
+utils/
+io_helpers.py # NEW: persistence + SQLite helpers + dir utils
+config.py # NEW: central config (paths, chunk size)
+client/
+agent.py # PATCH: add Router and minimal commands
+prompts.py # (_already added_: therapy prompts v1)
+export/ # local persistent outputs (committed to host FS)
+
+```
+### Why this layout?
+
+- Export/ sits on host FS (not in ephemeral sandbox) → outputs persist, like Docker volumes did.
+- If run inside e2b sandbox, we mirror writes into a sandbox path too, for inspection during a run.
 
 Additionals:
 - Rebuild 3rd PC & Distributed network on Ubuntu as its in pieces on my floor currently.
@@ -650,6 +668,15 @@ External:
 - GPT (via OpenAI API)
 
 ```
+---
+### Context Window - Current Strategy
+
+The agent processes CHUNK_SIZE QA pairs (trial=50) per loop.
+Before each chunk: attempt metadata recall (e.g., metadata_embedder.search_metadata("therapy cleaning patterns")).
+After each chunk: append a short note to agent_notes (vectorized if the tool is available) so the next iteration can retrieve_similar_chunks().
+If the context manager trims history, it’s fine — each loop is self‑sufficient; it reads/writes artifacts on disk and uses memory lookup sparingly.
+---
+
 ---
 ## Learning to Build Agentic Systems
 ---
