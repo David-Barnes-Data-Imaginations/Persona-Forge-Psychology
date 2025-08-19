@@ -83,9 +83,9 @@ class CustomAgent:
             metadata_embedder=None,
             model_id: Optional[str] = None,
             ollama_host: str = "localhost",
-            self.router = TherapyRouter(self),
     ):
 
+        self.router = TherapyRouter(self),
         self.ollama_host = ollama_host
         raw_model = model_id or "gpt-oss:20b"
 
@@ -240,50 +240,49 @@ Once all chunks are cleaned, I will print the dataframe and submit "Dataframe cl
         print("🧠 AGENT STEP saved to log.")
         return event
 
-    class TherapyRouter:
-        def __init__(self, agent: "CustomAgent"):
-            self.agent = agent
+# ??Part of the agent class or outside??
+class TherapyRouter:
+    def __init__(self, agent: "CustomAgent"):
+        self.agent = agent
 
-        def _compose_task(self, system_prompt: str, pass_prompt: str, overrides: dict) -> str:
+    def _compose_task(self, system_prompt: str, pass_prompt: str, overrides: dict) -> str:
 
         # small wrapper that lets you pass run-time vars inline
         kv = "\n".join([f"{k}={v!r}" for k, v in overrides.items()])
         return f"{system_prompt}\n\n{pass_prompt}\n\n# RUNTIME\n{kv}"
 
-        def run_pass(self, pass_name: str, *,
-                     patient_id: str = DEFAULT_PATIENT_ID,
-                     session_type: str = DEFAULT_SESSION_TYPE,
-                     session_date: str = DEFAULT_SESSION_DATE,
-                     chunk_size: int = CHUNK_SIZE_DEFAULT,
-                     input_path: str = "./therapy-gpt.md"):
-            from src.prompts import (
-                THERAPY_SYSTEM_PROMPT,
-                THERAPY_PASS_A_CLEAN,
-                THERAPY_PASS_B_FILE,
-                THERAPY_PASS_C_GRAPH,
-            )
-            overrides = dict(
-                PATIENT_ID=patient_id,
-                SESSION_TYPE=session_type,
-                SESSION_DATE=session_date,
-                CHUNK_SIZE=chunk_size,
-                INPUT_PATH=input_path,
-            )
-            if pass_name.upper() == "A":
-                task = self._compose_task(THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, overrides)
-            elif pass_name.upper() == "B":
-                task = self._compose_task(THERAPY_SYSTEM_PROMPT, THERAPY_PASS_B_FILE, overrides)
-            elif pass_name.upper() == "C":
-                task = self._compose_task(THERAPY_SYSTEM_PROMPT, THERAPY_PASS_C_GRAPH, overrides)
-            else:
-                return "Unknown pass. Use A, B, or C."
-            return self.agent.handle_agentic_mode(task, stream=False)
+    def run_pass(self, pass_name: str, *,
+                 patient_id: str = DEFAULT_PATIENT_ID,
+                 session_type: str = DEFAULT_SESSION_TYPE,
+                 session_date: str = DEFAULT_SESSION_DATE,
+                 chunk_size: int = CHUNK_SIZE_DEFAULT,
+                 input_path: str = "./therapy.md"):
 
-    def run_full_pipeline(self, **kwargs):
-        outA = self.run_pass("A", **kwargs)
-        outB = self.run_pass("B", **kwargs)
-        outC = self.run_pass("C", **kwargs)
-        return "\n\n".join([str(outA), str(outB), str(outC)])
+    from src.utils.prompts import THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, THERAPY_PASS_B_FILE, THERAPY_PASS_C_GRAPH
+
+        overrides = dict(
+            PATIENT_ID=patient_id,
+            SESSION_TYPE=session_type,
+            SESSION_DATE=session_date,
+            CHUNK_SIZE=chunk_size,
+            INPUT_PATH=input_path,
+        )
+        if pass_name.upper() == "A":
+            task = self._compose_task(THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, overrides)
+        elif pass_name.upper() == "B":
+            task = self._compose_task(THERAPY_SYSTEM_PROMPT, THERAPY_PASS_B_FILE, overrides)
+        elif pass_name.upper() == "C":
+            task = self._compose_task(THERAPY_SYSTEM_PROMPT, THERAPY_PASS_C_GRAPH, overrides)
+        else:
+            return "Unknown pass. Use A, B, or C."
+
+        return self.agent.handle_agentic_mode(task, stream=False)
+
+def run_full_pipeline(self, **kwargs):
+    outA = self.run_pass("A", **kwargs)
+    outB = self.run_pass("B", **kwargs)
+    outC = self.run_pass("C", **kwargs)
+    return "\n\n".join([str(outA), str(outB), str(outC)])
 
 # --- Context Manager ---
 class SmartContextManager:
@@ -302,59 +301,59 @@ class SmartContextManager:
     def get(self) -> str:
         return "\n".join(self.history)
 
-    async def agent_runner(self, task: str) -> AsyncGenerator[dict[str, Any] | dict[str, str], None]:
-        """Run agent with context management and return to chat mode after final_answer"""
-        reasoning_preface = AgentText(
-            text=f"Can you reason through this step by step before taking any action?\n{task}")
-        self.context = SmartContextManager()
-        trace = self.agent.run(reasoning_preface)
-        self.controller = StepController()
+async def agent_runner(self, task: str) -> AsyncGenerator[dict[str, Any] | dict[str, str], None]:
+    """Run agent with context management and return to chat mode after final_answer"""
+    reasoning_preface = AgentText(
+        text=f"Can you reason through this step by step before taking any action?\n{task}")
+    self.context = SmartContextManager()
+    trace = self.agent.run(reasoning_preface)
+    self.controller = StepController()
 
-        for i, step in enumerate(trace.steps):
-            # Append the step prompt to context
-            if hasattr(step, "message"):
-                self.context.add(f"Step {i}: {step.message.content}")
+    for i, step in enumerate(trace.steps):
+        # Append the step prompt to context
+        if hasattr(step, "message"):
+            self.context.add(f"Step {i}: {step.message.content}")
 
-            elif hasattr(step, "thought") and hasattr(step, "tool_name"):
-                # Log the reasoning chain to context and store insight in RAG
-                insight = f"Thought: {step.thought}\nTool: {step.tool_name}\nParams: {step.tool_input}\nObservation: {step.observation}"
-                self.context.add(insight)
+        elif hasattr(step, "thought") and hasattr(step, "tool_name"):
+            # Log the reasoning chain to context and store insight in RAG
+            insight = f"Thought: {step.thought}\nTool: {step.tool_name}\nParams: {step.tool_input}\nObservation: {step.observation}"
+            self.context.add(insight)
 
-                # Store insight in RAG if supported
-                if hasattr(self.agent, "store_insight"):
-                    self.agent.store_insight(insight)
+            # Store insight in RAG if supported
+            if hasattr(self.agent, "store_insight"):
+                self.agent.store_insight(insight)
 
-                yield {
-                    "thought": step.thought,
-                    "tool_name": step.tool_name,
-                    "tool_input": step.tool_input,
-                    "observation": step.observation
-                }
-
-            else:
-                yield {
-                    "step_info": str(step)
-                }
-
-            # Manual mode pause or 0.5s fallback
-            await self.controller.wait(2 if self.controller.manual_mode else 2)
-
-            # Slight breathing room after first step
-            if i == 0:
-                await asyncio.sleep(0.5)
-
-        # Check if we have a final answer and signal return to chat mode
-        if hasattr(trace, 'final_answer') and trace.final_answer:
             yield {
-                "final_answer": str(trace.final_answer),
-                "return_to_chat": True
+                "thought": step.thought,
+                "tool_name": step.tool_name,
+                "tool_input": step.tool_input,
+                "observation": step.observation
             }
 
-    def toggle_manual_mode(self, manual: bool):
-        self.controller.toggle_mode(manual)
+        else:
+            yield {
+                "step_info": str(step)
+            }
 
-    def next_step(self):
-        self.controller.next()
+        # Manual mode pause or 0.5s fallback
+        await self.controller.wait(2 if self.controller.manual_mode else 2)
+
+        # Slight breathing room after first step
+        if i == 0:
+            await asyncio.sleep(0.5)
+
+    # Check if we have a final answer and signal return to chat mode
+    if hasattr(trace, 'final_answer') and trace.final_answer:
+        yield {
+            "final_answer": str(trace.final_answer),
+            "return_to_chat": True
+        }
+
+def toggle_manual_mode(self, manual: bool):
+    self.controller.toggle_mode(manual)
+
+def next_step(self):
+    self.controller.next()
 
 
 class ToolFactory:

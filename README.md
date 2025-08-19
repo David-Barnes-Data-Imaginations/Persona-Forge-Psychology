@@ -116,7 +116,7 @@ utils/
 io_helpers.py # NEW: persistence + SQLite helpers + dir utils
 config.py # NEW: central config (paths, chunk size)
 client/
-agent.py # PATCH: add Router and minimal commands
+agent.py # PATCH: added Router and minimal commands
 prompts.py # (_already added_: therapy prompts v1)
 export/ # local persistent outputs (committed to host FS)
 
