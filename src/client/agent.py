@@ -84,8 +84,6 @@ class CustomAgent:
             model_id: Optional[str] = None,
             ollama_host: str = "localhost",
     ):
-
-        self.router = TherapyRouter(self),
         self.ollama_host = ollama_host
         raw_model = model_id or "gpt-oss:20b"
 
@@ -117,14 +115,16 @@ class CustomAgent:
                 "pathlib",
                 "hashlib",
                 "re",
-                "src.utils.io_helpers",
-                "src.utils.config",
+                # NEW — DB layer
+                "sqlite3", "sqlalchemy",
+                # your helpers
+                "src.utils.io_helpers", "src.utils.config","src.utils.paths", "src.utils.persistence", "src.utils.sqlite_helpers",
             ],
             executor_type="e2b",
             use_structured_outputs_internally=True,
             planning_interval=5,
             add_base_tools=True,  # Enable base tools including python_interpreter
-            max_steps=30,
+            max_steps=300,
             verbosity_level=2,  # increase to see parsed code/content in logs
         )
         # Optional: set conservative defaults for code generation
@@ -139,7 +139,7 @@ class CustomAgent:
                         self.agent.executor_type = "docker"
                 except Exception as e:
                     print(f"⚠️ Failed to set custom python executor: {e}")
-    """
+        """
         # Sanity check via OpenAI-compatible route
         try:
             test_response = litellm.completion(
