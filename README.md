@@ -41,38 +41,81 @@ _Eric Schmidt_ July 2025
   
   - Having wasted 5 days messing around with inference servers, i've reinstated the old code and will leave the security until the end.
 
-7. Rebuild 3rd PC & Distributed network on Ubuntu as its in pieces on my floor currently. 
-8. Use GPT-oss to clean the Therapy-Simulator text, using the same data cleansing loop from my smolagents runner. 
-9. Adjust the agents docker requirements so they aren't just a mirror of mine (ALWAYS check this before anything beyond early dev).
-10. **_Revisit containerization in Docker to implement security using four seperate docker containers:_**
-11. Adapt 'CodeAgent' agentic loop to scroll and clean chunks of text opposed to current 'sales data implementation.
-12. Test 'Graph-RAG' schema and 'Graph-RAG' storage. 
-13. Test AI schema tagging, erroneous data input. 
-14. Generate schema instructions 'for AI, by AI' using GPT5. 
-15. Finalise Graph schema and test data collection methods to test.
-    - Test 'Graph R1' architecture to see if it actually adds the value it promises.
-16. **_Revisit containerization in Docker to implement security using 5 separate docker containers:_**
-Part 1:
-  - **_Container A (orchestrator/UI): runs the Dashboard/HTTP/UI, builds tools, telemetry, and orchestrates agents._**
-  - **_Container B/C/D (agent executors): long-lived, isolated containers where each agent’s python_interpreter code runs. These are the “sandboxes,” one per agent._**
-  - **_Container E vLLM API (vLLM API): runs the vLLM API, I've spent far too long experimenting with different container setups so am leaving this until the end now as a production build would require more test hours than I have._**
-  - **_Another option I tried was giving them all their own 'internal network' which only the agents could use to communicate with each other, but this was a pain to implement and again would require too long to test for optimization._**
-Part 2:
-  - **Implement via distributed networking across 3 PC's, Full 'Orchestra' model rotation, adding secured agent executors with gVisor (runsc) for code-exec sandboxes and for _security critical_ operations, Kata as the runtime class (K8s RuntimeClass / containerd config). Orchestra to switch specific agents to Kata if they need kernel features / stronger tenant isolation.**
-    - Running one vLLM container per model on different host ports:
-        - vllm-oss20b → 8006
-        - vllm-small → 8106 
-        - Implement test scaffold for 'graph-informed' 'socials-Analysis'. 
-17. Generate further therapy-simulator schema & content
-18. Set up 'Home Assistant' using re-engineered 'Alexa' hardware along with a [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) (Jetson - ordered to arrive around '22-27/08/25') for motion detected 'Camera tagging with VLM (not to be confused with vLLM).
+# New _Updated_ TODO and Ticklist
+Since i've found myself stuck in one of the inevitable _quagmire's_ this type of project brings, having my code actually go backwards in the last week, I've a new plan written in tandem with GPT:
+🛠️ Immediate Goals (Next 1–2 Weeks)
+
+## Stabilize Agentic Framework
+
+### ✅ Use e2b sandbox instead of Docker (already working now and actually safer for code in its current form).
+- Keep main.py, agent.py, chat.py, and metadata_embedder.py as core loop.
+- Refactor Prompt Templates for GPT-OSS
+- Current prompts (prompts.py) are tuned for cleaning CSV datasets.
+
+### Create a new dataset for therapy transcripts:
+- Agentic Pass 1 – Cleaning: Format QA pairs consistently.
+- Pass 2 – Filing: Save each QA into:
+
+**Storage Methods**
+- Patient Directory (CSV)
+- LiteSQL DB
+- Graph-tagged JSON blocks
+
+Pass 3 – Graph Build: Auto-generate Cypher queries to Memgraph.
+- Therapy-Simulator Dataset Prep
+
+- Run an agentic pass over therapy-gpt.md file.
+
+**Output 3 aligned formats**:
+
+- CSV directory (per session)
+- SQLite DB (for structured queries)
+- Graph JSON / Cypher file (for Memgraph load)
+
+### 🧠 Agent Roles (Minimum Viable Setup)
+
+**Agent 1 – Data Cleaner & Filer**
+- Input: raw transcripts or QA pairs
+- Output: CSV + SQLite + JSON graph blocks
+
+**Agent 2 – Graph Builder**
+
+- Input: JSON graph blocks
+- Output: Cypher queries → Memgraph
+
+**Agent 3 – Patient Helper**
+
+- Handles patient room requests (forms, queries, meditations)
+- Handles inference via voice or text
+
+**(Future) Agent 4 – VLM Monitor**
+
+- For Jetson + DINOv3 patient safety monitoring
+
+### 📐 Short-Term Workflow
+
+**Agentic Loop Start: User says “Begin” in Gradio.**
+- Pass 1 – Cleaning: Transcript → uniform QA pairs.
+- Pass 2 – Filing: Auto-save into CSV + SQLite + Graph JSON.
+- Pass 3 – Graph Build: Loop through JSON → Cypher → Memgraph.
+
+_Checkpoint: Export graphs and show visualizations in SentimentSuite._
+
+### 📊 Technologies to Leverage
+
+- Hugging Face AI Sheets → optional CSV formatting / QA review.
+- Graph R1 → advanced graph ops once base graph is solid.
+- Meta DINOv3 VLM → Jetson later for camera-based patient monitoring.
+
+Additionals:
+- Rebuild 3rd PC & Distributed network on Ubuntu as its in pieces on my floor currently.
+- Revisit containerization in Docker to implement security using four seperate docker containers:
+- Test AI schema tagging, erroneous data input. 
+- Generate further therapy-simulator schema & content
+- Set up 'Home Assistant' using re-engineered 'Alexa' hardware along with a [NVIDEA Jetson Nano - Camera Devkit](https://www.amazon.co.uk/Yahboom-Jetson-Development-Artificial-Intelligence-Orin-Nano-8GB-Basic-Kit/dp/B0C7428MGT/ref=sr_1_2?crid=215RV0MWKTFDG&dib=eyJ2IjoiMSJ9.iYo9SPYa9XzcpUQMbMVmA5VUbWgbmb9z--z_oeqH6fUzlwIskO6e2j607YS11AfK37_aV_SeGFOzFS2u55fZttCETW6Fi0qf87o0tNUN9R2HNGiKlmRIbvSS_v_moV3gilyEV8016iA8_E7eTjX7aFbuliMkzzBNf-Kej3VJpnrMRyUN1SC0bE7s35Gx01bHXGa670JJ4yUL0lMeZYovm9HOT6I9gLDueK0Ik7XZdRM.lo_K3g3QXYyKMDvbbfv5oHo5wCCoizTa096qtoqLve4&dib_tag=se&keywords=jetson%2Borin%2Bnano%2Bsuper%2Bdeveloper%2Bkit&qid=1755126858&sprefix=%2Caps%2C113&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1)) (Jetson - ordered to arrive around '22-27/08/25') for motion detected 'Camera tagging with VLM (not to be confused with vLLM).
     - Testing various different 'form' / 'survey' input types via voice, text (or combination inference). 
-19. Test GPT-oss voice interface with tagging and Psychology / CBT / ACT knowledge-base for tagging, 'daily routine / event' information schema' and 'Care-plan / form Q&A. 
-20. Build and test '5 (so far) container - Local Only' architecture with 'Agentic learning' & 'role-based security' 
-21. Test full framework with 'Agentic learning' & 'role-based security' on bootable persistent dockers. 
-22. Graph optimizations for 'Agentic learning'. 
-    - Almost every day it seems like there is some new 'Graph' optimization framework that increases speed by x100 speed. 
-    - R1 looks reasonably promising but this is again months of work to perfect speed, and the graph's in this architecture are comparatively tiny anyway.
-23. LLM Oscar Awards!: AI Patient vs AI Therapist tournament with GPT, Claude, Gemini and some locals using an elaborate prompt template to have them play their roles
+- Test GPT-oss voice interface with tagging and Psychology / CBT / ACT knowledge-base for tagging, 'daily routine / event' information schema' and 'Care-plan / form Q&A. 
+- LLM Oscar Awards!: AI Patient vs AI Therapist tournament with GPT, Claude, Gemini and some locals using an elaborate prompt template to have them play their roles
         - This is partly for fun since i like them to battle each other, partly because i'll need a variety of Therapy-Sim personality types to test the architecture.
         - I can feed them persona using the graph, to have them behave with different behavioural patterns.
         - Winners will be assigned based on my judgement of their performance passing the 'Turing Test'. No prizes, but they can thank their mum in their victory speech.
