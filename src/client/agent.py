@@ -1,6 +1,7 @@
 import datetime
 import asyncio
-import json
+import json, os
+import litellm
 from smolagents.agent_types import AgentText
 from smolagents import CodeAgent, Tool
 from smolagents.models import LiteLLMModel
@@ -8,15 +9,16 @@ from typing import List, Any, AsyncGenerator, Optional
 from src.utils.io_helpers import SessionKey, save_csv, sqlite_upsert_df, write_graph_json, write_cypher
 
 from src.executors import docker_python_executor
-from src.utils.prompts import CA_SYSTEM_PROMPT, DB_SYSTEM_PROMPT, PLANNING_INITIAL_FACTS, PLANNING_INITIAL_PLAN, \
+"""from src.utils.prompts import CA_SYSTEM_PROMPT, DB_SYSTEM_PROMPT, PLANNING_INITIAL_FACTS, PLANNING_INITIAL_PLAN, \
     PLANNING_UPDATE_FACTS_PRE, PLANNING_UPDATE_FACTS_POST, PLANNING_UPDATE_PLAN_PRE, PLANNING_UPDATE_PLAN_POST, \
-    CA_MAIN_PROMPT
-import litellm
-import os
+    CA_MAIN_PROMPT"""
+from src.utils.prompts import THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, THERAPY_PASS_B_FILE, THERAPY_PASS_C_GRAPH, DB_SYSTEM_PROMPT
+
+
 
 # Prompt templates
 prompt_templates = {
-    "system_prompt": CA_SYSTEM_PROMPT,
+    "system_prompt": THERAPY_SYSTEM_PROMPT,
     "planning": {
         "initial_facts": PLANNING_INITIAL_FACTS,
         "initial_plan": PLANNING_INITIAL_PLAN,
@@ -81,7 +83,7 @@ class CustomAgent:
             metadata_embedder=None,
             model_id: Optional[str] = None,
             ollama_host: str = "localhost",
-            python_executor=None,
+            self.router = TherapyRouter(self),
     ):
 
         self.ollama_host = ollama_host
@@ -115,6 +117,8 @@ class CustomAgent:
                 "pathlib",
                 "hashlib",
                 "re",
+                "src.utils.io_helpers",
+                "src.utils.config",
             ],
             executor_type="e2b",
             use_structured_outputs_internally=True,
@@ -236,6 +240,50 @@ Once all chunks are cleaned, I will print the dataframe and submit "Dataframe cl
         print("🧠 AGENT STEP saved to log.")
         return event
 
+    class TherapyRouter:
+        def __init__(self, agent: "CustomAgent"):
+            self.agent = agent
+
+        def _compose_task(self, system_prompt: str, pass_prompt: str, overrides: dict) -> str:
+
+        # small wrapper that lets you pass run-time vars inline
+        kv = "\n".join([f"{k}={v!r}" for k, v in overrides.items()])
+        return f"{system_prompt}\n\n{pass_prompt}\n\n# RUNTIME\n{kv}"
+
+        def run_pass(self, pass_name: str, *,
+                     patient_id: str = DEFAULT_PATIENT_ID,
+                     session_type: str = DEFAULT_SESSION_TYPE,
+                     session_date: str = DEFAULT_SESSION_DATE,
+                     chunk_size: int = CHUNK_SIZE_DEFAULT,
+                     input_path: str = "./therapy-gpt.md"):
+            from src.prompts import (
+                THERAPY_SYSTEM_PROMPT,
+                THERAPY_PASS_A_CLEAN,
+                THERAPY_PASS_B_FILE,
+                THERAPY_PASS_C_GRAPH,
+            )
+            overrides = dict(
+                PATIENT_ID=patient_id,
+                SESSION_TYPE=session_type,
+                SESSION_DATE=session_date,
+                CHUNK_SIZE=chunk_size,
+                INPUT_PATH=input_path,
+            )
+            if pass_name.upper() == "A":
+                task = self._compose_task(THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, overrides)
+            elif pass_name.upper() == "B":
+                task = self._compose_task(THERAPY_SYSTEM_PROMPT, THERAPY_PASS_B_FILE, overrides)
+            elif pass_name.upper() == "C":
+                task = self._compose_task(THERAPY_SYSTEM_PROMPT, THERAPY_PASS_C_GRAPH, overrides)
+            else:
+                return "Unknown pass. Use A, B, or C."
+            return self.agent.handle_agentic_mode(task, stream=False)
+
+    def run_full_pipeline(self, **kwargs):
+        outA = self.run_pass("A", **kwargs)
+        outB = self.run_pass("B", **kwargs)
+        outC = self.run_pass("C", **kwargs)
+        return "\n\n".join([str(outA), str(outB), str(outC)])
 
 # --- Context Manager ---
 class SmartContextManager:

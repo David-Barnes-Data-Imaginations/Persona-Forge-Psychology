@@ -60,6 +60,7 @@ Since i've found myself stuck in one of the inevitable _quagmire's_ this type of
 - Patient Directory (CSV)
 - LiteSQL DB
 - Graph-tagged JSON blocks
+- (later) in [Hugging Face - AI Sheets](https://github.com/huggingface/aisheets?tab=readme-ov-file) for human usage and review
 
 Pass 3 – Graph Build: Auto-generate Cypher queries to Memgraph.
 - Therapy-Simulator Dataset Prep
@@ -103,7 +104,7 @@ _Checkpoint: Export graphs and show visualizations in SentimentSuite._
 
 ### 📊 Technologies to Leverage
 
-- Hugging Face AI Sheets → optional CSV formatting / QA review.
+- [Hugging Face AI Sheets](https://github.com/huggingface/aisheets?tab=readme-ov-file) → optional CSV formatting / QA review.
 - Graph R1 → advanced graph ops once base graph is solid.
 - Meta DINOv3 VLM → Jetson later for camera-based patient monitoring.
 - **_Leverage all AI and new AI tools to return to previous pace of development_**

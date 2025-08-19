@@ -32,23 +32,19 @@ OUTPUT CONTRACTS PER PASS
 
 - Pass B (FILE): write three artifacts for the processed chunk:
 1) CSV file at `./export/<patient_id>/<session_type>/<session_date>/qa_chunk_<k>.csv`
-2) SQLite DB `./export/therapy.db` with table `qa_pairs` schema:
-(patient_id TEXT, session_date TEXT, session_type TEXT,
-turn_id INTEGER, speaker TEXT, text_raw TEXT, text_clean TEXT)
-Primary key: (patient_id, session_date, session_type, turn_id)
+2) SQLite DB `./export/therapy.db` with table `qa_pairs` schema: (patient_id TEXT, session_date TEXT, session_type TEXT, turn_id INTEGER, speaker TEXT, text_raw TEXT, text_clean TEXT) 
+    Primary key: (patient_id, session_date, session_type, turn_id)
 3) Graph‑JSON file at `./export/<patient_id>/<session_type>/<session_date>/graph_chunk_<k>.json`
 — obey the Graph‑JSON schema defined below.
 
 
 - Pass C (GRAPH): read Graph‑JSON files and generate Cypher to STDOUT and also write to
-`./export/cypher/<patient_id>/<session_type>/<session_date>/chunk_<k>.cypher`.
+    `./export/cypher/<patient_id>/<session_type>/<session_date>/chunk_<k>.cypher`.
 Do not execute Memgraph here; only generate Cypher text.
-
 
 VALIDATION
 - After each write, print an explicit confirmation with file paths and row counts.
 - If any path is missing, create directories.
-
 
 FINALIZATION
 - Only when a pass completes for all chunks, call:
@@ -62,22 +58,22 @@ ROLE: CLEAN & NORMALIZE QA pairs from a raw transcript file.
 INPUTS
 - A UTF‑8 text file (e.g., `therapy-gpt.md`) containing alternating Therapist/Client blocks.
 - Config vars you will set in code:
-PATIENT_ID = "Client_345" (or as provided)
-SESSION_TYPE = "therapy"
-SESSION_DATE = "2025-08-19" # use provided date or a passed‑in value
-CHUNK_SIZE = 50
+    PATIENT_ID = "Client_345" (or as provided)
+    SESSION_TYPE = "therapy"
+    SESSION_DATE = "2025-08-19" # use provided date or a passed‑in value
+    CHUNK_SIZE = 50
 
 
 TASK
 1) Parse the transcript into QA pairs with incremental `turn_id` starting at 1.
 2) Speakers → one of {"Therapist","Client"}. Map other tags accordingly.
 3) `text_clean` rules:
-- Trim whitespace, fix obvious typos when unambiguous (keep semantics)
-- Remove markdown headers/separators, keep quoted user content
-- Preserve meaning; no summarization here
+    - Trim whitespace, fix obvious typos when unambiguous (keep semantics)
+    - Remove markdown headers/separators, keep quoted user content
+    - Preserve meaning; no summarization here
 4) Build `df_clean` with columns exactly:
-["session_date","session_type","turn_id","speaker","text_raw","text_clean"]
-And add `PATIENT_ID` as a separate Python variable (not a column) for Pass B.
+    ["session_date","session_type","turn_id","speaker","text_raw","text_clean"]
+    And add `PATIENT_ID` as a separate Python variable (not a column) for Pass B.
 
 
 MEMORY
@@ -94,7 +90,6 @@ OUTPUT
 THERAPY_PASS_B_FILE = r"""
 ROLE: Persist the cleaned chunk to CSV, SQLite, and Graph‑JSON.
 
-
 PRECONDITION
 - `df_clean` exists in memory from Pass A
 - Variables set: PATIENT_ID, SESSION_TYPE, SESSION_DATE, CHUNK_SIZE
@@ -109,28 +104,28 @@ FILE TARGETS
 
 GRAPH‑JSON SCHEMA (strict)
 {
-"patient_id": "Client_345",
-"session_date": "2025-08-19",
-"session_type": "therapy",
-"chunk_index": 1,
-"utterances": [
-{
-"turn_id": 1,
-"speaker": "Client",
-"text": "...text_clean...",
-"annotations": {
-"distortions": ["Overgeneralisation"],
-"emotions_primary": ["Shame"],
-"sentiment2d": {"valence": -0.70, "arousal": 0.60},
-"erikson_stage": "Identity vs Role Confusion",
-"attachment_style": "Anxious|Avoidant|Secure|Disorganized|Unknown",
-"big5": {"O": 0.62, "C": 0.48, "E": 0.41, "A": 0.71, "N": 0.58},
-"schemas": ["Abandonment"],
-"defense_mechanisms": ["Denial"]
-}
-},
-...
-]
+    "patient_id": "Client_345",
+    "session_date": "2025-08-19",
+    "session_type": "therapy",
+    "chunk_index": 1,
+    "utterances": [
+    {
+        "turn_id": 1,
+        "speaker": "Client",
+        "text": "...text_clean...",
+        "annotations": {
+          "distortions": ["Overgeneralisation"],
+          "emotions_primary": ["Shame"],
+          "sentiment2d": {"valence": -0.70, "arousal": 0.60},
+          "erikson_stage": "Identity vs Role Confusion",
+          "attachment_style": "Anxious|Avoidant|Secure|Disorganized|Unknown",
+          "big5": {"O": 0.62, "C": 0.48, "E": 0.41, "A": 0.71, "N": 0.58},
+          "schemas": ["Abandonment"],
+          "defense_mechanisms": ["Denial"]
+        }
+    },
+    ...
+  ]
 }
 
 
@@ -154,10 +149,8 @@ OUTPUT
 THERAPY_PASS_C_GRAPH = r"""
 ROLE: Convert Graph‑JSON chunks into Cypher for Memgraph. Do not execute; just generate files.
 
-
 INPUTS
 - Graph‑JSON files under `./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_*.json`
-
 
 NODE & RELATIONSHIP MODEL (minimal viable)
 (:Persona {id: PATIENT_ID})
@@ -185,13 +178,11 @@ LINKS
 (:Utterance)-[:REFLECTS_SCHEMA]->(:Schema)
 (:Utterance)-[:SHOWS_DEFENSE]->(:DefenseMechanism)
 
-
 CYHER GENERATION RULES
 - Use MERGE for all nodes and relationships to keep idempotent.
 - Escape quotes in text; truncate utterance text at 800 chars.
 - Batch by chunk: write to `./export/cypher/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/chunk_{k}.cypher`
 - Print the first 15 lines to stdout for inspection and the path written.
-
 
 FINAL
 - When all chunks processed, emit <code>final_answer("PASS_COMPLETE")</code>.
@@ -204,3 +195,5 @@ You are in chat mode with agentic capabilities. When the user types "Begin":
 3) Run in chunks (CHUNK_SIZE=50 unless user overrides). After each chunk, print a one‑line status.
 4) Keep Thought/Code/Observation cadence. Only call <code>final_answer("PASS_COMPLETE")</code> when the selected pass is fully done.
 """
+
+DB_SYSTEM_PROMPT = r""" RESERVED FOR DEBUGGING"""
