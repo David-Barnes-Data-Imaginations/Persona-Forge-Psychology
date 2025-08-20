@@ -3,9 +3,9 @@ from smolagents import Tool
 
 class RetrieveMetadata(Tool):
     name = "RetrieveMetadata"
-    description = """Search the dataset metadata for relevant information RetrieveMetadata(query="field types", k=5)"""
+    description = """Search the dataset psych_metadata for relevant information RetrieveMetadata(query="field types", k=5)"""
     inputs = {
-        "query": {"type": "string", "description": "What to search for in the metadata"},
+        "query": {"type": "string", "description": "What to search for in the psych_metadata"},
         "k": {"type": "integer", "description": "Number of results to return (default: 3)", "nullable": True}
     }
     output_type = "string"
@@ -24,9 +24,9 @@ class RetrieveMetadata(Tool):
         results = self.metadata_embedder.search_metadata(query, k)
 
         if not results:
-            return "No relevant metadata found"
+            return "No relevant psych_metadata found"
 
-        response = "Relevant metadata:\n\n"
+        response = "Relevant psych_metadata:\n\n"
         for i, result in enumerate(results, 1):
             response += f"**Result {i}** (similarity: {result['similarity_score']:.3f})\n"
             response += f"{result['content']}\n\n"

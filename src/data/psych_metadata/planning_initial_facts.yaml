@@ -1,0 +1,15 @@
+"paths": {
+"export_root": "./export",
+"sqlite_db": "./export/therapy.db",
+"qa_csv_template": "./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv",
+"graph_json_template": "./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json",
+"metadata_file": "./psych_metadata/psych_frameworks.md",
+"graph_schema": "./psych_metadata/graph_schema.json"
+}
+"defaults": {
+"patient_id": "Client_345",
+"session_type": "therapy",
+"session_date": datetime.date.today().isoformat(),
+"chunk_size": 40
+}
+

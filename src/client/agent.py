@@ -14,21 +14,19 @@ from src.executors import docker_python_executor
     CA_MAIN_PROMPT"""
 from src.utils.prompts import THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, THERAPY_PASS_B_FILE, THERAPY_PASS_C_GRAPH, DB_SYSTEM_PROMPT
 
-
-
 # Prompt templates
 prompt_templates = {
     "system_prompt": THERAPY_SYSTEM_PROMPT,
     "planning": {
-        "initial_facts": PLANNING_INITIAL_FACTS,
-        "initial_plan": PLANNING_INITIAL_PLAN,
-        "update_facts_pre_messages": PLANNING_UPDATE_FACTS_PRE,
-        "update_facts_post_messages": PLANNING_UPDATE_FACTS_POST,
-        "update_plan_pre_messages": PLANNING_UPDATE_PLAN_PRE,
-        "update_plan_post_messages": PLANNING_UPDATE_PLAN_POST
+        "initial_facts": "",
+        "initial_plan": "",
+        "update_facts_pre_messages": "",
+        "update_facts_post_messages": "",
+        "update_plan_pre_messages": "",
+        "update_plan_post_messages": "",
     },
     "managed_agent": {
-        "task": CA_MAIN_PROMPT,
+        "task": THERAPY_SYSTEM_PROMPT,
         "report": ""
     },
     "final_answer": {
@@ -51,7 +49,6 @@ debug_templates = {
         "post_messages": ""
     }
 }
-
 
 # StepController handles step management by adding a time delay, alongside the manual controls
 class StepController:
@@ -191,15 +188,6 @@ class CustomAgent:
         return """🚀 Starting agentic workflow! I'm now in analysis mode. 
 
 
-I can help you clean and analyze this data using a systematic, chunk-based approach.
-
-I have access to the Turtle Games dataset with the following files:
-
-- Reviews CSV: /data/turtle_reviews.csv
-- Sales CSV: /data/turtle_sales.csv 
-
-I should clean the dataset in chunks of 200 rows and use the SaveCleanedDataframe tool to save the results.
-Once all chunks are cleaned, I will print the dataframe and submit "Dataframe cleaned" as my final answer.
 """
 
     def return_to_chat_mode(self):

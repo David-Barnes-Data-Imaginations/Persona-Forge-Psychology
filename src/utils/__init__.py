@@ -7,7 +7,7 @@ database operations, and system prompts.
 import os
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-from src.utils.prompts import CA_SYSTEM_PROMPT, CA_MAIN_PROMPT, CHAT_PROMPT
+from src.utils.prompts import THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, THERAPY_PASS_B_FILE, THERAPY_PASS_C_GRAPH, THERAPY_TASK_PROMPT, PLANNING_INITIAL_FACTS, DB_SYSTEM_PROMPT
 from .metadata_embedder import MetadataEmbedder
 from .ollama_utils import (
     check_ollama_server,
@@ -21,8 +21,10 @@ from .ollama_utils import (
 
 
 __all__ = [
-    'CA_SYSTEM_PROMPT',
-    'CA_MAIN_PROMPT',
-    'CHAT_PROMPT',
+    THERAPY_SYSTEM_PROMPT,
+    THERAPY_PASS_A_CLEAN,
+    THERAPY_PASS_B_FILE,
+    THERAPY_PASS_C_GRAPH,
+    THERAPY_TASK_PROMPT,
     'MetadataEmbedder'
 ]

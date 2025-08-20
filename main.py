@@ -165,13 +165,14 @@ def main():
         with open("./src/data/tg_database.db", "rb") as f:
             dataset_path_in_sandbox = sandbox.files.write("/data/tg_database.db", f)
         # Upload dataset to sandbox
+        sandbox.files.write("/export/therapy.db", open("./export/therapy.db", "wb+"))
 
-    # Initialize metadata embedder and embed metadata file
-    print("📚 Setting up metadata embeddings...")
+    # Initialize psych_metadata embedder and embed psych_metadata file
+    print("📚 Setting up psych_metadata embeddings...")
     metadata_embedder = MetadataEmbedder(sandbox)
 
     # Use sandbox path if E2B is enabled, otherwise local path
-    metadata_path = "/data/metadata/turtle_games_dataset_metadata.md" if USE_E2B else "./src/data/metadata/turtle_games_dataset_metadata.md"
+    metadata_path = "/data/psych_metadata/psych_metadata.md" if USE_E2B else "./src/psych_metadata/psych_metadata.md"
     result = metadata_embedder.embed_metadata_file(metadata_path)
     print(f"Metadata embedding result: {result}")
 

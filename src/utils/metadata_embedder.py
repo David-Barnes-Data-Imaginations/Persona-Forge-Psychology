@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class MetadataEmbedder:
-    """Class for embedding metadata and storing them in a sandbox"""
+    """Class for embedding psych_metadata and storing them in a sandbox"""
     def __init__(self, sandbox=None):
         self.sandbox = sandbox
 
@@ -45,7 +45,7 @@ class MetadataEmbedder:
         else:
             self._embed_fn = self._embed_locally  # deterministic local fallback
 
-        # Separate storage for metadata vs agent notes
+        # Separate storage for psych_metadata vs agent notes
         self.metadata_store_path = "embeddings/metadata_store.json"
         self.agent_notes_store_path = "embeddings/agent_notes_store.json"
 
@@ -53,7 +53,7 @@ class MetadataEmbedder:
         self.agent_notes_store = []
 
     def _check_metadata_exists(self) -> bool:
-        """Check if metadata embeddings already exist"""
+        """Check if psych_metadata embeddings already exist"""
         if self.sandbox:
             try:
                 self.sandbox.files.read(self.metadata_store_path)
@@ -63,7 +63,7 @@ class MetadataEmbedder:
         return os.path.exists(self.metadata_store_path)
 
     def _load_existing_metadata(self):
-        """Load existing metadata embeddings"""
+        """Load existing psych_metadata embeddings"""
         try:
             if self.sandbox:
                 store_data = self.sandbox.files.read(self.metadata_store_path).decode()
@@ -71,22 +71,22 @@ class MetadataEmbedder:
                 with open(self.metadata_store_path, "r", encoding="utf-8") as f:
                     store_data = f.read()
             self.metadata_store = json.loads(store_data)
-            print(f"Loaded existing metadata embeddings: {len(self.metadata_store)} items")
+            print(f"Loaded existing psych_metadata embeddings: {len(self.metadata_store)} items")
             return True
         except Exception as e:
-            print(f"Error loading metadata embeddings: {e}")
+            print(f"Error loading psych_metadata embeddings: {e}")
             return False
 
     def embed_metadata_file(self, file_path: str, force_refresh: bool = False) -> str:
-        """Embed the metadata markdown file at startup"""
+        """Embed the psych_metadata markdown file at startup"""
         if not force_refresh and self._check_metadata_exists():
             print("Metadata embeddings already exist, loading...")
             if self._load_existing_metadata():
                 return "Metadata embeddings loaded successfully"
 
-        print("Creating new metadata embeddings...")
+        print("Creating new psych_metadata embeddings...")
 
-        # Read metadata content
+        # Read psych_metadata content
         try:
             if self.sandbox:
                 metadata_content = self.sandbox.files.read(file_path)
@@ -96,7 +96,7 @@ class MetadataEmbedder:
                 with open(file_path, "r", encoding="utf-8") as f:
                     metadata_content = f.read()
         except Exception as e:
-            return f"Error reading metadata file: {e}"
+            return f"Error reading psych_metadata file: {e}"
 
         chunks = self._chunk_markdown(metadata_content)
 
@@ -129,9 +129,9 @@ class MetadataEmbedder:
                 os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
                 with open(self.metadata_store_path, "w", encoding="utf-8") as f:
                     f.write(store_json)
-            return f"Successfully embedded metadata file: {len(chunks)} chunks created"
+            return f"Successfully embedded psych_metadata file: {len(chunks)} chunks created"
         except Exception as e:
-            return f"Error saving metadata embeddings: {e}"
+            return f"Error saving psych_metadata embeddings: {e}"
 
     def _embed_with_openai(self, text: str) -> list[float]:
         """Create an embedding using OpenAI"""
@@ -182,7 +182,7 @@ class MetadataEmbedder:
         return chunks
 
     def search_metadata(self, query: str, k: int = 3) -> list:
-        """Search metadata embeddings using numpy cosine similarity"""
+        """Search psych_metadata embeddings using numpy cosine similarity"""
         if not self.metadata_store:
             return []
         try:
@@ -204,11 +204,11 @@ class MetadataEmbedder:
                 results.append(result)
             return results
         except Exception as e:
-            print(f"Error searching metadata: {e}")
+            print(f"Error searching psych_metadata: {e}")
             return []
 
     def embed_tool_help_notes(self, tools: list) -> str:
-        """Embeds the help_notes field from each tool into the metadata index."""
+        """Embeds the help_notes field from each tool into the psych_metadata index."""
         if not tools:
             return "No tools provided"
 

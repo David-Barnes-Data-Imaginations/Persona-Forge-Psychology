@@ -1,5 +1,4 @@
 from __future__ import annotations
-from __future__ import annotations
 import sqlite3
 from contextlib import contextmanager
 from typing import Iterable, Mapping, Any, Optional
