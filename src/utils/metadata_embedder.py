@@ -100,7 +100,7 @@ class MetadataEmbedder:
 
         # Embedding backends
         self.use_openai = os.getenv("USE_OPENAI_EMBEDDINGS", "false").lower() == "true"
-        self.use_ollama = os.getenv("USE_OLLAMA_EMBEDDINGS", "false").lower() == "true"
+        self.use_ollama_embed = os.getenv("USE_OLLAMA_EMBEDDINGS", "false").lower() == "false"
 
         # OpenAI init (opt-in)
         self.openai_client = None
@@ -120,7 +120,7 @@ class MetadataEmbedder:
         # Choose embedding function by precedence: OpenAI -> Ollama -> Local
         if self.openai_client:
             self._embed_fn: Callable[[str], list[float]] = self._embed_with_openai
-        elif self.use_ollama:
+        elif self.use_ollama_embed:
             self._embed_fn = self._embed_with_ollama
         else:
             self._embed_fn = self._embed_locally  # deterministic local fallback
