@@ -556,7 +556,7 @@ Now since I've upgraded both my hardware and the llm since my smolagents runner 
 The reason I worked so hard to get GPT-oss working on this project was because I could immediately tell it was a _significant evolution_ in local model training.
 The agentic loop consumed 100's of hours testing, requiring a new set of tests each time the model was changed, so I was glad to learn about the 'routing' to replace it.
 
-Since GPT5 has been teaching me, I'll hand over for the explanation!
+Since GPT5 has been teaching me, I'll hand over for the explanation! GPT, please also add the new Sandbox & Persistence features.
 Over to you again GPT:
 ---
 ### 🚦 Passes vs Agentic Loops
@@ -641,6 +641,86 @@ sequenceDiagram
   Val-->>LLM: OK
   LLM-->>You: Pass B summary (files written, rows upserted)
 
+```
+
+### 1) Data Flow & Persistence (overview)
+```mermaid
+flowchart LR
+  subgraph HOST["Host (your repo)"]
+    Hdata[./src/data/*]
+    Hmeta[./src/data/psych_metadata/*]
+    Hpatient[./src/data/patient_raw_data/*]
+    Hstates[./src/states/*]
+    Hemb[./embeddings/*]
+    Hexp[./export/* (therapy.db, csv/json)]
+  end
+
+  subgraph SANDBOX["e2b Sandbox (/workspace/*)"]
+    Sdata[/data/]
+    Sstates[/states/]
+    Semb[/embeddings/]
+    Sexp[/export/ (therapy.db, csv/json)]
+    Agent[[LLM + Tools (Pass A/B/C)]]
+  end
+
+  PM[(PersistenceManager\non_boot / on_shutdown)]
+  ME[[MetadataEmbedder]]
+
+  Hdata -- on_boot: push --> Sdata
+  Hmeta -- on_boot: push --> Sdata
+  Hpatient -- on_boot: push --> Sdata
+  Hstates -- optional push --> Sstates
+  Hemb -. usually skip .- Hemb
+
+  PM --- Hdata
+  PM --- Hmeta
+  PM --- Hpatient
+  PM --- Hstates
+  PM --- Hemb
+  PM --- Hexp
+  PM --- Sdata
+  PM --- Sstates
+  PM --- Semb
+  PM --- Sexp
+
+  ME --> Semb
+  Agent --> Sexp
+  Agent --> Semb
+  Agent --> Sstates
+
+  Sexp -- on_shutdown: pull --> Hexp
+  Sstates -- optional pull --> Hstates
+  Semb -- optional pull --> Hemb
+```
+### 2) Boot → Run → Shutdown (sequence)
+```mermaid
+sequenceDiagram
+  autonumber
+  participant Main as main.py
+  participant PM as PersistenceManager
+  participant SBX as Sandbox FS (/workspace/*)
+  participant EMB as MetadataEmbedder
+  participant AG as Router+Pass (A/B/C)
+
+  Main->>PM: on_boot()
+  PM->>SBX: mkdir /workspace/{data,export,states,embeddings}
+  PM->>SBX: push ./src/data/* → /workspace/data/*
+  PM->>SBX: push ./export/therapy.db? → /workspace/export/therapy.db
+
+  Main->>EMB: embed_metadata_dirs([psych_metadata, patient_raw_data])
+  EMB->>SBX: read /workspace/data/psych_metadata/*
+  EMB->>SBX: write embeddings/metadata_store.json
+
+  Main->>AG: run_full_pipeline(input=/workspace/data/patient_raw_data/therapy.md)
+  AG->>SBX: write /workspace/export/qa_chunk_k.csv
+  AG->>SBX: upsert /workspace/export/therapy.db (SQLite)
+  AG->>SBX: write /workspace/export/graph_chunk_k.json
+
+  Main->>PM: on_shutdown()
+  PM->>SBX: pull /workspace/export/therapy.db → ./export/therapy.db
+  PM->>SBX: pull /workspace/export/* → ./export/*
+  PM->>SBX: (optional) pull /workspace/states/* → ./src/states/*
+  PM->>SBX: (optional) pull /workspace/embeddings/* → ./embeddings/*
 ```
 ---
 Now you see why I ask GPT to explain those parts!
