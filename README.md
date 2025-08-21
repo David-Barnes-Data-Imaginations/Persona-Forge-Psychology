@@ -652,7 +652,7 @@ flowchart LR
     Sstates[/states/]
     Semb[/embeddings/]
     Sexp[/export/]
-    Agent[[LLM + Tools (Pass A/B/C)]]
+    Agent[[LLM / Tools (Pass A/B/C)]]
   end
 
   PM[(PersistenceManager\non_boot / on_shutdown)]
