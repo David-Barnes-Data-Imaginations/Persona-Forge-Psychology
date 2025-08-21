@@ -647,15 +647,15 @@ flowchart LR
     Hexp[EXPORTS: host outputs]
   end
 
-  subgraph SANDBOX["e2b Sandbox - /workspace"]
+  subgraph SANDBOX["e2b Sandbox - workspace"]
     Sdata[/data/]
     Sstates[/states/]
     Semb[/embeddings/]
     Sexp[/export/]
-    Agent[[LLM / Tools (Pass A/B/C)]]
+    Agent[[LLM and Tools<br/>Pass A · B · C]]
   end
 
-  PM[(PersistenceManager\non_boot / on_shutdown)]
+  PM[(PersistenceManager<br/>on_boot · on_shutdown)]
   ME[[MetadataEmbedder]]
 
   Hdata -->|on_boot: push| Sdata
@@ -683,6 +683,7 @@ flowchart LR
   Sexp -->|on_shutdown: pull| Hexp
   Sstates -->|optional pull| Hstates
   Semb -->|optional pull| Hemb
+
 ```
 **Legend**
 Host labels → real paths
