@@ -638,31 +638,31 @@ sequenceDiagram
 ### 1) Data Flow & Persistence (overview)
 ```mermaid
 flowchart LR
-  subgraph HOST["Host (your repo)"]
-    Hdata[./src/data/*]
-    Hmeta[./src/data/psych_metadata/*]
-    Hpatient[./src/data/patient_raw_data/*]
-    Hstates[./src/states/*]
-    Hemb[./embeddings/*]
-    Hexp[./export/* (therapy.db, csv/json)]
+  subgraph HOST["Host - your repo"]
+    Hdata[DATA: src data]
+    Hmeta[PSYCH META: src data psych]
+    Hpatient[PATIENT RAW: src data patient]
+    Hstates[STATES: src states]
+    Hemb[EMBEDDINGS: host embeddings]
+    Hexp[EXPORTS: host outputs]
   end
 
-  subgraph SANDBOX["e2b Sandbox (/workspace/*)"]
+  subgraph SANDBOX["e2b Sandbox - /workspace"]
     Sdata[/data/]
     Sstates[/states/]
     Semb[/embeddings/]
-    Sexp[/export/ (therapy.db, csv/json)]
+    Sexp[/export/]
     Agent[[LLM + Tools (Pass A/B/C)]]
   end
 
   PM[(PersistenceManager\non_boot / on_shutdown)]
   ME[[MetadataEmbedder]]
 
-  Hdata -- on_boot: push --> Sdata
-  Hmeta -- on_boot: push --> Sdata
-  Hpatient -- on_boot: push --> Sdata
-  Hstates -- optional push --> Sstates
-  Hemb -. usually skip .- Hemb
+  Hdata -->|on_boot: push| Sdata
+  Hmeta -->|on_boot: push| Sdata
+  Hpatient -->|on_boot: push| Sdata
+  Hstates -->|optional push| Sstates
+  Hemb -. usually skip .- Semb
 
   PM --- Hdata
   PM --- Hmeta
@@ -680,10 +680,23 @@ flowchart LR
   Agent --> Semb
   Agent --> Sstates
 
-  Sexp -- on_shutdown: pull --> Hexp
-  Sstates -- optional pull --> Hstates
-  Semb -- optional pull --> Hemb
+  Sexp -->|on_shutdown: pull| Hexp
+  Sstates -->|optional pull| Hstates
+  Semb -->|optional pull| Hemb
 ```
+**Legend**
+Host labels → real paths
+
+- DATA: src data → ./src/data/*
+- PSYCH META: src data psych → ./src/data/psych_metadata/*
+- PATIENT RAW: src data patient → ./src/data/patient_raw_data/*
+- STATES: src states → ./src/states/*
+- EMBEDDINGS: host embeddings → ./embeddings/*
+- EXPORTS: host outputs → ./export/* (e.g., therapy.db, CSV/JSON)
+
+Sandbox folders
+/workspace/data, /workspace/export, /workspace/embeddings, /workspace/states
+
 
 ### 2) Boot → Run → Shutdown (sequence)
 ```mermaid
