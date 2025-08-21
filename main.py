@@ -161,16 +161,11 @@ def main():
     print("📚 Setting up psych_metadata embeddings...")
     metadata_embedder = MetadataEmbedder(sandbox)
 
-    embedder = MetadataEmbedder(sandbox)
-    result = embedder.embed_many(
-        # always re-embed this one (fresh patient data)
-        always=["./src/data/patient_raw_data"],
-        # embed-once (unless refresh=True)
-        once=["./src/data/psych_metadata"],
-        # ignore these if they accidentally get passed
-        exclude=["./insights", "./embeddings"],
-        refresh=False,  # set True if you want a full rebuild
-    )
+    metadata_embedder = MetadataEmbedder(sandbox)
+    result = metadata_embedder.embed_metadata_dirs([
+        "./src/data/psych_metadata",
+        "./src/data/patient_raw_data"
+    ], refresh=False)
     print(result)
 
     # Create agent, tool factory and tools
