@@ -1,0 +1,15 @@
+pandas
+numpy
+scikit-learn
+jsonschema
+plotly
+matplotlib
+openai
+python-dateutil
+python-dotenv
+requests
+smolagents
+sqlalchemy
+typing-extensions
+transformers
+ddgs

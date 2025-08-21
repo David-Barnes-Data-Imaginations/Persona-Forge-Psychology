@@ -3,7 +3,7 @@ import json
 import numpy as np
 from typing import Callable
 import requests  # add for Ollama embeddings
-
+from src.states.paths import SBX_DATA_DIR
 # Optional OpenAI client
 try:
     from openai import OpenAI
@@ -45,9 +45,8 @@ class MetadataEmbedder:
         else:
             self._embed_fn = self._embed_locally  # deterministic local fallback
 
-        # Separate storage for psych_metadata vs agent notes
-        self.metadata_store_path = "embeddings/metadata_store.json"
-        self.agent_notes_store_path = "embeddings/agent_notes_store.json"
+        self.metadata_store_path = f"{SBX_DATA_DIR}/embeddings/metadata_store.json" if self.sandbox else "embeddings/metadata_store.json"
+        self.agent_notes_store_path = f"{SBX_DATA_DIR}/embeddings/agent_notes_store.json" if self.sandbox else "embeddings/agent_notes_store.json"
 
         self.metadata_store = []
         self.agent_notes_store = []

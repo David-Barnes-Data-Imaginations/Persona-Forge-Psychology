@@ -10,7 +10,7 @@ from src.utils.ollama_utils import wait_for_ollama_server, start_ollama_server_b
 from pathlib import Path
 import argparse
 import os
-
+from src.states.persistence import PersistenceManager
 from src.client.agent import CustomAgent
 from src.client.agent_router import TherapyRouter
 from src.utils.config import (
@@ -59,7 +59,6 @@ def build_planning_initial_facts(*, patient_id=None, session_type=None, session_
     stype = session_type or DEFAULT_SESSION_TYPE
     sdate = session_date or DEFAULT_SESSION_DATE
     csize = chunk_size or CHUNK_SIZE_DEFAULT
-
 
     base = (BASE_EXPORT / pid / stype / sdate).resolve()
     cypher_dir = (BASE_EXPORT / "cypher" / pid / stype / sdate).resolve()
@@ -124,7 +123,6 @@ def cli():
         chunk_size=args.chunk_size,
     )
 
-
     if args.action == "pass":
         if not args.pass_name:
             raise SystemExit("Please supply A, B, or C after 'pass'")
@@ -157,15 +155,7 @@ def main():
         e2b_api_key = os.getenv("E2B_API_KEY")
         if not e2b_api_key:
             raise RuntimeError("USE_E2B=true but E2B_API_KEY is missing. Set it in your environment or .env")
-        sandbox = Sandbox(api_key=e2b_api_key)
-        # Upload requirements.txt and install dependencies here to give time for upload before calling install
-        with open("requirements.txt", "rb") as f:
-            sandbox.files.write("requirements.txt", f)
-        # Upload dataset to sandbox
-        with open("./src/data/tg_database.db", "rb") as f:
-            dataset_path_in_sandbox = sandbox.files.write("/data/tg_database.db", f)
-        # Upload dataset to sandbox
-        sandbox.files.write("/export/therapy.db", open("./export/therapy.db", "wb+"))
+
 
     # Initialize psych_metadata embedder and embed psych_metadata file
     print("📚 Setting up psych_metadata embeddings...")
