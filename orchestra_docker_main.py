@@ -54,9 +54,9 @@ def main():
     print(f"LANGFUSE keys set: {'✅' if LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY else '❌'}")
     print(f"Using Ollama host: {OLLAMA_HOST}")
 
-    print("📚 Setting up metadata embeddings...")
+    print("📚 Setting up psych_metadata embeddings...")
     metadata_embedder = MetadataEmbedder(sandbox=None)
-    result = metadata_embedder.embed_metadata_file("./src/data/metadata/turtle_games_dataset_metadata.md")
+    result = metadata_embedder.embed_metadata_file("./src/data/psych_metadata/turtle_games_dataset_metadata.md")
     print(f"Metadata embedding result: {result}")
 
     print("🛠️ Creating tools...")

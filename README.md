@@ -16,7 +16,7 @@ If you're really bored you can also read my first blog (whilst my website is WIP
 - Whilst this project has a specific goal / subject, the architecture has intentionally been built to be flexible enough so that it can be easily transferrable to other domains. These might include: Housing, Information Security or general business / government organizations.
 
 ### **_Why_ agentic frameworks?**
-
+ 
 - Now if you're still getting to grip with the concept of agentic frameworks, who better to summarise than a former 'Google CEO' and 'Whitehouse Advisor' to multiple US Presidents: [Eric Schmidt](https://en.wikipedia.org/wiki/Eric_Schmidt).
 - Bear in mind this was recorded a month ago, and a hell of a lot has happened in that month.
 - The key segment is at [10:57] in this [video](https://www.youtube.com/watch?v=qaPHK1fJL5s). The process he describes in perfectly feasible, even 'easy' once you have a smolagents runner like mine.

@@ -105,72 +105,8 @@ Always show details
 (:Utterance)-[:REFLECTS_STAGE]->(:EriksonStage {{name:"Identity vs Role Confusion"}})
 (:Utterance)-[:HAS_SENTIMENT]->(:Sentiment {{valence:-0.7, arousal:0.6}})
 
-2) Strict Graph-JSON schema (machine-consumable)
 
-graph_schema = {
-"$schema": "https://json-schema.org/draft/2020-12/schema
-",
-"title": "Therapy Graph Chunk",
-"type": "object",
-"required": ["patient_id", "session_date", "qa_pairs"],
-"properties": {
-"patient_id": {"type": "string"},
-"session_date": {"type": "string", "pattern": r"^\d{4}-\d{2}-\d{2}$"},
-"session_type": {"type": "string"},
-"chunk_id": {"type": "integer", "minimum": 0},
-"qa_pairs": {
-"type": "array",
-"items": {
-"type": "object",
-"required": ["q", "a", "nodes", "edges"],
-"properties": {
-"q": {"type": "string"},
-"a": {"type": "string"},
-"utterance_id": {"type": "string"},
-"nodes": {
-"type": "array",
-"items": {
-"type": "object",
-"required": ["label", "props"],
-"properties": {
-"label": {
-"type": "string",
-"enum": [
-"Utterance","Distortion","Sentiment","EriksonStage",
-"Emotion","AttachmentStyle","Trait","Schema",
-"DefenseMechanism","Transference","Persona","Session"
-]
-},
-"props": {"type": "object"}
-}
-}
-},
-"edges": {
-"type": "array",
-"items": {
-"type": "object",
-"required": ["from", "to", "type"],
-"properties": {
-"from": {"type": "string"},
-"to": {"type": "string"},
-"type": {
-"type": "string",
-"enum": [
-"SAID","INCLUDES","HAS_DISTORTION","HAS_SENTIMENT",
-"REFLECTS_STAGE","TRIGGERS_EMOTION","CAN_REPHRASE_USING",
-"HAS_PATTERN","IN_LIFE_STAGE","HAS_ATTACHMENT","INDICATES",
-"HAS_TRAIT","HAS_SCHEMA","SHOWS_DEFENSE","CORRELATED_WITH"
-]
-},
-"props": {"type": "object"}
-}
-}
-}
-}
-}
-}
-}
-}
+
 
 open(os.path.join(base, "graph_schema.json"), "w", encoding="utf-8").write(json.dumps(graph_schema, indent=2))
 

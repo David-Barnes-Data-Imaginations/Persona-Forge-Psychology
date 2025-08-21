@@ -23,7 +23,7 @@ SBX_DB_DIR = "/workspace/db"
 
 # Default filenames
 DEFAULT_DB_NAME = "persona_forge.sqlite"
-THERAPY_MD_NAME = "therapy-gpt.md"
+THERAPY_MD_NAME = "therapy.md"
 
 
 # Common resolved paths

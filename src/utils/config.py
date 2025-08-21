@@ -15,5 +15,5 @@ CHUNK_SIZE_DEFAULT = int(os.getenv("CHUNK_SIZE", "50"))
 
 # Session defaults (override per run)
 DEFAULT_PATIENT_ID = os.getenv("PATIENT_ID", "Client_345")
-DEFAULT_SESSION_TYPE = os.getenv("SESSION_TYPE", "therapy")
+DEFAULT_SESSION_TYPE = os.getenv("SESSION_TYPE", "therapy_text")
 DEFAULT_SESSION_DATE = os.getenv("SESSION_DATE", "2025-08-19")

@@ -99,7 +99,6 @@ class CustomAgent:
                 "pandas",
                 "statistics",
                 "smolagents",
-                "random",
                 "itertools",
                 "queue",
                 "math",
@@ -314,7 +313,7 @@ class ToolFactory:
         from tools.documentation_tools import (DocumentLearningInsights,
                                                RetrieveMetadata, RetrieveSimilarChunks,
                                                ValidateCleaningResults)
-        from tools.dataframe_storage import SaveCleanedDataframe
+        from tools.sql_tools import QuerySQLite, WriteQAtoSQLite
 
         # Create instances of your custom tools
         tools = [
@@ -322,7 +321,7 @@ class ToolFactory:
             RetrieveMetadata(sandbox=self.sandbox, metadata_embedder=self.metadata_embedder),
             RetrieveSimilarChunks(sandbox=self.sandbox),
             ValidateCleaningResults(sandbox=self.sandbox),
-            SaveCleanedDataframe(sandbox=self.sandbox),
-
+            QuerySQLite(sandbox=self.sandbox),
+            WriteQAtoSQLite(sandbox=self.sandbox)
         ]
         return tools

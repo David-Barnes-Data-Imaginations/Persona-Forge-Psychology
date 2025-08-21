@@ -196,6 +196,10 @@ PLANNING_INITIAL_FACTS = f"""
 - Insights dir (sandbox): /workspace/insights
 - DB path (sandbox): /workspace/db/persona_forge.sqlite
 - Therapy transcript (sandbox): /workspace/data/therapy-gpt.md
+- CSV path: ./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv
+- SQLite: ./export/therapy.db
+- Graph JSON: ./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json
+- Metadata: ./export/metadata/psych_frameworks.md
 
 
 **Rules**
