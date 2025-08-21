@@ -49,17 +49,17 @@ Since i've found myself stuck in one of the inevitable _quagmire's_ this type of
 
 ### ✅ Use e2b sandbox instead of Docker (already working now and actually safer for code in its current form).
 - Keep main.py, agent.py, chat.py, and metadata_embedder.py as core loop.
-- Refactor Prompt Templates for GPT-OSS
-- Current prompts (prompts.py) are tuned for cleaning CSV datasets.
+- ~Refactor Prompt Templates for GPT-OSS~
+- ~Current prompts (prompts.py) are tuned for cleaning Therapy datasets.~
 
 ### Create a new dataset for therapy transcripts:
-- Agentic Pass 1 – Cleaning: Format QA pairs consistently.
-- Pass 2 – Filing: Save each QA into:
+- ~Agentic Pass 1 – Cleaning: Format QA pairs consistently.~
+- ~Pass 2 – Filing: Save each QA into:~
 
 **Storage Methods**
-- Patient Directory (CSV)
-- LiteSQL DB
-- Graph-tagged JSON blocks
+- ~Patient Directory (CSV)~
+- ~LiteSQL DB~
+- ~Graph-tagged JSON blocks~
 - (later) in [Hugging Face - AI Sheets](https://github.com/huggingface/aisheets?tab=readme-ov-file) for human usage and review
 
 Pass 3 – Graph Build: Auto-generate Cypher queries to Memgraph.
@@ -69,20 +69,20 @@ Pass 3 – Graph Build: Auto-generate Cypher queries to Memgraph.
 
 **Output 3 aligned formats**:
 
-- CSV directory (per session)
-- SQLite DB (for structured queries)
-- Graph JSON / Cypher file (for Memgraph load)
-
+- ~CSV directory (per session)~
+- ~SQLite DB (for structured queries)~
+- ~Graph JSON / Cypher file (for Memgraph load)~
+- 
 ### 🧠 Agent Roles (Minimum Viable Setup)
 
 **Agent 1 – Data Cleaner & Filer**
-- Input: raw transcripts or QA pairs
-- Output: CSV + SQLite + JSON graph blocks
+- ~Input: raw transcripts or QA pairs~
+- ~Output: CSV + SQLite + JSON graph blocks~
 
 **Agent 2 – Graph Builder**
 
-- Input: JSON graph blocks
-- Output: Cypher queries → Memgraph
+- Input: ~JSON graph blocks~
+- Output: ~Cypher queries → Memgraph~
 
 **Agent 3 – Patient Helper**
 
