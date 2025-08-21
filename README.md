@@ -30,18 +30,10 @@ If you built a brand new enterprise architecture, you would be highly tempted us
 _Eric Schmidt_ July 2025
 
 ---
-1. ~Finish Simulated-therapy script~
-2. ~Replace E2b with Docker containerization~ (pushed to repo now, boots much faster)
-3. ~Add example risk-register / considerations for production environments~
-4. ~Remove Kinoite Operating system and replace with Ubuntu (Kinoite ironically reduces security by requiring agent has root access in docker)~
-    - Re-Build 3rd PC when parts arrive.
-5. ~Add in Multi-Agent Orchestra scaffold~
-6. ~Waste 5 days setting 5 different inference servers only to return to Ollama~
-- ### TODO Note: After spending nearly 5 days trying to get gpt-oss to run across unified memory on Ollama, building servers for Triton, vLLM, Llama.cpp, and even a Custom Hugging Face API docker, Ollama is finally fixed on ubuntu.
-  
-  - Having wasted 5 days messing around with inference servers, i've reinstated the old code and will leave the security until the end.
 
-# New _Updated_ TODO and Ticklist
+- ### TODO Note: After spending nearly 5 days trying to get gpt-oss to run across unified memory on Ollama, building servers for Triton, vLLM, Llama.cpp, and even a Custom Hugging Face API docker, Ollama is finally fixed on ubuntu.
+
+# New _Updated_ (GPT-Powered) TODO and Ticklist
 Since i've found myself stuck in one of the inevitable _quagmire's_ this type of project brings, having my code actually go backwards in the last week, I've a new plan written in tandem with GPT:
 🛠️ Immediate Goals (Next 1–2 Weeks)
 
@@ -692,6 +684,7 @@ flowchart LR
   Sstates -- optional pull --> Hstates
   Semb -- optional pull --> Hemb
 ```
+
 ### 2) Boot → Run → Shutdown (sequence)
 ```mermaid
 sequenceDiagram
@@ -722,6 +715,7 @@ sequenceDiagram
   PM->>SBX: (optional) pull /workspace/states/* → ./src/states/*
   PM->>SBX: (optional) pull /workspace/embeddings/* → ./embeddings/*
 ```
+
 ---
 Now you see why I ask GPT to explain those parts!
 Now on to some other tech nerd stuff:
