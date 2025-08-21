@@ -63,9 +63,8 @@ Since i've found myself stuck in one of the inevitable _quagmire's_ this type of
 - (later) in [Hugging Face - AI Sheets](https://github.com/huggingface/aisheets?tab=readme-ov-file) for human usage and review
 
 Pass 3 – Graph Build: Auto-generate Cypher queries to Memgraph.
-- Therapy-Simulator Dataset Prep
-
-- Run an agentic pass over therapy-gpt.md file.
+- ~Therapy-Simulator Dataset Prep~
+- ~Run an agentic pass over therapy-gpt.md file.~
 
 **Output 3 aligned formats**:
 
