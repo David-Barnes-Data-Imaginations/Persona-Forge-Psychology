@@ -547,7 +547,101 @@ Learning should be both inclusive and imaginative, that’s why this section is 
 
 > "The future is already here — it's just not evenly distributed." — William Gibson
 
-Below I have listed current technologies you _might_ use for any agentic implementation. However it's worth noting that once the (slightly delayed) [NVIDEA DGX Spark](https://www.nvidia.com/en-gb/products/workstations/dgx-spark/) is released, it renders most of the below obsolete aside from extremely specialised situations (for example the [NVIDIA Jetson AGX Orin](https://www.amazon.co.uk/NVIDIA-Jetson-Orin-64GB-Developer/dp/B0BYGB3WV4/ref=sr_1_2?crid=33CCWL1IBISS2&dib=eyJ2IjoiMSJ9.69vgNBFj_CdRHWPE_OPdtzawpTgSy7m7eYwZ4Zpd3qmNn2sSrsmOZG4bcs42HUmcy1ngGpW5cR1TCiY_Q96G4MQ8VWDGzE2DdSHdunjTG6o-L2ZcnGuqHqOJX7Y5xzgiQJi6V7vHG3oxZeFBl9erQWd-Aq4JCmSRbLh0sN52bcxl1jvUSJCtk3Fq8xIGcdJkSYwio6aq0trgaB62cP2tMQ.A2QEg87Q5k0XgEE2eEWUG-VEaLW2OhsXtXp3q4jQU2o&dib_tag=se&keywords=NVIDIA%2BJetson%2BAGX%2BOrin%2B%2F%2BNVIDIA%2BIGX&qid=1754615087&sprefix=nvidia%2Bjetson%2Bagx%2Borin%2B%2F%2Bnvidia%2Bigx%2B%2Caps%2C59&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1) is often used for automated Security Camera monitoring and tagging / timestamping). The Spark and / or [DGX Workstation](https://www.nvidia.com/en-us/products/workstations/dgx-station/) will likely redefine modern computers and laptops entirely. The Spark was rumoured to be around £3k (likely closer to £4k) and two networked via NV-Link can run a Llama-Nemo 405B (roughly half the size of GPT4o on release). The Spark fits in the palm of your hand (so goodbye laptops) whilst the Workstation is regular PC size.
+Below I have listed current technologies you _might_ use for any agentic implementation. However, it's worth noting that once the (slightly delayed) [NVIDEA DGX Spark](https://www.nvidia.com/en-gb/products/workstations/dgx-spark/) is released, it renders most of the below obsolete aside from extremely specialised situations (for example the [NVIDIA Jetson AGX Orin](https://www.amazon.co.uk/NVIDIA-Jetson-Orin-64GB-Developer/dp/B0BYGB3WV4/ref=sr_1_2?crid=33CCWL1IBISS2&dib=eyJ2IjoiMSJ9.69vgNBFj_CdRHWPE_OPdtzawpTgSy7m7eYwZ4Zpd3qmNn2sSrsmOZG4bcs42HUmcy1ngGpW5cR1TCiY_Q96G4MQ8VWDGzE2DdSHdunjTG6o-L2ZcnGuqHqOJX7Y5xzgiQJi6V7vHG3oxZeFBl9erQWd-Aq4JCmSRbLh0sN52bcxl1jvUSJCtk3Fq8xIGcdJkSYwio6aq0trgaB62cP2tMQ.A2QEg87Q5k0XgEE2eEWUG-VEaLW2OhsXtXp3q4jQU2o&dib_tag=se&keywords=NVIDIA%2BJetson%2BAGX%2BOrin%2B%2F%2BNVIDIA%2BIGX&qid=1754615087&sprefix=nvidia%2Bjetson%2Bagx%2Borin%2B%2F%2Bnvidia%2Bigx%2B%2Caps%2C59&sr=8-2&ufe=app_do%3Aamzn1.fos.d7e5a2de-8759-4da3-993c-d11b6e3d217f&th=1) is often used for automated Security Camera monitoring and tagging / timestamping). The Spark and / or [DGX Workstation](https://www.nvidia.com/en-us/products/workstations/dgx-station/) will likely redefine modern computers and laptops entirely. The Spark was rumoured to be around £3k (likely closer to £4k) and two networked via NV-Link can run a Llama-Nemo 405B (roughly half the size of GPT4o on release). The Spark is a mini (so goodbye laptops), whilst the Workstation is regular PC size.
+**_To put this into perspective, the original Chat-GPT was trained on a $250,000 NVIDEA GPU in 2016. The Spark is 10,000 times more energy efficient, and 6 times faster._**
+The original didn't fit in the palm of your hand, but the Spark does.
+
+Now since I've upgraded both my hardware and the llm since my smolagents runner was built, I've been learning how this affects frameworks such as smolagents, with its '_agentic loop_' etc.
+The reason I worked so hard to get GPT-oss working on this project was because I could immediately tell it was a _significant evolution_ in local model training.
+The agentic loop consumed 100's of hours testing, requiring a new set of tests each time the model was changed, so I was glad to learn about the 'routing' to replace it.
+
+Since GPT5 has been teaching me, I'll hand over for the explanation!
+Over to you again GPT:
+---
+### 🚦 Passes vs Agentic Loops
+
+**Old Style (Agentic Loop):**
+
+- Designed for small models (3B/7B) that need “scaffolding.”
+- The agent repeatedly cycles: think → choose tool → observe → decide next step.
+- Good for weak models that can’t hold long instructions or multi-stage plans.
+
+**New Style (Pass Router: A/B/C):**
+
+- Optimized for strong models (e.g. GPT-OSS 20B, 120B, OpenAI-class).
+- Instead of looping, the agent executes one structured “pass” at a time:
+
+**Pass A → Clean data, output CSV chunks**
+
+**Pass B → Populate SQLite from those chunks**
+
+**Pass C → Generate graph JSON**
+
+- Each pass has its own fixed toolset. The model doesn’t need to “decide” which tool to use — it just follows the structured pass instructions.
+- Chaining passes (A → B → C) gives the same outcome as an old agentic loop, but with lower overhead and higher reliability.
+
+**Why shift away from loops?**
+
+- Bigger models already know how to handle multi-step instructions.
+- Structured passes keep runs predictable and modular.
+
+**_Loops are still useful for:_**
+
+- debugging smaller quantized models,
+- adding “retry until success” behavior,
+- or interactive / self-correction flows.
+
+### 1) Agentic Loop vs Pass Router (side‑by‑side)
+
+```mermaid
+flowchart LR
+  subgraph OLD["Agentic Loop (small models)"]
+    O1[Start] --> O2[Think: plan next step]
+    O2 --> O3{Choose tool?}
+    O3 -->|CSV| O4[Call CSV tool]
+    O3 -->|DB| O5[Call SQLite tool]
+    O3 -->|Graph| O6[Call Graph tool]
+    O4 --> O7[Observe + update plan]
+    O5 --> O7
+    O6 --> O7
+    O7 --> O8{Done?}
+    O8 -- No --> O2
+    O8 -- Yes --> O9[Final answer]
+  end
+
+  subgraph NEW["Pass Router (A/B/C) (large models)"]
+    N1[Start] --> N2{Select Pass}
+    N2 -->|A: Clean| NA[Apply cleaning rules\nChunk → Normalize → Validate]
+    N2 -->|B: File| NB[CSV/SQLite emit\nUpsert → Idempotent writes]
+    N2 -->|C: Graph| NC[Graph‑JSON build\nNodes/Edges → Validate schema]
+    NA --> N4[Deterministic artifacts]
+    NB --> N4
+    NC --> N4
+    N4 --> N5[Optional: Run next pass]
+    N5 -->|A→B→C| N6[Pipeline complete]
+  end
+```
+2) Pass B “File Structuring” (sequence view)
+```mermaid
+sequenceDiagram
+  autonumber
+  participant You as Router.run_pass("B")
+  participant LLM as GPT‑OSS (Pass B Prompt)
+  participant CSV as CSV Helper (io_helpers.save_csv)
+  participant DB as SQLite (sqlite_helpers)
+  participant Val as Validator (optional)
+
+  You->>LLM: System + Pass B prompt + runtime facts
+  LLM->>CSV: Emit cleaned chunk → write qa_chunk_k.csv
+  CSV-->>LLM: Path to file
+  LLM->>DB: Upsert rows into qa_pairs
+  DB-->>LLM: Upsert ok (idempotent)
+  LLM->>Val: (optional) sanity checks / counts
+  Val-->>LLM: OK
+  LLM-->>You: Pass B summary (files written, rows upserted)
+
+```
+---
 
 ### 🔧 Tech Stack (_Mine_ & 'Production Examples')
 
@@ -566,8 +660,6 @@ graph TD
   B1[🧪 Pre-Prod Testing<br>Higher fidelity prototypes<br><b>Use: Teams, small-scale pilots, hospital ward trial</b>] --> C1
   C1[🚀 Production / Edge Use-Case<br>Stable deployment or specialist use<br><b>Use: Integrated room assistants, patient-interaction hubs</b>]
 ```
-
-
 
 **Example Hardware & Use Case Examples**
 
