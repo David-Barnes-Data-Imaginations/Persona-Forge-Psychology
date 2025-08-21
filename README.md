@@ -398,7 +398,7 @@ CBT remains the gold standard for detecting irrational thoughts like catastrophi
 
 *And here’s the stylised representation of it semantically.*
 
-  ```mermaid
+```mermaid
   graph TD
     Persona -->|SAID| Utterance
     Utterance -->|HAS_DISTORTION| Distortion
@@ -406,7 +406,8 @@ CBT remains the gold standard for detecting irrational thoughts like catastrophi
     Utterance -->|REFLECTS_STAGE| EriksonStage
     Persona -->|HAS_PATTERN| SummaryStats
     Session -->|INCLUDES| Utterance
-  ```
+```
+
 ## Additional Frameworks David's Scoping 
 [David's note] You can view APPENDIX_1 (tba) to see me testing Gemma3 vs GPT before I added these frameworks. Gemma3-12B (6-7gb in size) actually matched some of my scoping preferences, which GPT then developed.
 
