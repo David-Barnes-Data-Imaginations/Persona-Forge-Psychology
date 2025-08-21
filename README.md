@@ -643,6 +643,8 @@ sequenceDiagram
 
 ```
 ---
+Now you see why I ask GPT to explain those parts!
+Now on to some other tech nerd stuff:
 
 ### 🔧 Tech Stack (_Mine_ & 'Production Examples')
 
