@@ -1,10 +1,11 @@
-import numpy as np
 from typing import Callable
 import requests  # add for Ollama embeddings
 from src.states.paths import SBX_DATA_DIR
 import os, json, hashlib, time
 from dataclasses import dataclass
-from typing import Optional, Iterable, Tuple, List, Dict, Any
+from typing import Optional, Iterable, List, Dict, Any
+import argparse
+
 try:
     from openai import OpenAI
 except Exception:
@@ -83,7 +84,6 @@ class FS:
             pass
         return out
 
-
 class MetadataEmbedder:
     """
     Smart embedder:
@@ -132,30 +132,30 @@ class MetadataEmbedder:
         self.agent_notes_store = []
 
         # -------- public API --------
-        def embed_many(
-                self,
-                *,
-                always: Iterable[str] = (),
-                once: Iterable[str] = (),
-                exclude: Iterable[str] = (),
-                refresh: bool = False,
-        ) -> str:
-            """High-level driver for your main.py"""
-            self._load_stores()
+    def embed_many(
+            self,
+            *,
+            always: Iterable[str] = (),
+            once: Iterable[str] = (),
+            exclude: Iterable[str] = (),
+            refresh: bool = False,
+    ) -> str:
+        """High-level driver for your main.py"""
+        self._load_stores()
 
-            exclude_set = {os.path.abspath(p) for p in exclude}
+        exclude_set = {os.path.abspath(p) for p in exclude}
 
-            # 1) always re-embed (patient_raw_data)
-            total_chunks = 0
-            for base in always:
-                total_chunks += self._embed_dir(base, exclude_set=exclude_set, mode="always", refresh=True)
+        # 1) always re-embed (patient_raw_data)
+        total_chunks = 0
+        for base in always:
+            total_chunks += self._embed_dir(base, exclude_set=exclude_set, mode="always", refresh=True)
 
-            # 2) embed-once dirs (psych_metadata)
-            for base in once:
-                total_chunks += self._embed_dir(base, exclude_set=exclude_set, mode="once", refresh=refresh)
+        # 2) embed-once dirs (psych_metadata)
+        for base in once:
+            total_chunks += self._embed_dir(base, exclude_set=exclude_set, mode="once", refresh=refresh)
 
-            self._save_stores()
-            return f"Embedded {total_chunks} chunks (always={list(always)}, once={list(once)}, refresh={refresh})"
+        self._save_stores()
+        return f"Embedded {total_chunks} chunks (always={list(always)}, once={list(once)}, refresh={refresh})"
 
     # -------- internals --------
     def _load_stores(self):
@@ -293,3 +293,118 @@ class MetadataEmbedder:
         if not embedding:
             raise RuntimeError(f"Ollama embedding response missing 'embedding' field: {data}")
         return embedding
+
+    import os
+    import json
+
+
+
+    class MetadataEmbedder:
+        def __init__(self, sandbox=None):
+            self.sandbox = sandbox
+            self.metadata_store_path = "embeddings/metadata_store.json"
+            self.agent_notes_store_path = "embeddings/agent_notes_store.json"
+            self.metadata_store = []
+            self.agent_notes_store = []
+
+        def _check_metadata_exists(self) -> bool:
+            if self.sandbox:
+                try:
+                    self.sandbox.files.read(self.metadata_store_path)
+                    return True
+                except:
+                    return False
+            return os.path.exists(self.metadata_store_path)
+
+        def _load_existing_metadata(self):
+            try:
+                if self.sandbox:
+                    store_data = self.sandbox.files.read(self.metadata_store_path).decode()
+                else:
+                    with open(self.metadata_store_path, "r", encoding="utf-8") as f:
+                        store_data = f.read()
+                self.metadata_store = json.loads(store_data)
+                print(f"Loaded existing metadata embeddings: {len(self.metadata_store)} items")
+                return True
+            except Exception as e:
+                print(f"Error loading metadata embeddings: {e}")
+                return False
+
+        def embed_metadata_dirs(self, base_dirs: list[str], refresh: bool = False) -> str:
+            if not refresh and self._check_metadata_exists():
+                print("Metadata embeddings already exist, loading...")
+                if self._load_existing_metadata():
+                    return "Metadata embeddings loaded successfully"
+
+            skip_dirs = {"insights", "embeddings"}
+            always_refresh_dirs = {"patient_raw_data"}
+            new_embeddings = []
+
+            for dir_path in base_dirs:
+                dir_name = os.path.basename(dir_path.rstrip("/"))
+                if dir_name in skip_dirs:
+                    print(f"⏭️ Skipping auto-generated dir: {dir_path}")
+                    continue
+
+                refresh_this_dir = dir_name in always_refresh_dirs or refresh
+                print(f"📚 Creating embeddings from {dir_path} (refresh={refresh_this_dir})")
+
+                for fname in os.listdir(dir_path):
+                    fpath = os.path.join(dir_path, fname)
+                    if not os.path.isfile(fpath):
+                        continue
+                    if fname.endswith((".md", ".json", ".yaml")):
+                        with open(fpath, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        chunks = self._chunk_markdown(content)
+                        for i, chunk in enumerate(chunks):
+                            embedding = self._embed_fn(chunk)
+                            new_embeddings.append({
+                                "type": "metadata",
+                                "source": f"{dir_name}/{fname}",
+                                "chunk_id": i,
+                                "content": chunk,
+                                "embedding": embedding,
+                                "created_at": "startup"
+                            })
+
+            if new_embeddings:
+                self.metadata_store.extend(new_embeddings)
+
+            try:
+                store_json = json.dumps(self.metadata_store, indent=2)
+                if self.sandbox:
+                    self.sandbox.files.write(self.metadata_store_path, store_json.encode())
+                else:
+                    os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
+                    with open(self.metadata_store_path, "w", encoding="utf-8") as f:
+                        f.write(store_json)
+                return f"Successfully embedded {len(new_embeddings)} chunks from {len(base_dirs)} directories"
+            except Exception as e:
+                return f"Error saving metadata embeddings: {e}"
+
+        def _chunk_markdown(self, text: str, max_len: int = 800) -> list[str]:
+            paras = text.split("\n\n")
+            chunks, buf = [], []
+            for p in paras:
+                if sum(len(x) for x in buf) + len(p) > max_len:
+                    chunks.append("\n\n".join(buf))
+                    buf = []
+                buf.append(p)
+            if buf:
+                chunks.append("\n\n".join(buf))
+            return chunks
+
+        def _embed_fn(self, chunk: str):
+            return [float(len(chunk) % 10)] * 10  # fake vector
+
+    if __name__ == "__main__":
+        parser = argparse.ArgumentParser(description="Embed metadata directories")
+        parser.add_argument("--refresh", action="store_true", help="Force refresh of all embeddings")
+        parser.add_argument("--dirs", nargs="*", default=["./src/data/psych_metadata", "./src/data/patient_raw_data"],
+                            help="Directories to embed")
+        args = parser.parse_args()
+
+        embedder = MetadataEmbedder()
+        result = embedder.embed_metadata_dirs(args.dirs, refresh=args.refresh)
+        print(result)
