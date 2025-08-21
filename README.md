@@ -4,6 +4,7 @@
 ### This 'README' is more of a collation of various notes from my Logseq files that I write during breaks from testing, whilst the project is WIP. Therefore don't expect too much coherence or fancy writing, i'll do that once its finished.
 
 If you're really bored you can also read my first blog (whilst my website is WIP) [here](https://github.com/David-Barnes-Data-Imaginations/blog.github.io/blob/main/_posts/2025-08-10-titles.md).
+You can also see the project structure [here](https://github.com/David-Barnes-Data-Imaginations/Persona-Forge-Psychology/blob/e2b_revert/directory_structure.md)
 ---
 **For Clinicians / Non-Techies**:
 - I present the core 'Psychology principles' involved first, to spare the pain of technical jargon. I cover _some_ technical aspects related to 'Knowledge Graphs', but graph syntax is closer to 'Structured English' than it is to a 'Coding Language'.
