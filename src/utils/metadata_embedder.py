@@ -1,10 +1,10 @@
-import os
-import json
 import numpy as np
 from typing import Callable
 import requests  # add for Ollama embeddings
 from src.states.paths import SBX_DATA_DIR
-# Optional OpenAI client
+import os, json, hashlib, time
+from dataclasses import dataclass
+from typing import Optional, Iterable, Tuple, List, Dict, Any
 try:
     from openai import OpenAI
 except Exception:
@@ -13,10 +13,90 @@ except Exception:
 from dotenv import load_dotenv
 load_dotenv()
 
-class MetadataEmbedder:
-    """Class for embedding psych_metadata and storing them in a sandbox"""
+def _sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+@dataclass
+class StorePaths:
+    # where the embedder keeps its caches/stores
+    embeddings_dir: str = "embeddings"
+    metadata_store_file: str = "embeddings/metadata_store.json"  # vector store (toy)
+    index_file: str = "embeddings/metadata_index.json"           # file → hash & chunks
+
+class FS:
+    """Abstract FS that can be backed by e2b sandbox or local disk."""
     def __init__(self, sandbox=None):
         self.sandbox = sandbox
+
+    def read_text(self, path: str, encoding: str = "utf-8") -> str:
+        if self.sandbox:
+            blob = self.sandbox.files.read(path)
+            return blob.decode(encoding) if isinstance(blob, (bytes, bytearray)) else blob
+        with open(path, "r", encoding=encoding) as f:
+            return f.read()
+
+    def read_bytes(self, path: str) -> bytes:
+        if self.sandbox:
+            blob = self.sandbox.files.read(path)
+            return blob if isinstance(blob, (bytes, bytearray)) else bytes(blob, "utf-8")
+        with open(path, "rb") as f:
+            return f.read()
+
+    def write_text(self, path: str, text: str, encoding: str = "utf-8") -> None:
+        if self.sandbox:
+            # ensure parent exists
+            parent = os.path.dirname(path)
+            try:
+                self.sandbox.files.mkdir(parent)
+            except Exception:
+                pass
+            self.sandbox.files.write(path, text.encode(encoding))
+            return
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding=encoding) as f:
+            f.write(text)
+
+    def exists(self, path: str) -> bool:
+        if self.sandbox:
+            try:
+                self.sandbox.files.read(path)
+                return True
+            except Exception:
+                return False
+        return os.path.exists(path)
+
+    def list_dir(self, path: str) -> List[Dict[str, Any]]:
+        """Return entries: {name, is_dir} (sandbox & local)."""
+        out: List[Dict[str, Any]] = []
+        if self.sandbox:
+            try:
+                for e in self.sandbox.files.list(path):
+                    out.append({"name": e["name"], "is_dir": e.get("is_dir", False)})
+            except Exception:
+                pass
+            return out
+        try:
+            for name in os.listdir(path):
+                full = os.path.join(path, name)
+                out.append({"name": name, "is_dir": os.path.isdir(full)})
+        except FileNotFoundError:
+            pass
+        return out
+
+
+class MetadataEmbedder:
+    """
+    Smart embedder:
+      - ALWAYS dirs: re-embed every run (patient_raw_data)
+      - ONCE dirs  : embed only if store missing (or refresh=True)
+      - EXCLUDE    : skip
+      - Content-hash de-dupe: unchanged files are not re-embedded
+    """
+    def __init__(self, sandbox=None, store: Optional[StorePaths] = None):
+        self.fs = FS(sandbox)
+        self.store = store or StorePaths()
+        self._store_data: List[Dict[str, Any]] = []  # naïve vector store
+        self._index: Dict[str, Dict[str, Any]] = {}  # path -> {sha256, chunks, updated_at}
 
         # Embedding backends
         self.use_openai = os.getenv("USE_OPENAI_EMBEDDINGS", "false").lower() == "true"
@@ -51,99 +131,161 @@ class MetadataEmbedder:
         self.metadata_store = []
         self.agent_notes_store = []
 
-    def _check_metadata_exists(self) -> bool:
-        """Check if psych_metadata embeddings already exist"""
-        if self.sandbox:
+        # -------- public API --------
+        def embed_many(
+                self,
+                *,
+                always: Iterable[str] = (),
+                once: Iterable[str] = (),
+                exclude: Iterable[str] = (),
+                refresh: bool = False,
+        ) -> str:
+            """High-level driver for your main.py"""
+            self._load_stores()
+
+            exclude_set = {os.path.abspath(p) for p in exclude}
+
+            # 1) always re-embed (patient_raw_data)
+            total_chunks = 0
+            for base in always:
+                total_chunks += self._embed_dir(base, exclude_set=exclude_set, mode="always", refresh=True)
+
+            # 2) embed-once dirs (psych_metadata)
+            for base in once:
+                total_chunks += self._embed_dir(base, exclude_set=exclude_set, mode="once", refresh=refresh)
+
+            self._save_stores()
+            return f"Embedded {total_chunks} chunks (always={list(always)}, once={list(once)}, refresh={refresh})"
+
+    # -------- internals --------
+    def _load_stores(self):
+        # metadata_store
+        if self.fs.exists(self.store.metadata_store_file):
             try:
-                self.sandbox.files.read(self.metadata_store_path)
+                text = self.fs.read_text(self.store.metadata_store_file)
+                self._store_data = json.loads(text)
+            except Exception:
+                self._store_data = []
+        else:
+            self._store_data = []
+
+        # index
+        if self.fs.exists(self.store.index_file):
+            try:
+                text = self.fs.read_text(self.store.index_file)
+                self._index = json.loads(text)
+            except Exception:
+                self._index = {}
+        else:
+            self._index = {}
+
+    def _save_stores(self):
+        os.makedirs(self.store.embeddings_dir, exist_ok=True)
+        self.fs.write_text(self.store.metadata_store_file, json.dumps(self._store_data, indent=2))
+        self.fs.write_text(self.store.index_file, json.dumps(self._index, indent=2))
+
+    def _should_skip(self, abs_path: str, exclude_set: set[str]) -> bool:
+        # skip by prefix
+        for ex in exclude_set:
+            if abs_path.startswith(ex):
                 return True
-            except:
-                return False
-        return os.path.exists(self.metadata_store_path)
+        # ignore hidden/system
+        name = os.path.basename(abs_path)
+        return name.startswith(".") or name.lower() in {"thumbs.db", "__pycache__"}
 
-    def _load_existing_metadata(self):
-        """Load existing psych_metadata embeddings"""
-        try:
-            if self.sandbox:
-                store_data = self.sandbox.files.read(self.metadata_store_path).decode()
-            else:
-                with open(self.metadata_store_path, "r", encoding="utf-8") as f:
-                    store_data = f.read()
-            self.metadata_store = json.loads(store_data)
-            print(f"Loaded existing psych_metadata embeddings: {len(self.metadata_store)} items")
-            return True
-        except Exception as e:
-            print(f"Error loading psych_metadata embeddings: {e}")
-            return False
+    def _iter_files(self, base_dir: str) -> Iterable[str]:
+        base = os.path.abspath(base_dir)
+        for root, dirs, files in os.walk(base):
+            # prune embeddings/insights if someone passed a parent folder
+            dirs[:] = [d for d in dirs if d not in {"embeddings", "insights", "__pycache__"}]
+            for fn in files:
+                yield os.path.join(root, fn)
 
-    def embed_metadata_file(self, file_path: str, force_refresh: bool = False) -> str:
-        """Embed the psych_metadata markdown file at startup"""
-        if not force_refresh and self._check_metadata_exists():
-            print("Metadata embeddings already exist, loading...")
-            if self._load_existing_metadata():
-                return "Metadata embeddings loaded successfully"
+    def _embed_dir(self, base_dir: str, *, exclude_set: set[str], mode: str, refresh: bool) -> int:
+        """
+        mode='always'  -> always re-embed files in base_dir
+        mode='once'    -> embed only if not present in index (unless refresh=True)
+        """
+        base_dir = os.path.abspath(base_dir)
+        if not os.path.isdir(base_dir):
+            return 0
 
-        print("Creating new psych_metadata embeddings...")
-
-        # Read psych_metadata content
-        try:
-            if self.sandbox:
-                metadata_content = self.sandbox.files.read(file_path)
-                if isinstance(metadata_content, bytes):
-                    metadata_content = metadata_content.decode()
-            else:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    metadata_content = f.read()
-        except Exception as e:
-            return f"Error reading psych_metadata file: {e}"
-
-        chunks = self._chunk_markdown(metadata_content)
-
-        embeddings = []
-        for i, chunk in enumerate(chunks):
-            try:
-                embedding = self._embed_fn(chunk)
-                embeddings.append(embedding)
-                self.metadata_store.append({
-                    "type": "metadata",
-                    "source": os.path.basename(file_path),
-                    "chunk_id": i,
-                    "content": chunk,
-                    "embedding": embedding,
-                    "created_at": "startup"
-                })
-            except Exception as e:
-                print(f"Error creating embedding for chunk {i}: {e}")
+        chunks_written = 0
+        for fpath in self._iter_files(base_dir):
+            if self._should_skip(os.path.abspath(fpath), exclude_set):
                 continue
 
-        if not embeddings:
-            return "Error: No embeddings created"
+            # only embed certain file types (md, json, yaml, txt)
+            if not fpath.lower().endswith((".md", ".json", ".yaml", ".yml", ".txt")):
+                continue
 
-        # Save store (sandbox or local)
-        try:
-            store_json = json.dumps(self.metadata_store, indent=2)
-            if self.sandbox:
-                self.sandbox.files.write(self.metadata_store_path, store_json.encode())
-            else:
-                os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
-                with open(self.metadata_store_path, "w", encoding="utf-8") as f:
-                    f.write(store_json)
-            return f"Successfully embedded psych_metadata file: {len(chunks)} chunks created"
-        except Exception as e:
-            return f"Error saving psych_metadata embeddings: {e}"
+            rel = os.path.relpath(fpath, start=os.path.abspath("."))  # relative to repo root
+            b = open(fpath, "rb").read()
+            digest = _sha256(b)
 
-    def _embed_with_openai(self, text: str) -> list[float]:
+            idx = self._index.get(rel)
+            if mode == "once" and not refresh and idx and idx.get("sha256") == digest:
+                # unchanged → skip
+                continue
+
+            text = b.decode("utf-8", errors="ignore")
+            chunks = self._chunk(text)
+            vectors = [self._embed(c) for c in chunks]
+
+            # append to store (very naïve vector store)
+            for i, (c, v) in enumerate(zip(chunks, vectors)):
+                self._store_data.append({
+                    "type": "metadata",
+                    "source": rel,
+                    "chunk_id": i,
+                    "content": c,
+                    "embedding": v,
+                    "created_at": "startup"
+                })
+
+            # update index
+            self._index[rel] = {
+                "sha256": digest,
+                "chunks": len(chunks),
+                "updated_at": int(time.time()),
+                "mode": mode,
+            }
+            chunks_written += len(chunks)
+
+        return chunks_written
+
+    # ------- chunker & embed stub (replace with your API call) -------
+    def _chunk(self, text: str, max_chars: int = 1400) -> List[str]:
+        parts, buf = [], []
+        for para in text.split("\n\n"):
+            if sum(len(x) for x in buf) + len(para) + 2 > max_chars:
+                parts.append("\n\n".join(buf));
+                buf = []
+            buf.append(para)
+        if buf:
+            parts.append("\n\n".join(buf))
+        return parts
+
+        """        
+        def _embed(self, chunk: str) -> List[float]:
+        # TODO: replace with OpenAI/HF embedding call
+        # Deterministic toy vector to keep structure intact
+        s = int(hashlib.md5(chunk.encode("utf-8")).hexdigest(), 16)
+        return [(s >> (i * 8)) % 997 / 997.0 for i in range(10)]
+        """
+
+    def _embed_with_openai(self, chunk: str) -> list[float]:
         """Create an embedding using OpenAI"""
         response = self.openai_client.embeddings.create(
-            input=text,
+            input=chunk,
             model="text-embedding-3-small"
         )
         return response.data[0].embedding
 
-    def _embed_with_ollama(self, text: str) -> list[float]:
+    def _embed_with_ollama(self, chunk: str) -> list[float]:
         """Create an embedding using Ollama's /api/embeddings"""
         url = f"http://{self.ollama_host}:{self.ollama_port}/api/embeddings"
-        r = requests.post(url, json={"model": self.ollama_embed_model, "prompt": text}, timeout=60)
+        r = requests.post(url, json={"model": self.ollama_embed_model, "prompt": chunk}, timeout=60)
         r.raise_for_status()
         data = r.json()
         # Ollama returns {"embedding": [floats], ...}
@@ -151,96 +293,3 @@ class MetadataEmbedder:
         if not embedding:
             raise RuntimeError(f"Ollama embedding response missing 'embedding' field: {data}")
         return embedding
-
-    def _embed_locally(self, text: str, dim: int = 384) -> list[float]:
-        """Deterministic local fallback embedding (hash-based)"""
-        rng = np.random.default_rng(abs(hash(text)) % (2**32))
-        vec = rng.standard_normal(dim)
-        vec = vec / np.linalg.norm(vec)
-        return vec.astype(float).tolist()
-
-    def _chunk_markdown(self, content: str, chunk_size: int = 1000) -> list:
-        """Split markdown content into chunks"""
-        lines = content.split('\n')
-        chunks = []
-        current_chunk = []
-        current_size = 0
-
-        for line in lines:
-            if current_size + len(line) > chunk_size and current_chunk:
-                chunks.append('\n'.join(current_chunk))
-                current_chunk = [line]
-                current_size = len(line)
-            else:
-                current_chunk.append(line)
-                current_size += len(line)
-
-        if current_chunk:
-            chunks.append('\n'.join(current_chunk))
-
-        return chunks
-
-    def search_metadata(self, query: str, k: int = 3) -> list:
-        """Search psych_metadata embeddings using numpy cosine similarity"""
-        if not self.metadata_store:
-            return []
-        try:
-            query_embedding = np.array(self._embed_fn(query))
-            similarities = []
-            for i, item in enumerate(self.metadata_store):
-                if "embedding" in item:
-                    stored_embedding = np.array(item["embedding"])
-                    norm_query = query_embedding / np.linalg.norm(query_embedding)
-                    norm_stored = stored_embedding / np.linalg.norm(stored_embedding)
-                    similarity = np.dot(norm_query, norm_stored)
-                    similarities.append((similarity, i))
-            similarities.sort(key=lambda x: x[0], reverse=True)
-            top = similarities[:k]
-            results = []
-            for sim, idx in top:
-                result = self.metadata_store[idx].copy()
-                result["similarity_score"] = float(sim)
-                results.append(result)
-            return results
-        except Exception as e:
-            print(f"Error searching psych_metadata: {e}")
-            return []
-
-    def embed_tool_help_notes(self, tools: list) -> str:
-        """Embeds the help_notes field from each tool into the psych_metadata index."""
-        if not tools:
-            return "No tools provided"
-
-        help_notes_count = 0
-        embeddings = []
-
-        for tool in tools:
-            if hasattr(tool, "help_notes") and tool.help_notes:
-                try:
-                    embedding = self._embed_fn(tool.help_notes)
-                    embeddings.append(embedding)
-                    self.metadata_store.append({
-                        "type": "tool_help",
-                        "tool_name": getattr(tool, "name", tool.__class__.__name__),
-                        "content": tool.help_notes,
-                        "embedding": embedding,
-                        "created_at": "startup"
-                    })
-                    help_notes_count += 1
-                except Exception as e:
-                    print(f"Error embedding help notes for tool {getattr(tool, 'name', tool.__class__.__name__)}: {e}")
-                    continue
-
-        if embeddings:
-            try:
-                store_json = json.dumps(self.metadata_store, indent=2)
-                if self.sandbox:
-                    self.sandbox.files.write(self.metadata_store_path, store_json.encode())
-                else:
-                    os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
-                    with open(self.metadata_store_path, "w", encoding="utf-8") as f:
-                        f.write(store_json)
-            except Exception as e:
-                return f"Error saving tool help embeddings: {e}"
-
-        return f"Successfully embedded help notes for {help_notes_count} tools"
