@@ -40,7 +40,7 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 # os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = f"Authorization=Basic {LANGFUSE_AUTH}"
 
 
-global sandbox, agent, chat_interface, metadata_embedder, chunk_number
+global sandbox, agent, chat_interface, metadata_embedder
 
 # define conventional subdirs similar to the old Docker volumes
 INSIGHTS_DIR = (BASE_EXPORT / "insights").resolve()

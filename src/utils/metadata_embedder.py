@@ -94,10 +94,11 @@ class MetadataEmbedder:
     """
     def __init__(self, sandbox=None):
         self.sandbox = sandbox
-        self.metadata_store_path = "embeddings/metadata_store.json"
-        self.agent_notes_store_path = "embeddings/agent_notes_store.json"
         self.metadata_store = []
         self.agent_notes_store = []
+
+        self.metadata_store_path = f"{SBX_DATA_DIR}/embeddings/metadata_store.json" if self.sandbox else "embeddings/metadata_store.json"
+        self.agent_notes_store_path = f"{SBX_DATA_DIR}/embeddings/agent_notes_store.json" if self.sandbox else "embeddings/agent_notes_store.json"
 
         # Embedding backends
         self.use_openai = os.getenv("USE_OPENAI_EMBEDDINGS", "false").lower() == "true"
@@ -117,20 +118,15 @@ class MetadataEmbedder:
         self.ollama_host = os.getenv("OLLAMA_HOST", "localhost")
         self.ollama_port = int(os.getenv("OLLAMA_PORT", "11434"))
         self.ollama_embed_model = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
+        self._embed_with_openai
 
-        # Choose embedding function by precedence: OpenAI -> Ollama -> Local
-        if self.openai_client:
-            self._embed_fn: Callable[[str], list[float]] = self._embed_with_openai
-        elif self.use_ollama_embed:
-            self._embed_fn = self._embed_with_ollama
-        else:
-            self._embed_fn = self._embed_locally  # deterministic local fallback
-
-        self.metadata_store_path = f"{SBX_DATA_DIR}/embeddings/metadata_store.json" if self.sandbox else "embeddings/metadata_store.json"
-        self.agent_notes_store_path = f"{SBX_DATA_DIR}/embeddings/agent_notes_store.json" if self.sandbox else "embeddings/agent_notes_store.json"
-
-        self.metadata_store = []
-        self.agent_notes_store = []
+        """        Choose embedding function by precedence: OpenAI -> Ollama -> Local
+                if self.openai_client:
+                    self._embed_fn: Callable[[str], list[float]] = self._embed_with_openai
+                elif self.use_ollama_embed:
+                    self._embed_fn = self._embed_with_ollama
+                else:
+                    self._embed_fn = self._embed_locally  """
 
         # -------- public API --------
 
@@ -233,17 +229,18 @@ class MetadataEmbedder:
         )
         return response.data[0].embedding
 
-    def _embed_with_ollama(self, chunk: str) -> list[float]:
-        """Create an embedding using Ollama's /api/embeddings"""
-        url = f"http://{self.ollama_host}:{self.ollama_port}/api/embeddings"
-        r = requests.post(url, json={"model": self.ollama_embed_model, "prompt": chunk}, timeout=60)
-        r.raise_for_status()
-        data = r.json()
-        # Ollama returns {"embedding": [floats], ...}
-        embedding = data.get("embedding")
-        if not embedding:
-            raise RuntimeError(f"Ollama embedding response missing 'embedding' field: {data}")
-        return embedding
+    """    def _embed_with_ollama(self, chunk: str) -> list[float]:
+            
+            url = f"http://{self.ollama_host}:{self.ollama_port}/api/embeddings"
+            r = requests.post(url, json={"model": self.ollama_embed_model, "prompt": chunk}, timeout=60)
+            r.raise_for_status()
+            data = r.json()
+            # Ollama returns {"embedding": [floats], ...}
+            embedding = data.get("embedding")
+            if not embedding:
+                raise RuntimeError(f"Ollama embedding response missing 'embedding' field: {data}")
+            return embedding
+    """
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Embed metadata directories")

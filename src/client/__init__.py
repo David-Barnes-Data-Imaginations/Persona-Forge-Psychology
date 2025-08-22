@@ -8,7 +8,7 @@ and working with code agents.
 from .agent import CustomAgent, StepController, SmartContextManager, agent_runner, toggle_manual_mode, next_step
 from .telemetry import TelemetryManager
 from . import ui
-from .agent_router import TherapyRouter, run_full_pipeline
+from .agent_router import TherapyRouter
 
 __all__ = [
     'CustomAgent',
@@ -20,5 +20,5 @@ __all__ = [
     'TelemetryManager',
     'ui',
     'TherapyRouter',
-    'run_full_pipeline'
+
 ]

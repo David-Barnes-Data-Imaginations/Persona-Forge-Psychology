@@ -1,9 +1,54 @@
-from pathlib import Path
+from __future__ import annotations
 import os
+from . import config as C
+from .session_paths import session_templates
+from src.states.paths import SBX_DATA_DIR, SBX_EXPORTS_DIR, SBX_DB_DIR
+
 PATIENT_ID = os.getenv("PATIENT_ID")
 SESSION_TYPE = os.getenv("SESSION_TYPE")
 SESSION_DATE = os.getenv("SESSION_DATE")
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE"))
+"""
+Prompts read sandbox-first path templates from `session_paths.py`.
+All write operations during Passes should use these sandbox paths.
+PersistenceManager pulls `/workspace/export` back to `./export` on shutdown.
+
+To change where files land, edit `session_paths.session_templates()`
+(not these prompt strings).
+"""
+
+
+def build_planning_initial_facts() -> str:
+    """
+    Returns a Markdown string with sandbox-first, model-friendly facts.
+    Uses {k} (chunk index) placeholder so a Pass can substitute at runtime.
+    """
+    t = session_templates(C.PATIENT_ID, C.SESSION_TYPE, C.SESSION_DATE)
+    return f"""
+**Fixed environment facts (SANDBOX paths)**
+- Data dir: {SBX_DATA_DIR}
+- Exports dir: {SBX_EXPORTS_DIR}
+- DB dir: {SBX_DB_DIR}
+- Session export base: {t.export_base}
+- CSV path template: {t.csv_template}
+- Graph JSON template: {t.graph_template}
+- Cypher export dir: {t.cypher_dir}
+- SQLite DB: {t.sqlite_db}
+- Therapy transcript: {t.therapy_md}
+- Psych frameworks: {t.psych_frameworks_md}
+- Graph schema: {t.graph_schema_json}
+
+**Placeholders**
+- Use `k` (integer) for the current chunk number when writing CSV/Graph JSON.
+
+**Rules of engagement**
+- Always create parent directories before writing.
+- Always validate Graph‑JSON against the schema before finalizing.
+- Normalize tags using the psych frameworks metadata.
+""".strip()
+
+# Export the constant your router expects
+PLANNING_INITIAL_FACTS = build_planning_initial_facts()
 
 THERAPY_SYSTEM_PROMPT = r"""
 You are a methodical agent that processes THERAPY QA pairs in fixed chunks.
@@ -177,7 +222,7 @@ LINKS
 (:Utterance)-[:REFLECTS_SCHEMA]->(:Schema)
 (:Utterance)-[:SHOWS_DEFENSE]->(:DefenseMechanism)
 
-CYHER GENERATION RULES
+CYPHER GENERATION RULES
 - Use MERGE for all nodes and relationships to keep idempotent.
 - Escape quotes in text; truncate utterance text at 800 chars.
 - Batch by chunk: write to `./export/cypher/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/chunk_{chunk_number}.cypher`
@@ -203,17 +248,18 @@ PLANNING_INITIAL_FACTS = f"""
 - Insights dir (sandbox): /workspace/insights
 - DB path (sandbox): /workspace/db/persona_forge.sqlite
 - Therapy transcript (sandbox): /workspace/data/therapy-gpt.md
-- CSV path: ./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{chunk_number}.csv
-- SQLite: ./export/therapy.db
-- Graph JSON: ./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{chunk_number}.json
+- CSV path (sandbox): /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_'k'.csv
+- SQLite DB (sandbox): /workspace/export/therapy.db
+- Graph JSON (sandbox): /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_'k'.json
 - Metadata: ./export/metadata/psych_frameworks.md
 
 
 **Rules**
 - Never hardcode paths; use these.
 - If a directory or the DB is missing, create it.
-- Read Q/A pairs from `therapy-gpt.md` → write cleaned CSVs to `/workspace/exports` and rows to SQLite.
+- Read Q/A pairs from `therapy.md` → write cleaned CSVs to `/workspace/exports` and rows to SQLite.
 - Keep chunks under the current context‑window limit and iterate.
 """
+
 
 DB_SYSTEM_PROMPT = r""" RESERVED FOR DEBUGGING"""
