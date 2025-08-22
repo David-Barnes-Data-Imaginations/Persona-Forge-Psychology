@@ -5,6 +5,7 @@ import os, json, hashlib, time
 from dataclasses import dataclass
 from typing import Optional, Iterable, List, Dict, Any
 import argparse
+SUPPORTED_EXTS = (".md", ".json", ".yaml", ".yml", ".txt")
 
 try:
     from openai import OpenAI
@@ -16,6 +17,10 @@ load_dotenv()
 
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def _is_supported_file(path: str) -> bool:
+    return path.lower().endswith(SUPPORTED_EXTS)
 
 @dataclass
 class StorePaths:
@@ -153,43 +158,83 @@ class MetadataEmbedder:
             print(f"Error loading metadata embeddings: {e}")
             return False
 
-    def embed_metadata_dirs(self, base_dirs: list[str], refresh: bool = False) -> str:
+    def embed_metadata_dirs(self, base_dirs: list[str], refresh: bool = False, verbose: bool = False) -> str:
+        """
+        Embed all files in one or more metadata directories.
+        - refresh=False: only embed if no existing store found
+        - patient_raw_data/ is always re-embedded (fresh each run)
+        - skips embedding agent-generated dirs like insights/ or embeddings/
+        """
         if not refresh and self._check_metadata_exists():
-            print("Metadata embeddings already exist, loading...")
+            if verbose:
+                print("ℹ️  Store exists, loading cached metadata embeddings...")
             if self._load_existing_metadata():
                 return "Metadata embeddings loaded successfully"
 
-        skip_dirs = {"insights", "embeddings"}
+        skip_dirs = {"insights", "embeddings", "__pycache__"}
         always_refresh_dirs = {"patient_raw_data"}
         new_embeddings = []
+        total_considered = total_embedded = 0
 
         for dir_path in base_dirs:
+            if not os.path.isdir(dir_path):
+                if verbose:
+                    print(f"⏭️  Not found or not a directory: {dir_path}")
+                continue
+
             dir_name = os.path.basename(dir_path.rstrip("/"))
             if dir_name in skip_dirs:
-                print(f"⏭️ Skipping auto-generated dir: {dir_path}")
+                if verbose:
+                    print(f"⏭️  Skipping auto-generated dir: {dir_path}")
                 continue
 
             refresh_this_dir = dir_name in always_refresh_dirs or refresh
             print(f"📚 Creating embeddings from {dir_path} (refresh={refresh_this_dir})")
 
-            for fname in os.listdir(dir_path):
+            try:
+                names = os.listdir(dir_path)
+            except Exception as e:
+                if verbose:
+                    print(f"⚠️  Unable to list {dir_path}: {e}")
+                continue
+
+            for fname in names:
                 fpath = os.path.join(dir_path, fname)
                 if not os.path.isfile(fpath):
+                    if verbose:
+                        print(f"  ⟶ skip: {fpath} (not a file)")
                     continue
-                if fname.endswith((".md", ".json", ".yaml")):
+                total_considered += 1
+
+                # type filter
+                if not _is_supported_file(fpath):
+                    if verbose:
+                        print(f"  ⟶ skip: {fpath} (unsupported extension)")
+                    continue
+
+                # read content
+                try:
                     with open(fpath, "r", encoding="utf-8") as f:
                         content = f.read()
-                    chunks = self._chunk_markdown(content)
-                    for i, chunk in enumerate(chunks):
-                        embedding = self._embed_fn(chunk)
-                        new_embeddings.append({
-                            "type": "metadata",
-                            "source": f"{dir_name}/{fname}",
-                            "chunk_id": i,
-                            "content": chunk,
-                            "embedding": embedding,
-                            "created_at": "startup"
-                        })
+                except Exception as e:
+                    if verbose:
+                        print(f"  ⟶ skip: {fpath} (read error: {e})")
+                    continue
+
+                chunks = self._chunk_markdown(content)
+                for i, chunk in enumerate(chunks):
+                    embedding = self._embed_fn(chunk)
+                    new_embeddings.append({
+                        "type": "metadata",
+                        "source": f"{dir_name}/{fname}",
+                        "chunk_id": i,
+                        "content": chunk,
+                        "embedding": embedding,
+                        "created_at": "startup" if not refresh_this_dir else "refresh"
+                    })
+                total_embedded += len(chunks)
+                if verbose:
+                    print(f"  ✔ embed: {fpath} (chunks={len(chunks)})")
 
         if new_embeddings:
             self.metadata_store.extend(new_embeddings)
@@ -202,7 +247,7 @@ class MetadataEmbedder:
                 os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
                 with open(self.metadata_store_path, "w", encoding="utf-8") as f:
                     f.write(store_json)
-            return f"Successfully embedded {len(new_embeddings)} chunks from {len(base_dirs)} directories"
+            return f"Successfully embedded {total_embedded} chunks from {len(base_dirs)} directories (considered {total_considered} files)"
         except Exception as e:
             return f"Error saving metadata embeddings: {e}"
 
@@ -256,13 +301,13 @@ if __name__ == "__main__":
     ]
     parser.add_argument("--refresh", action="store_true", help="Force refresh of all embeddings")
     parser.add_argument("--dirs", nargs="*", default=default_dirs, help="Directories to embed")
+    parser.add_argument("--verbose", action="store_true", help="Verbose include/exclude logging")
     args = parser.parse_args()
 
     embedder = MetadataEmbedder()
-
-    # friendly logs + existence check
+    # Shows missing dirs
     for d in args.dirs:
         if not os.path.isdir(d):
             print(f"⏭️  Skipping; not a directory: {d}")
-    result = embedder.embed_metadata_dirs(args.dirs, refresh=args.refresh)
+    result = embedder.embed_metadata_dirs(args.dirs, refresh=args.refresh, verbose=args.verbose)
     print(result)

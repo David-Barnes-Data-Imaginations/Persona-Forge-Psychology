@@ -7,7 +7,7 @@ from src.states.paths import SBX_DATA_DIR, SBX_EXPORTS_DIR, SBX_DB_DIR
 PATIENT_ID = os.getenv("PATIENT_ID")
 SESSION_TYPE = os.getenv("SESSION_TYPE")
 SESSION_DATE = os.getenv("SESSION_DATE")
-CHUNK_SIZE = int(os.getenv("CHUNK_SIZE"))
+CHUNK_SIZE = os.getenv("CHUNK_SIZE")
 """
 Prompts read sandbox-first path templates from `session_paths.py`.
 All write operations during Passes should use these sandbox paths.

@@ -12,7 +12,7 @@ E2B_MIRROR_DIR = os.getenv("E2B_MIRROR_DIR", "")
 
 # Chunking defaults
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "50"))
-
+STARTING_CHUNK_NUMBER=1
 # Session defaults (override per run)
 """PATIENT_ID = os.getenv("PATIENT_ID", "Client_345")
 SESSION_TYPE = os.getenv("SESSION_TYPE", "therapy_text")

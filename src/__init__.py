@@ -1,20 +1,7 @@
 """
-Main source package for the data scientist project.
-
-This package contains modules for client interactions, utility functions,
-and data handling operations.
+Persona Forge — source package.
+Keep this file minimal unlike my previous eager imports
 """
-
-# Import main modules
-from . import client
-from . import utils
-from . import data
-# from . import tools
-__all__ = [
-    'client',
-    'utils',
-    'data',
-    'states'
-]
+__all__ = []  # optional; avoid importing subpackages here
 
 

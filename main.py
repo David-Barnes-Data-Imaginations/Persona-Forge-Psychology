@@ -10,7 +10,7 @@ from src.utils.ollama_utils import wait_for_ollama_server, start_ollama_server_b
 from pathlib import Path
 import argparse
 import os
-from src.states.persistence import PersistenceManager
+from src.states.persistence import get_next_chunk_index
 from src.client.agent import CustomAgent
 from src.client.agent_router import TherapyRouter
 from src.utils.config import (
@@ -21,6 +21,7 @@ CHUNK_SIZE,
 PATIENT_ID,
 SESSION_DATE,
 SESSION_TYPE,
+STARTING_CHUNK_NUMBER
 )
 
 HF_TOKEN = os.getenv('HF_TOKEN')
@@ -42,6 +43,7 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 
 global sandbox, agent, chat_interface, metadata_embedder
 
+chunk_number=STARTING_CHUNK_NUMBER
 # define conventional subdirs similar to the old Docker volumes
 INSIGHTS_DIR = (BASE_EXPORT / "insights").resolve()
 EMBEDDINGS_DIR = (BASE_EXPORT / "embeddings").resolve()
@@ -209,6 +211,7 @@ def main():
             ollama_process.terminate()
         print("👋 Goodbye!")
 
+    chunk_number = get_next_chunk_index()
     build_planning_initial_facts()
     cli()
 
