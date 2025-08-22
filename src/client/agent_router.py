@@ -1,10 +1,10 @@
 from src.client.agent import CustomAgent
 from src.utils.prompts import THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, THERAPY_PASS_B_FILE, THERAPY_PASS_C_GRAPH
 from src.utils.config import (
-CHUNK_SIZE_DEFAULT,
-DEFAULT_PATIENT_ID,
-DEFAULT_SESSION_DATE,
-DEFAULT_SESSION_TYPE,
+CHUNK_SIZE,
+PATIENT_ID,
+SESSION_DATE,
+SESSION_TYPE,
 )
 
 class TherapyRouter:
@@ -18,10 +18,10 @@ class TherapyRouter:
         return f"{system_prompt}\n\n{pass_prompt}\n\n# RUNTIME\n{kv}"
 
     def run_pass(self, pass_name: str, *,
-                 patient_id: str = DEFAULT_PATIENT_ID,
-                 session_type: str = DEFAULT_SESSION_TYPE,
-                 session_date: str = DEFAULT_SESSION_DATE,
-                 chunk_size: int = CHUNK_SIZE_DEFAULT,
+                 patient_id: str = PATIENT_ID,
+                 session_type: str = SESSION_TYPE,
+                 session_date: str = SESSION_DATE,
+                 chunk_size: int = CHUNK_SIZE,
                  input_path: str = "./therapy.md"):
 
         overrides = dict(
@@ -42,8 +42,8 @@ class TherapyRouter:
 
         return self.agent.handle_agentic_mode(task, stream=False)
 
-def run_full_pipeline(self, **kwargs):
-    outA = self.run_pass("A", **kwargs)
-    outB = self.run_pass("B", **kwargs)
-    outC = self.run_pass("C", **kwargs)
-    return "\n\n".join([str(outA), str(outB), str(outC)])
+    def run_full_pipeline(self, **kwargs):
+        outA = self.run_pass("A", **kwargs)
+        outB = self.run_pass("B", **kwargs)
+        outC = self.run_pass("C", **kwargs)
+        return "\n\n".join([str(outA), str(outB), str(outC)])

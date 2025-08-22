@@ -17,10 +17,10 @@ from src.utils.config import (
 BASE_EXPORT,
 DB_PATH,
 E2B_MIRROR_DIR,
-CHUNK_SIZE_DEFAULT,
-DEFAULT_PATIENT_ID,
-DEFAULT_SESSION_DATE,
-DEFAULT_SESSION_TYPE,
+CHUNK_SIZE,
+PATIENT_ID,
+SESSION_DATE,
+SESSION_TYPE,
 )
 
 HF_TOKEN = os.getenv('HF_TOKEN')
@@ -40,7 +40,7 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 # os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = f"Authorization=Basic {LANGFUSE_AUTH}"
 
 # Global memory (replace these with a controlled registry in production / CA via the below 'with open' etc..)
-global sandbox, agent, chat_interface, metadata_embedder
+global sandbox, agent, chat_interface, metadata_embedder, chunk_number
 
 # define conventional subdirs similar to the old Docker volumes
 INSIGHTS_DIR = (BASE_EXPORT / "insights").resolve()
@@ -55,10 +55,10 @@ def ensure_runtime_dirs():
 # ---- Planning facts prompt (compact) ----
 # This is generated at runtime so it always reflects real paths.
 def build_planning_initial_facts(*, patient_id=None, session_type=None, session_date=None, chunk_size=None) -> str:
-    pid = patient_id or DEFAULT_PATIENT_ID
-    stype = session_type or DEFAULT_SESSION_TYPE
-    sdate = session_date or DEFAULT_SESSION_DATE
-    csize = chunk_size or CHUNK_SIZE_DEFAULT
+    pid = patient_id or PATIENT_ID
+    stype = session_type or SESSION_TYPE
+    sdate = session_date or SESSION_DATE
+    csize = chunk_size or CHUNK_SIZE
 
     base = (BASE_EXPORT / pid / stype / sdate).resolve()
     cypher_dir = (BASE_EXPORT / "cypher" / pid / stype / sdate).resolve()
@@ -94,10 +94,10 @@ def cli():
     parser.add_argument("action", choices=["pass", "pipeline"], help="Run a single pass or full pipeline")
     parser.add_argument("pass_name", nargs="?", help="A|B|C when action=pass")
     parser.add_argument("--input_path", default="./therapy-gpt.md")
-    parser.add_argument("--patient_id", default=DEFAULT_PATIENT_ID)
-    parser.add_argument("--session_type", default=DEFAULT_SESSION_TYPE)
-    parser.add_argument("--session_date", default=DEFAULT_SESSION_DATE)
-    parser.add_argument("--chunk_size", type=int, default=CHUNK_SIZE_DEFAULT)
+    parser.add_argument("--patient_id", default=PATIENT_ID)
+    parser.add_argument("--session_type", default=SESSION_TYPE)
+    parser.add_argument("--session_date", default=SESSION_DATE)
+    parser.add_argument("--chunk_size", type=int, default=CHUNK_SIZE)
     parser.add_argument("--print_facts", action="store_true", help="Print planning facts and exit")
     args = parser.parse_args()
 
@@ -159,8 +159,6 @@ def main():
 
     # Initialize psych_metadata embedder and embed psych_metadata file
     print("📚 Setting up psych_metadata embeddings...")
-    metadata_embedder = MetadataEmbedder(sandbox)
-
     metadata_embedder = MetadataEmbedder(sandbox)
     result = metadata_embedder.embed_metadata_dirs([
         "./src/data/psych_metadata",

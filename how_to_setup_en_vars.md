@@ -18,4 +18,10 @@ LANGFUSE_SECRET_FAKE_KEY="sk-lf-abcdef123456"
 # HF x 2 for testing (these are for smolagents parsingm only 1 required)
 HF_API_FAKE_TOKEN="hf_abcdef123456"
 HF_FAKE_TOKEN="hf_abcdef123456"
+
+# Config vars set in code:
+PATIENT_ID="Client_345" (or as provided)
+SESSION_TYPE="therapy_text"
+SESSION_DATE="2025-08-19" # use provided date or a passed‑in value
+CHUNK_SIZE=50
 ---

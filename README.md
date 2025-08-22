@@ -735,6 +735,7 @@ sequenceDiagram
 
 ---
 Now you see why I ask GPT to explain those parts!
+If you're using LangGraph instead of smolagents, you can just use that workflow to build the same thing (albeit with less control).
 Now on to some other tech nerd stuff:
 
 ### 🔧 Tech Stack (_Mine_ & 'Production Examples')
@@ -895,6 +896,7 @@ My 'Smolagents' project was really intended to be an 'AI Skunkworks' style testi
 *Vibe Coding*
 It's great for non-coding agentic systems, but 'inadvisable' to _solely_ use for complex ones. 
 That said, I agree with 'Andrew Ng' when he believes that 'All staff should know Python'. It's literally a days worth of study to get Python to the level required to debug, then debugging is honed over a longer period.
+By using AI with Python, everyone gets to have their own 'Polymath', likely one of the angle's Altman viewed it when he compared AI as closer to 'The Renaissance' than 'Industrial Revolution'.
 Here's what i'd _typically_ recommend:
 If you want to develop similar projects and are still developing your coding, my recommendations would be:
   - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.

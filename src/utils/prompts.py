@@ -1,3 +1,10 @@
+from pathlib import Path
+import os
+PATIENT_ID = os.getenv("PATIENT_ID")
+SESSION_TYPE = os.getenv("SESSION_TYPE")
+SESSION_DATE = os.getenv("SESSION_DATE")
+CHUNK_SIZE = int(os.getenv("CHUNK_SIZE"))
+
 THERAPY_SYSTEM_PROMPT = r"""
 You are a methodical agent that processes THERAPY QA pairs in fixed chunks.
 You must always answer in the strict sequence:
@@ -88,9 +95,9 @@ PRECONDITION
 - Current chunk index `k` (start at 1 per session)
 
 FILE TARGETS
-1) CSV path: `./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv`
+1) CSV path: `./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{chunk_number}.csv`
 2) SQLite: `./export/therapy.db` table `qa_pairs` (create if missing)
-3) Graph‑JSON path: `./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json`
+3) Graph‑JSON path: `./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{chunk_number}.json`
 
 PSYCHOLOGY FRAMEWORKS USED IN GRAPH SCHEMA
 These can be searched on in the psych_metadata if required.
@@ -173,7 +180,7 @@ LINKS
 CYHER GENERATION RULES
 - Use MERGE for all nodes and relationships to keep idempotent.
 - Escape quotes in text; truncate utterance text at 800 chars.
-- Batch by chunk: write to `./export/cypher/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/chunk_{k}.cypher`
+- Batch by chunk: write to `./export/cypher/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/chunk_{chunk_number}.cypher`
 - Print the first 15 lines to stdout for inspection and the path written.
 
 FINAL
@@ -196,9 +203,9 @@ PLANNING_INITIAL_FACTS = f"""
 - Insights dir (sandbox): /workspace/insights
 - DB path (sandbox): /workspace/db/persona_forge.sqlite
 - Therapy transcript (sandbox): /workspace/data/therapy-gpt.md
-- CSV path: ./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv
+- CSV path: ./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{chunk_number}.csv
 - SQLite: ./export/therapy.db
-- Graph JSON: ./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json
+- Graph JSON: ./export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{chunk_number}.json
 - Metadata: ./export/metadata/psych_frameworks.md
 
 
