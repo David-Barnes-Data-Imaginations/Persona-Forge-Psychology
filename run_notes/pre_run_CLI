@@ -1,0 +1,8 @@
+# show resolved defaults from the updated CLI
+python -m src.utils.metadata_embedder
+
+# force a rebuild
+python -m src.utils.metadata_embedder --refresh
+
+# embed a specific dir only
+python -m src.utils.metadata_embedder --dirs ./src/data/psych_metadata

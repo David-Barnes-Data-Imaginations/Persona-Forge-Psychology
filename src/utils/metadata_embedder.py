@@ -242,13 +242,27 @@ class MetadataEmbedder:
             return embedding
     """
 
+
+import argparse
+from pathlib import Path
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Embed metadata directories")
+    # Compute repo root: .../<project_root>/src/utils/metadata_embedder.py → parents[2]
+    repo_root = Path(__file__).resolve().parents[2]
+    default_dirs = [
+        str(repo_root / "src" / "data" / "psych_metadata"),
+        str(repo_root / "src" / "data" / "patient_raw_data"),
+    ]
     parser.add_argument("--refresh", action="store_true", help="Force refresh of all embeddings")
-    parser.add_argument("--dirs", nargs="*", default=["./src/data/psych_metadata", "./src/data/patient_raw_data"],
-                        help="Directories to embed")
+    parser.add_argument("--dirs", nargs="*", default=default_dirs, help="Directories to embed")
     args = parser.parse_args()
 
     embedder = MetadataEmbedder()
+
+    # friendly logs + existence check
+    for d in args.dirs:
+        if not os.path.isdir(d):
+            print(f"⏭️  Skipping; not a directory: {d}")
     result = embedder.embed_metadata_dirs(args.dirs, refresh=args.refresh)
     print(result)
