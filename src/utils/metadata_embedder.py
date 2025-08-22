@@ -84,174 +84,174 @@ class FS:
             pass
         return out
 
-    class MetadataEmbedder:
-        """
-        Smart embedder:
-          - ALWAYS dirs: re-embed every run (patient_raw_data)
-          - ONCE dirs  : embed only if store missing (or refresh=True)
-          - EXCLUDE    : skip
-          - Content-hash de-dupe: unchanged files are not re-embedded
-        """
-        def __init__(self, sandbox=None):
-            self.sandbox = sandbox
-            self.metadata_store_path = "embeddings/metadata_store.json"
-            self.agent_notes_store_path = "embeddings/agent_notes_store.json"
-            self.metadata_store = []
-            self.agent_notes_store = []
+class MetadataEmbedder:
+    """
+    Smart embedder:
+      - ALWAYS dirs: re-embed every run (patient_raw_data)
+      - ONCE dirs  : embed only if store missing (or refresh=True)
+      - EXCLUDE    : skip
+      - Content-hash de-dupe: unchanged files are not re-embedded
+    """
+    def __init__(self, sandbox=None):
+        self.sandbox = sandbox
+        self.metadata_store_path = "embeddings/metadata_store.json"
+        self.agent_notes_store_path = "embeddings/agent_notes_store.json"
+        self.metadata_store = []
+        self.agent_notes_store = []
 
-            # Embedding backends
-            self.use_openai = os.getenv("USE_OPENAI_EMBEDDINGS", "false").lower() == "true"
-            self.use_ollama_embed = os.getenv("USE_OLLAMA_EMBEDDINGS", "false").lower() == "false"
+        # Embedding backends
+        self.use_openai = os.getenv("USE_OPENAI_EMBEDDINGS", "false").lower() == "true"
+        self.use_ollama_embed = os.getenv("USE_OLLAMA_EMBEDDINGS", "false").lower() == "false"
 
-            # OpenAI init (opt-in)
-            self.openai_client = None
-            if self.use_openai:
-                if OpenAI is None:
-                    raise RuntimeError("USE_OPENAI_EMBEDDINGS=true but the 'openai' package is not installed.")
-                openai_api_key = os.getenv("OPENAI_API_KEY")
-                if not openai_api_key:
-                    raise RuntimeError("USE_OPENAI_EMBEDDINGS=true but OPENAI_API_KEY is missing.")
-                self.openai_client = OpenAI(api_key=openai_api_key)
+        # OpenAI init (opt-in)
+        self.openai_client = None
+        if self.use_openai:
+            if OpenAI is None:
+                raise RuntimeError("USE_OPENAI_EMBEDDINGS=true but the 'openai' package is not installed.")
+            openai_api_key = os.getenv("OPENAI_API_KEY")
+            if not openai_api_key:
+                raise RuntimeError("USE_OPENAI_EMBEDDINGS=true but OPENAI_API_KEY is missing.")
+            self.openai_client = OpenAI(api_key=openai_api_key)
 
-            # Ollama settings (opt-in)
-            self.ollama_host = os.getenv("OLLAMA_HOST", "localhost")
-            self.ollama_port = int(os.getenv("OLLAMA_PORT", "11434"))
-            self.ollama_embed_model = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
+        # Ollama settings (opt-in)
+        self.ollama_host = os.getenv("OLLAMA_HOST", "localhost")
+        self.ollama_port = int(os.getenv("OLLAMA_PORT", "11434"))
+        self.ollama_embed_model = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
 
-            # Choose embedding function by precedence: OpenAI -> Ollama -> Local
-            if self.openai_client:
-                self._embed_fn: Callable[[str], list[float]] = self._embed_with_openai
-            elif self.use_ollama_embed:
-                self._embed_fn = self._embed_with_ollama
-            else:
-                self._embed_fn = self._embed_locally  # deterministic local fallback
+        # Choose embedding function by precedence: OpenAI -> Ollama -> Local
+        if self.openai_client:
+            self._embed_fn: Callable[[str], list[float]] = self._embed_with_openai
+        elif self.use_ollama_embed:
+            self._embed_fn = self._embed_with_ollama
+        else:
+            self._embed_fn = self._embed_locally  # deterministic local fallback
 
-            self.metadata_store_path = f"{SBX_DATA_DIR}/embeddings/metadata_store.json" if self.sandbox else "embeddings/metadata_store.json"
-            self.agent_notes_store_path = f"{SBX_DATA_DIR}/embeddings/agent_notes_store.json" if self.sandbox else "embeddings/agent_notes_store.json"
+        self.metadata_store_path = f"{SBX_DATA_DIR}/embeddings/metadata_store.json" if self.sandbox else "embeddings/metadata_store.json"
+        self.agent_notes_store_path = f"{SBX_DATA_DIR}/embeddings/agent_notes_store.json" if self.sandbox else "embeddings/agent_notes_store.json"
 
-            self.metadata_store = []
-            self.agent_notes_store = []
+        self.metadata_store = []
+        self.agent_notes_store = []
 
-            # -------- public API --------
+        # -------- public API --------
 
-        def _check_metadata_exists(self) -> bool:
-            if self.sandbox:
-                try:
-                    self.sandbox.files.read(self.metadata_store_path)
-                    return True
-                except:
-                    return False
-            return os.path.exists(self.metadata_store_path)
-
-        def _load_existing_metadata(self):
+    def _check_metadata_exists(self) -> bool:
+        if self.sandbox:
             try:
-                if self.sandbox:
-                    store_data = self.sandbox.files.read(self.metadata_store_path).decode()
-                else:
-                    with open(self.metadata_store_path, "r", encoding="utf-8") as f:
-                        store_data = f.read()
-                self.metadata_store = json.loads(store_data)
-                print(f"Loaded existing metadata embeddings: {len(self.metadata_store)} items")
+                self.sandbox.files.read(self.metadata_store_path)
                 return True
-            except Exception as e:
-                print(f"Error loading metadata embeddings: {e}")
+            except:
                 return False
+        return os.path.exists(self.metadata_store_path)
 
-        def embed_metadata_dirs(self, base_dirs: list[str], refresh: bool = False) -> str:
-            if not refresh and self._check_metadata_exists():
-                print("Metadata embeddings already exist, loading...")
-                if self._load_existing_metadata():
-                    return "Metadata embeddings loaded successfully"
+    def _load_existing_metadata(self):
+        try:
+            if self.sandbox:
+                store_data = self.sandbox.files.read(self.metadata_store_path).decode()
+            else:
+                with open(self.metadata_store_path, "r", encoding="utf-8") as f:
+                    store_data = f.read()
+            self.metadata_store = json.loads(store_data)
+            print(f"Loaded existing metadata embeddings: {len(self.metadata_store)} items")
+            return True
+        except Exception as e:
+            print(f"Error loading metadata embeddings: {e}")
+            return False
 
-            skip_dirs = {"insights", "embeddings"}
-            always_refresh_dirs = {"patient_raw_data"}
-            new_embeddings = []
+    def embed_metadata_dirs(self, base_dirs: list[str], refresh: bool = False) -> str:
+        if not refresh and self._check_metadata_exists():
+            print("Metadata embeddings already exist, loading...")
+            if self._load_existing_metadata():
+                return "Metadata embeddings loaded successfully"
 
-            for dir_path in base_dirs:
-                dir_name = os.path.basename(dir_path.rstrip("/"))
-                if dir_name in skip_dirs:
-                    print(f"⏭️ Skipping auto-generated dir: {dir_path}")
+        skip_dirs = {"insights", "embeddings"}
+        always_refresh_dirs = {"patient_raw_data"}
+        new_embeddings = []
+
+        for dir_path in base_dirs:
+            dir_name = os.path.basename(dir_path.rstrip("/"))
+            if dir_name in skip_dirs:
+                print(f"⏭️ Skipping auto-generated dir: {dir_path}")
+                continue
+
+            refresh_this_dir = dir_name in always_refresh_dirs or refresh
+            print(f"📚 Creating embeddings from {dir_path} (refresh={refresh_this_dir})")
+
+            for fname in os.listdir(dir_path):
+                fpath = os.path.join(dir_path, fname)
+                if not os.path.isfile(fpath):
                     continue
+                if fname.endswith((".md", ".json", ".yaml")):
+                    with open(fpath, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    chunks = self._chunk_markdown(content)
+                    for i, chunk in enumerate(chunks):
+                        embedding = self._embed_fn(chunk)
+                        new_embeddings.append({
+                            "type": "metadata",
+                            "source": f"{dir_name}/{fname}",
+                            "chunk_id": i,
+                            "content": chunk,
+                            "embedding": embedding,
+                            "created_at": "startup"
+                        })
 
-                refresh_this_dir = dir_name in always_refresh_dirs or refresh
-                print(f"📚 Creating embeddings from {dir_path} (refresh={refresh_this_dir})")
+        if new_embeddings:
+            self.metadata_store.extend(new_embeddings)
 
-                for fname in os.listdir(dir_path):
-                    fpath = os.path.join(dir_path, fname)
-                    if not os.path.isfile(fpath):
-                        continue
-                    if fname.endswith((".md", ".json", ".yaml")):
-                        with open(fpath, "r", encoding="utf-8") as f:
-                            content = f.read()
-                        chunks = self._chunk_markdown(content)
-                        for i, chunk in enumerate(chunks):
-                            embedding = self._embed_fn(chunk)
-                            new_embeddings.append({
-                                "type": "metadata",
-                                "source": f"{dir_name}/{fname}",
-                                "chunk_id": i,
-                                "content": chunk,
-                                "embedding": embedding,
-                                "created_at": "startup"
-                            })
+        try:
+            store_json = json.dumps(self.metadata_store, indent=2)
+            if self.sandbox:
+                self.sandbox.files.write(self.metadata_store_path, store_json.encode())
+            else:
+                os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
+                with open(self.metadata_store_path, "w", encoding="utf-8") as f:
+                    f.write(store_json)
+            return f"Successfully embedded {len(new_embeddings)} chunks from {len(base_dirs)} directories"
+        except Exception as e:
+            return f"Error saving metadata embeddings: {e}"
 
-            if new_embeddings:
-                self.metadata_store.extend(new_embeddings)
-
-            try:
-                store_json = json.dumps(self.metadata_store, indent=2)
-                if self.sandbox:
-                    self.sandbox.files.write(self.metadata_store_path, store_json.encode())
-                else:
-                    os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
-                    with open(self.metadata_store_path, "w", encoding="utf-8") as f:
-                        f.write(store_json)
-                return f"Successfully embedded {len(new_embeddings)} chunks from {len(base_dirs)} directories"
-            except Exception as e:
-                return f"Error saving metadata embeddings: {e}"
-
-        def _chunk_markdown(self, text: str, max_len: int = 800) -> list[str]:
-            paras = text.split("\n\n")
-            chunks, buf = [], []
-            for p in paras:
-                if sum(len(x) for x in buf) + len(p) > max_len:
-                    chunks.append("\n\n".join(buf))
-                    buf = []
-                buf.append(p)
-            if buf:
+    def _chunk_markdown(self, text: str, max_len: int = 800) -> list[str]:
+        paras = text.split("\n\n")
+        chunks, buf = [], []
+        for p in paras:
+            if sum(len(x) for x in buf) + len(p) > max_len:
                 chunks.append("\n\n".join(buf))
-            return chunks
+                buf = []
+            buf.append(p)
+        if buf:
+            chunks.append("\n\n".join(buf))
+        return chunks
 
-        def _embed_fn(self, chunk: str):
-            return [float(len(chunk) % 10)] * 10  # fake vector
+    def _embed_fn(self, chunk: str):
+        return [float(len(chunk) % 10)] * 10  # fake vector
 
-        def _embed_with_openai(self, chunk: str) -> list[float]:
-            """Create an embedding using OpenAI"""
-            response = self.openai_client.embeddings.create(
-                input=chunk,
-                model="text-embedding-3-small"
-            )
-            return response.data[0].embedding
+    def _embed_with_openai(self, chunk: str) -> list[float]:
+        """Create an embedding using OpenAI"""
+        response = self.openai_client.embeddings.create(
+            input=chunk,
+            model="text-embedding-3-small"
+        )
+        return response.data[0].embedding
 
-        def _embed_with_ollama(self, chunk: str) -> list[float]:
-            """Create an embedding using Ollama's /api/embeddings"""
-            url = f"http://{self.ollama_host}:{self.ollama_port}/api/embeddings"
-            r = requests.post(url, json={"model": self.ollama_embed_model, "prompt": chunk}, timeout=60)
-            r.raise_for_status()
-            data = r.json()
-            # Ollama returns {"embedding": [floats], ...}
-            embedding = data.get("embedding")
-            if not embedding:
-                raise RuntimeError(f"Ollama embedding response missing 'embedding' field: {data}")
-            return embedding
+    def _embed_with_ollama(self, chunk: str) -> list[float]:
+        """Create an embedding using Ollama's /api/embeddings"""
+        url = f"http://{self.ollama_host}:{self.ollama_port}/api/embeddings"
+        r = requests.post(url, json={"model": self.ollama_embed_model, "prompt": chunk}, timeout=60)
+        r.raise_for_status()
+        data = r.json()
+        # Ollama returns {"embedding": [floats], ...}
+        embedding = data.get("embedding")
+        if not embedding:
+            raise RuntimeError(f"Ollama embedding response missing 'embedding' field: {data}")
+        return embedding
 
-    if __name__ == "__main__":
-        parser = argparse.ArgumentParser(description="Embed metadata directories")
-        parser.add_argument("--refresh", action="store_true", help="Force refresh of all embeddings")
-        parser.add_argument("--dirs", nargs="*", default=["./src/data/psych_metadata", "./src/data/patient_raw_data"],
-                            help="Directories to embed")
-        args = parser.parse_args()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Embed metadata directories")
+    parser.add_argument("--refresh", action="store_true", help="Force refresh of all embeddings")
+    parser.add_argument("--dirs", nargs="*", default=["./src/data/psych_metadata", "./src/data/patient_raw_data"],
+                        help="Directories to embed")
+    args = parser.parse_args()
 
-        embedder = MetadataEmbedder()
-        result = embedder.embed_metadata_dirs(args.dirs, refresh=args.refresh)
-        print(result)
+    embedder = MetadataEmbedder()
+    result = embedder.embed_metadata_dirs(args.dirs, refresh=args.refresh)
+    print(result)

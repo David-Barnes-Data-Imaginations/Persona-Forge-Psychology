@@ -897,13 +897,11 @@ My 'Smolagents' project was really intended to be an 'AI Skunkworks' style testi
 It's great for non-coding agentic systems, but 'inadvisable' to _solely_ use for complex ones. 
 That said, I agree with 'Andrew Ng' when he believes that 'All staff should know Python'. It's literally a days worth of study to get Python to the level required to debug, then debugging is honed over a longer period.
 By using AI with Python, everyone gets to have their own 'Polymath', likely one of the angle's Altman viewed it when he compared AI as closer to 'The Renaissance' than 'Industrial Revolution'.
-Here's what i'd _typically_ recommend:
-If you want to develop similar projects and are still developing your coding, my recommendations would be:
-  - Commit often. Especially if using AI through a built-in AI tool (PyCharm, Cursor etc). These read your commits and can get confused if your code is vaslty different from your latest commit.
-  - If no-code or novice, begin with GPT Codex, it's excellent until you start building in agentic frameworks or AI tools, also built _for_ no code development.
-  - For mid-level coders / Project: Start yourself and then have your favourite AI build the generic bits.
-      - For debugging very challenging bug fixes, or complete overhauls: Take a step back and ask AI's views on your project status. I use this method when i've gone too far off on a tangeant, or when the tech changes (every month basically).
-      - Prompt templates: Overall, with small llm's I've had more luck with my own, but when using a more advanced model, ask it (or its online equivalent) to provide a prompt. The AI understands what prompts will be effective for itself.
+Here are the main options:
+a) Use git so that your favourite online-AI can read your code, then have it explain suggestions on how to implement certain processes. I prefer this since it helps with learning for me.
+b) Use an IDE based tool, Pycharm or Cursor for example. These IDE's have their own API which formats and organizes the code for you.
+c) Use the coding tool for your favourite online-AI (e.g. GPT-Codex, Claude-CodeCLI, Gemini-CLI).
+d) Build your own equivalent of 'b', and use local models. I'm going to do this at some point since gpt-oss is perfect for such things.
 
 **Using AI - Ethics**
 These are such murky waters, that I simply highlight these points:
@@ -912,9 +910,9 @@ These are such murky waters, that I simply highlight these points:
 - If you're clinging to your code like a dev from 5 years ago, try to visualize those who refused to use a calculator in favour of 'pen and paper' when it was invented.
 
 **_My Practices (for the record)_**
-- My own writing for Blog's or README's is usually left as-is, unless I lose whole chunks or need it put into a table.
-- I use AI for all my learning, and when it's especially insightful I'll add it's own sections to my documentation (as you've seen).
-- As for coding, I use it in all elements, but it is critical (for projects of this size) to understand every line of code, only _the human_ can steer it towards their vision.
+- My own writing for Blog's or README's is usually left as-is, unless I lose whole chunks or need it put into a table/diagram.
+- I use AI for all my learning, and when it's especially insightful, I'll add it's own sections to my documentation (as you've seen).
+- For coding I mostly use 'a' in the section above. Going pure vibe is good for small projects or if your python is rusty but big projects like this require code-understanding.
 - I put in 100's of hours testing into my projects, AI is of limited help at runtime until it gets the ability to view the screen as we do.
 - If you see a 'mermaid diagram', it's done by GPT.
 - Note: I'm currently testing the new [Pycharm AI Dev Environment](https://lp.jetbrains.com/pycharm-for-ai-engineers/?utm_source=product&utm_medium=link&utm_campaign=PY&utm_content=2025.2) and will update accordingly.

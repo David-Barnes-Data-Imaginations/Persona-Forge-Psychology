@@ -39,7 +39,7 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 # os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "https://cloud.langfuse.com" # EU data region
 # os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = f"Authorization=Basic {LANGFUSE_AUTH}"
 
-# Global memory (replace these with a controlled registry in production / CA via the below 'with open' etc..)
+
 global sandbox, agent, chat_interface, metadata_embedder, chunk_number
 
 # define conventional subdirs similar to the old Docker volumes
@@ -79,6 +79,7 @@ def build_planning_initial_facts(*, patient_id=None, session_type=None, session_
         f"- STATES_DIR: {STATES_DIR}\n"
         f"- LOGS_DIR: {LOGS_DIR}\n"
         f"- E2B_MIRROR_DIR: {E2B_MIRROR_DIR or '(disabled)'}\n"
+        
         "Rules:\n"
         "1) Read input transcript from INPUT_PATH (default ./therapy-gpt.md).\n"
         "2) Write CSV/Graph-JSON under SESSION_EXPORT_DIR; write Cypher under CYPHER_EXPORT_DIR.\n"

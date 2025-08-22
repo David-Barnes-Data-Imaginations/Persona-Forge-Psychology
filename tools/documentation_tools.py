@@ -53,6 +53,17 @@ class DocumentLearningInsights(Tool):
 
     def __init__(self, sandbox=None):
         super().__init__()
+        from src.utils.chunk_ids import next_chunk_id
+        from src.states.paths import SBX_DB_PATH  # or config.DB_PATH in sandbox
+        from src.utils.config import PATIENT_ID, SESSION_TYPE, SESSION_DATE
+        from src.states.persistence import PersistenceManager
+
+        chunk_number = next_chunk_id(SBX_DB_PATH,
+                                     patient_id=PATIENT_ID, session_type=SESSION_TYPE, session_date=SESSION_DATE)
+
+        md_path = f"insights/chunk_{chunk_number}.md"
+        json_path = f"insights/chunk_{chunk_number}.json"
+
         self.sandbox = sandbox
 
         # File paths

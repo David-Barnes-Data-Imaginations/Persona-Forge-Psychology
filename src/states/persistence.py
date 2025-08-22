@@ -2,7 +2,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Optional
-from .paths import PathPack, ensure_host_dirs
+from src.states.paths import PathPack, ensure_host_dirs
 
 
 class PersistenceManager:
@@ -100,3 +100,15 @@ class PersistenceManager:
             return
         # Pull back canonical artifacts
         self.pull_file(self.paths.sbx_db, self.paths.host_db)
+
+    def get_next_chunk_index(path="states/chunk_index.txt") -> int:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                current = int(f.read().strip())
+        except FileNotFoundError:
+            current = -1
+        current += 1
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(str(current))
+        return current

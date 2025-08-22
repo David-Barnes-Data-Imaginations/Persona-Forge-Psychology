@@ -1,6 +1,6 @@
 Here's how to set them up to run, obviously these aren't real keys but for the purpose of demonstration:
 ---
-# App → vLLM
+# App → Ollama
 MODEL_ID=gpt-oss-20b
 
 # OpenAI (used by MetadataEmbedder + agent notes embeddings)

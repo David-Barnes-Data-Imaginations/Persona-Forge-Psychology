@@ -3,7 +3,7 @@ import os
 
 # Where to persist artifacts on the host
 BASE_EXPORT = Path(os.getenv("BASE_EXPORT", "./export")).resolve()
-CYTHER_DIR = "cypher"
+CYPHER_DIR = "cypher"
 DB_PATH = BASE_EXPORT / "therapy.db"
 
 # Optional: mirror writes inside an e2b sandbox (for in‑session inspection)
