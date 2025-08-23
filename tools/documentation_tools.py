@@ -176,4 +176,3 @@ class RetrieveSimilarChunks(Tool):
             return results if results else [{"chunk": 0, "notes": "No previous notes found"}]
         except:
             return [{"chunk": 0, "notes": "No previous notes found"}]
-

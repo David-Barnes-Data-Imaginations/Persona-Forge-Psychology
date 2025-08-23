@@ -1,3 +1,6 @@
+# use this primarily as the main one includes the therapy.md
+`python -m src.utils.metadata_embedder --refresh --verbose ./src/data/psych_metadata`
+
 # show resolved defaults from the updated CLI
 python -m src.utils.metadata_embedder
 

@@ -1,12 +1,20 @@
 from typing import Callable
 import requests  # add for Ollama embeddings
-from src.states.paths import SBX_DATA_DIR
+from src.utils.paths import SBX_DATA_DIR
 import os, json, hashlib, time
 from dataclasses import dataclass
 from typing import Optional, Iterable, List, Dict, Any
 import argparse
+
 SUPPORTED_EXTS = (".md", ".json", ".yaml", ".yml", ".txt")
 
+def _is_supported_file(path: str) -> bool:
+    return os.path.splitext(path)[1].lower() in SUPPORTED_EXTS
+
+def _doc_id(source_path: str) -> str:
+    import hashlib
+    # stable short id per file
+    return hashlib.sha1(source_path.encode("utf-8")).hexdigest()[:12]
 try:
     from openai import OpenAI
 except Exception:
@@ -99,12 +107,11 @@ class MetadataEmbedder:
     """
     def __init__(self, sandbox=None):
         self.sandbox = sandbox
-        self.metadata_store = []
-        self.agent_notes_store = []
+        self.corpus_store = []
 
-        self.metadata_store_path = f"{SBX_DATA_DIR}/embeddings/metadata_store.json" if self.sandbox else "embeddings/metadata_store.json"
-        self.agent_notes_store_path = f"{SBX_DATA_DIR}/embeddings/agent_notes_store.json" if self.sandbox else "embeddings/agent_notes_store.json"
-
+        self.metadata_store_path = "embeddings/metadata_store.json"
+        self.corpus_store_path = "embeddings/corpus_store.json"
+        self.agent_notes_store_path = "embeddings/agent_notes_store.json"
         # Embedding backends
         self.use_openai = os.getenv("USE_OPENAI_EMBEDDINGS", "false").lower() == "true"
         self.use_ollama_embed = os.getenv("USE_OLLAMA_EMBEDDINGS", "false").lower() == "false"
@@ -136,6 +143,7 @@ class MetadataEmbedder:
         # -------- public API --------
 
     def _check_metadata_exists(self) -> bool:
+        """Check if metadata embeddings already exist"""
         if self.sandbox:
             try:
                 self.sandbox.files.read(self.metadata_store_path)
@@ -158,23 +166,32 @@ class MetadataEmbedder:
             print(f"Error loading metadata embeddings: {e}")
             return False
 
-    def embed_metadata_dirs(self, base_dirs: list[str], refresh: bool = False, verbose: bool = False) -> str:
+    def embed_metadata_dirs(
+            self,
+            base_dirs: list[str],
+            refresh: bool = False,
+            include_corpus: bool = False,
+            verbose: bool = False,
+            min_chunk_len: int = 30,
+    ) -> str:
         """
-        Embed all files in one or more metadata directories.
-        - refresh=False: only embed if no existing store found
-        - patient_raw_data/ is always re-embedded (fresh each run)
-        - skips embedding agent-generated dirs like insights/ or embeddings/
+        Embed files from one or more directories into a single metadata store.
+        - refresh=False: reuse existing store if present
+        - include_corpus=False: skip ./patient_raw_data (prevents leakage/confusion)
+        - Skips agent-generated dirs like insights/ or embeddings/
+        - Adds fields: kind ("metadata" | "corpus"), doc_id, chunk_index (per file)
         """
+        # Fast path: reuse cache unless refresh requested
         if not refresh and self._check_metadata_exists():
             if verbose:
                 print("ℹ️  Store exists, loading cached metadata embeddings...")
             if self._load_existing_metadata():
                 return "Metadata embeddings loaded successfully"
 
-        skip_dirs = {"insights", "embeddings", "__pycache__"}
-        always_refresh_dirs = {"patient_raw_data"}
-        new_embeddings = []
-        total_considered = total_embedded = 0
+        skip_dirs = {"insights", "embeddings", ".git", "__pycache__"}
+        total_considered = 0
+        total_embedded = 0
+        new_records: list[dict] = []
 
         for dir_path in base_dirs:
             if not os.path.isdir(dir_path):
@@ -188,8 +205,14 @@ class MetadataEmbedder:
                     print(f"⏭️  Skipping auto-generated dir: {dir_path}")
                 continue
 
-            refresh_this_dir = dir_name in always_refresh_dirs or refresh
-            print(f"📚 Creating embeddings from {dir_path} (refresh={refresh_this_dir})")
+            is_corpus = (dir_name == "patient_raw_data")
+            if is_corpus and not include_corpus:
+                if verbose:
+                    print(f"⏭️  Skipping corpus dir (disabled): {dir_path}")
+                continue
+
+            if verbose:
+                print(f"📚 Creating embeddings from {dir_path} (refresh={refresh})")
 
             try:
                 names = os.listdir(dir_path)
@@ -206,13 +229,12 @@ class MetadataEmbedder:
                     continue
                 total_considered += 1
 
-                # type filter
                 if not _is_supported_file(fpath):
                     if verbose:
                         print(f"  ⟶ skip: {fpath} (unsupported extension)")
                     continue
 
-                # read content
+                # Read content
                 try:
                     with open(fpath, "r", encoding="utf-8") as f:
                         content = f.read()
@@ -221,46 +243,72 @@ class MetadataEmbedder:
                         print(f"  ⟶ skip: {fpath} (read error: {e})")
                     continue
 
-                chunks = self._chunk_markdown(content)
-                for i, chunk in enumerate(chunks):
-                    embedding = self._embed_fn(chunk)
-                    new_embeddings.append({
-                        "type": "metadata",
-                        "source": f"{dir_name}/{fname}",
-                        "chunk_id": i,
-                        "content": chunk,
-                        "embedding": embedding,
-                        "created_at": "startup" if not refresh_this_dir else "refresh"
-                    })
-                total_embedded += len(chunks)
-                if verbose:
-                    print(f"  ✔ embed: {fpath} (chunks={len(chunks)})")
+                # Chunk, trimming tiny/empty bits
+                chunks = self._chunk_markdown(content, max_len=800, min_len=min_chunk_len)
+                docid = _doc_id(f"{dir_name}/{fname}")
+                added = 0
 
-        if new_embeddings:
-            self.metadata_store.extend(new_embeddings)
+                for i, chunk in enumerate(chunks):
+                    # safety, chunker already filters short ones
+                    if not chunk or len(chunk.strip()) < min_chunk_len:
+                        continue
+
+                    rec = {
+                        "kind": ("corpus" if is_corpus else "metadata"),
+                        "source": f"{dir_name}/{fname}",
+                        "doc_id": docid,
+                        "chunk_index": i,  # per-document index
+                        "content": chunk,
+                        "embedding": self._embed_fn(chunk),
+                        "created_at": "refresh" if refresh else "startup",
+                    }
+                    new_records.append(rec)
+                    added += 1
+
+                total_embedded += added
+                if verbose:
+                    print(f"  ✔ embed: {fpath} (chunks={added})")
+
+        # Extend and persist
+        if new_records:
+            self.metadata_store.extend(new_records)
 
         try:
+            os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
             store_json = json.dumps(self.metadata_store, indent=2)
             if self.sandbox:
                 self.sandbox.files.write(self.metadata_store_path, store_json.encode())
             else:
-                os.makedirs(os.path.dirname(self.metadata_store_path), exist_ok=True)
                 with open(self.metadata_store_path, "w", encoding="utf-8") as f:
                     f.write(store_json)
-            return f"Successfully embedded {total_embedded} chunks from {len(base_dirs)} directories (considered {total_considered} files)"
+            return (
+                f"Successfully embedded {total_embedded} chunks from "
+                f"{len(base_dirs)} directories (considered {total_considered} files)"
+            )
         except Exception as e:
             return f"Error saving metadata embeddings: {e}"
 
-    def _chunk_markdown(self, text: str, max_len: int = 800) -> list[str]:
-        paras = text.split("\n\n")
+    def _chunk_markdown(self, text: str, max_len: int = 800, min_len: int = 30) -> list[str]:
+        """Paragraph-ish chunker. Skips empty/tiny chunks, trims whitespace."""
+        paras = [p.strip() for p in text.split("\n\n")]
         chunks, buf = [], []
+        acc = 0
+
         for p in paras:
-            if sum(len(x) for x in buf) + len(p) > max_len:
-                chunks.append("\n\n".join(buf))
-                buf = []
+            if not p or len(p) < min_len:
+                continue
+            if acc + len(p) > max_len and buf:
+                joined = "\n\n".join(buf).strip()
+                if len(joined) >= min_len:
+                    chunks.append(joined)
+                buf, acc = [], 0
             buf.append(p)
+            acc += len(p)
+
         if buf:
-            chunks.append("\n\n".join(buf))
+            joined = "\n\n".join(buf).strip()
+            if len(joined) >= min_len:
+                chunks.append(joined)
         return chunks
 
     def _embed_fn(self, chunk: str):

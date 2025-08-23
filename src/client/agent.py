@@ -316,6 +316,7 @@ class ToolFactory:
         from tools.sql_tools import QuerySQLite, WriteQAtoSQLite
         from tools.graph_tools import WriteCypherForChunk, WriteGraphForChunk
         from tools.csv_tools import WriteCSVForChunk
+        from tools.search_tools import SearchMetadataChunks
 
         # Create instances of your custom tools
         tools = [
@@ -326,6 +327,7 @@ class ToolFactory:
             QuerySQLite(sandbox=self.sandbox),
             WriteQAtoSQLite(sandbox=self.sandbox),
             WriteCypherForChunk(sandbox=self.sandbox),
-            WriteGraphForChunk(sandbox=self.sandbox)
+            WriteGraphForChunk(sandbox=self.sandbox),
+            SearchMetadataChunks(sandbox=self.sandbox),
         ]
         return tools

@@ -30,6 +30,7 @@ Graph schema: {t.graph_schema_json}
    - write_graph_for_chunk(k, graph)
    - write_cypher_for_chunk(k, cypher_text)
    - write_csv_for_chunk(k, csv_text, record_count, columns)
+   - search_metadata_chunks(query, top_k=5, kind="metadata|corpus|any", include_notes=true)
  """.strip()
 
 # Export the constant your router expects
