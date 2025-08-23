@@ -30,7 +30,7 @@ def session_templates(patient_id: str, session_type: str, session_date: str) -> 
         export_base=export_base,
         csv_template=f"{export_base}/qa_chunk_{{k}}.csv",
         graph_template=f"{export_base}/graph_chunk_{{k}}.json",
-        cypher_dir=cypher_dir,
+        cypher_dir = f"{export_base}/cypher",
         sqlite_db=f"{SBX_EXPORTS_DIR}/therapy.db",
         therapy_md=f"{SBX_DATA_DIR}/patient_raw_data/therapy.md",
         psych_frameworks_md=f"{SBX_DATA_DIR}/psych_metadata/psych_frameworks.md",
