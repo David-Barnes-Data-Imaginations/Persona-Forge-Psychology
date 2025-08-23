@@ -6,7 +6,7 @@ database operations, and system prompts.
 """
 import os
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-
+from .paths import PathPack, ensure_host_dirs, PathPack, SBX_DATA_DIR, SBX_STATES_DIR, SBX_EXPORTS_DIR, SBX_EMBED_DIR, SBX_DB_DIR, DEFAULT_DB_NAME, THERAPY_MD_NAME, SBX_DB_PATH, HOST_THERAPY_MD, SBX_THERAPY_MD, ALL_HOST_DIRS, ALL_SBX_DIRS, SBX_ROOT, SBX_DATA_DIR, SBX_EXPORTS_DIR, SBX_STATES_DIR, SBX_EMBED_DIR, SBX_DB_DIR, HOST_ROOT, HOST_DATA_DIR, HOST_EXPORTS_DIR, HOST_STATES_DIR, HOST_EMBED_DIR, HOST_DB_DIR
 from .prompts import THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, THERAPY_PASS_B_FILE, THERAPY_PASS_C_GRAPH, THERAPY_TASK_PROMPT, PLANNING_INITIAL_FACTS, DB_SYSTEM_PROMPT
 from .config import BASE_EXPORT, CYPHER_DIR, DB_PATH, E2B_MIRROR_DIR, CHUNK_SIZE, PATIENT_ID, SESSION_TYPE, SESSION_DATE
 from .io_helpers import write_cypher, write_graph_json, sqlite_upsert_df, save_csv, ensure_dirs, _maybe_mirror_write
@@ -65,5 +65,31 @@ __all__ = [
     'session_templates',
     'make_session_paths',
     'session_paths_for_chunk',
-    'build_planning_initial_facts'
+    'build_planning_initial_facts',
+'ensure_host_dirs',
+    'PathPack',
+    'SBX_DATA_DIR',
+    'SBX_STATES_DIR',
+    'SBX_EXPORTS_DIR',
+    'SBX_EMBED_DIR',
+    'SBX_DB_DIR',
+    'DEFAULT_DB_NAME',
+    'THERAPY_MD_NAME',
+    'SBX_DB_PATH',
+    'HOST_THERAPY_MD',
+    'SBX_THERAPY_MD',
+    'ALL_HOST_DIRS',
+    'ALL_SBX_DIRS',
+    'SBX_ROOT',
+    'SBX_DATA_DIR',
+    'SBX_EXPORTS_DIR',
+    'SBX_STATES_DIR',
+    'SBX_EMBED_DIR',
+    'SBX_DB_DIR',
+    'HOST_ROOT',
+    'HOST_DATA_DIR',
+    'HOST_EXPORTS_DIR',
+    'HOST_STATES_DIR',
+    'HOST_EMBED_DIR',
+    'HOST_DB_DIR'
 ]

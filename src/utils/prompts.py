@@ -1,13 +1,8 @@
 from __future__ import annotations
-import os
 from . import config as C
 from .session_paths import session_templates
-from src.states.paths import SBX_DATA_DIR, SBX_EXPORTS_DIR, SBX_DB_DIR
+from src.utils.paths import SBX_DATA_DIR, SBX_EXPORTS_DIR, SBX_DB_DIR
 
-PATIENT_ID = os.getenv("PATIENT_ID")
-SESSION_TYPE = os.getenv("SESSION_TYPE")
-SESSION_DATE = os.getenv("SESSION_DATE")
-CHUNK_SIZE = os.getenv("CHUNK_SIZE")
 """
 Prompts read sandbox-first path templates from `session_paths.py`.
 All write operations during Passes should use these sandbox paths.
@@ -22,23 +17,19 @@ def build_planning_initial_facts() -> str:
     t = session_templates(C.PATIENT_ID, C.SESSION_TYPE, C.SESSION_DATE)
     return f"""
 **Fixed environment facts (SANDBOX paths)**
-- Data dir: {SBX_DATA_DIR}
-- Exports dir: {SBX_EXPORTS_DIR}
-- DB dir: {SBX_DB_DIR}
-- Session export base: {t.export_base}
-- CSV path template: /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{chunk_number}.csv
-- Graph JSON template: /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{chunk_number}.json
-- Cypher export dir: {t.cypher_dir}
-- SQLite DB: /workspace/export/therapy.db
-- Therapy transcript: /workspace/export//patient_raw_data/therapy.md
-- Psych frameworks: /workspace/export/psych_metadata/psych_frameworks.md
-- Graph schema: /workspace/export/psych_metadata/graph_schema.json
+CSV path template: {t.csv_template}
+Graph JSON template: {t.graph_template}
+Cypher export dir: {t.cypher_dir}
+SQLite DB: {t.sqlite_db}
+Therapy transcript: {t.therapy_md}
+Psych frameworks: {t.psych_frameworks_md}
+Graph schema: {t.graph_schema_json}
 
-**Placeholders**
-- Use k (an integer) as the current chunk index when calling tools. Do **not** write files directly; call:
-  - write_graph_for_chunk(k, graph)
-  - write_cypher_for_chunk(k, cypher_text)
-""".strip()
+ **Placeholders**
+ - Use k (an integer) as the current chunk index when calling tools. Do **not** write files directly; call:
+   - write_graph_for_chunk(k, graph)
+   - write_cypher_for_chunk(k, cypher_text)
+ """.strip()
 
 # Export the constant your router expects
 PLANNING_INITIAL_FACTS = build_planning_initial_facts()
@@ -71,15 +62,16 @@ OUTPUT CONTRACTS PER PASS
 
 - Pass B (FILE): persist the processed chunk via tools:
   1) CSV → (tool-managed) session export dir
-  2) SQLite → /workspace/export/therapy.db (table: qa_pairs; PK: (patient_id, session_date, session_type, turn_id))
+  SQLite → /workspace/exports/therapy.db (table: qa_pairs; PK: (patient_id, session_date, session_type, turn_id))
   3) Graph‑JSON → (tool-managed) session export dir
-  Do **not** write files directly; call the tools. Targets are:
-  - CSV:   /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv
-  - Graph: /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json
 
-- Pass C (GRAPH): read Graph‑JSON files and generate Cypher to STDOUT and also write to
-    `/workspace/export/cypher/<patient_id>/<session_type>/<session_date>/chunk_{k}.cypher`.
-Do not execute Memgraph here; only generate Cypher text then call write_graph_for_chunk.
+Do **not** write files directly; call the tools. Targets are:
+    - CSV: /workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv
+    - Graph: /workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json
+
+- Pass C (GRAPH): read Graph‑JSON files and generate Cypher to STDOUT and also write to `/workspace/exports/cypher/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/chunk_{k}.cypher`.
+Do not execute Memgraph here; only generate Cypher text, then call the cypher-writing tool.
+
 
 OUTPUT CONTRACTS/TOOLS
 - Writing is done via tools:
@@ -142,14 +134,14 @@ PRECONDITION
 - Current chunk index `k` (start at 1 per session)
 
 FILE TARGETS
-1) CSV path: `/workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_k.csv`
-2) SQLite: `/workspace/export/therapy.db` table `qa_pairs` (create if missing)
-3) Graph-JSON path: `/workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_k.json`
+1) CSV path (tool-managed): `/workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv`
+2) SQLite DB: `/workspace/exports/therapy.db` table `qa_pairs` (create if missing)
+3) Graph‑JSON path (tool-managed): `/workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json`
 
-ACTIONS
-- Call the CSV writer you have (or emit df.to_csv text and pass to a CSV tool if present).
-- Call write_graph_for_chunk with {"k": k, "graph": graph_dict}.
-- UPSERT rows into SQLite (idempotent).
+ACTION STEPS
+- Persist CSV for the chunk (use your CSV tool or code path).
+- Call `write_graph_for_chunk` with `{"k": k, "graph": graph_dict}`.
+- UPSERT rows into SQLite `qa_pairs` (idempotent).
 
 PSYCHOLOGY FRAMEWORKS USED IN GRAPH SCHEMA
 These can be searched on in the psych_metadata if required.
@@ -193,7 +185,6 @@ ACTIONS
 - UPSERT rows into SQLite `qa_pairs`
 - Build Graph‑JSON with annotations (heuristics/regex + lightweight rules). No LLM calls required; stay local unless tools are available.
 
-
 OUTPUT
 - Print absolute file paths + rows written
 - Print a short dict with counts: {"csv_rows": n, "sqlite_upserts": n, "graph_nodes": n_estimate}
@@ -207,7 +198,7 @@ THERAPY_PASS_C_GRAPH = r"""
 ROLE: Convert Graph‑JSON chunks into Cypher for Memgraph. Do not execute; just generate files.
 
 INPUTS
-- Graph‑JSON files under `/workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json`
+Graph‑JSON files under `/workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json`
 
 NODE & RELATIONSHIP MODEL (minimal viable)
 (:Persona {id: PATIENT_ID})
@@ -236,15 +227,11 @@ LINKS
 (:Utterance)-[:SHOWS_DEFENSE]->(:DefenseMechanism)
 
 CYPHER GENERATION RULES
-- Use MERGE for all nodes and relationships to keep idempotent.
-- Escape quotes in text; truncate utterance text at 800 chars.
-- Batch by chunk: write to `/workspace/export/cypher/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/chunk_{chunk_number}.cypher`
-- Print the first 15 lines to stdout for inspection and the path written.
+- Batch by chunk: write to `/workspace/exports/cypher/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/chunk_{k}.cypher`
 
 WRITE
-- After generating Cypher, call write_cypher_for_chunk with {"k": k, "cypher_text": cypher_string}.
-- The tool writes to: /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/cypher/chunk_{k}.cypher
-- Print the returned `preview` and paths.
+- After generating Cypher, call `write_cypher_for_chunk` with `{"k": k, "cypher_text": cypher_string}`.
+- The tool writes to: `/workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/cypher/chunk_{k}.cypher`
 
 DOCUMENTATION
 After each chunk, call document_learning_insights with a short title, a concise notes_markdown summary, and any metadata counters. 
@@ -258,30 +245,9 @@ FINAL
 THERAPY_TASK_PROMPT = r"""
 You are in chat mode with agentic capabilities. When the user types "Begin":
 1) Ask which PASS to run: A (CLEAN), B (FILE), or C (GRAPH). Default: A.
-2) Ask for INPUT file path (default: /workspace/export/therapy-gpt.md) and basics (PATIENT_ID, SESSION_DATE).
+2) Ask for INPUT file path (default: /workspace/data/patient_raw_data/therapy.md) and basics (PATIENT_ID, SESSION_DATE).
 3) Run in chunks (CHUNK_SIZE=50 unless user overrides). After each chunk, print a one‑line status.
 4) Keep Thought/Code/Observation cadence. Only call <code>final_answer("PASS_COMPLETE")</code> when the selected pass is fully done.
-"""
-
-PLANNING_INITIAL_FACTS = f"""
-**Fixed environment facts**
-- Data dir (sandbox): /workspace/data
-- Exports dir (sandbox): /workspace/exports
-- Embeddings dir (sandbox): /workspace/embeddings
-- Insights dir (sandbox): /workspace/insights
-- DB path (sandbox): /workspace/db/persona_forge.sqlite
-- Therapy transcript (sandbox): /workspace/data/therapy-gpt.md
-- CSV path (sandbox): /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_'k'.csv
-- SQLite DB (sandbox): /workspace/export/therapy.db
-- Graph JSON (sandbox): /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_'k'.json
-- Metadata: /workspace/export/metadata/psych_frameworks.md
-
-
-**Rules**
-- Never hardcode paths; use these.
-- If a directory or the DB is missing, create it.
-- Read Q/A pairs from `therapy.md` → write cleaned CSVs to `/workspace/exports` and rows to SQLite.
-- Keep chunks under the current context‑window limit and iterate.
 """
 
 

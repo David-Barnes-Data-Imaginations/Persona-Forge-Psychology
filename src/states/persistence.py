@@ -2,7 +2,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Optional
-from src.states.paths import PathPack, ensure_host_dirs
+from src.utils.paths import PathPack, ensure_host_dirs
 
 
 class PersistenceManager:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 import os
 from dataclasses import dataclass
-from src.states.paths import SBX_DATA_DIR, SBX_EXPORTS_DIR, SBX_DB_DIR
+from src.utils.paths import SBX_DATA_DIR, SBX_EXPORTS_DIR, SBX_DB_DIR
 
 @dataclass
 class SessionPaths:
