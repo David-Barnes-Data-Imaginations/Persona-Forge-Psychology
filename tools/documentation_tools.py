@@ -1,8 +1,12 @@
-from smolagents import Tool
-from src.utils.chunk_ids import next_chunk_id
-from src.states.paths import SBX_DB_PATH  # or config.DB_PATH in sandbox
+from __future__ import annotations
+import json
+from smolagents import Tool  # or from smolagents.tools import Tool
+from datetime import datetime
+
+from src.utils.export_writer import ExportWriter
 from src.utils.config import PATIENT_ID, SESSION_TYPE, SESSION_DATE
-from src.utils.export_writer import ExportWriter as exporter
+from src.utils.chunk_ids import next_chunk_id_counter  # runtime-safe (host/sandbox aware)
+
 
 class RetrieveMetadata(Tool):
     name = "RetrieveMetadata"
@@ -19,7 +23,7 @@ class RetrieveMetadata(Tool):
         self.sandbox = sandbox
         self.metadata_embedder = metadata_embedder
 
-    def forward(self, query, k=3):
+    def run(self, query, k=3):
 
         if not self.metadata_embedder:
             return "Error: Metadata embedder not available"
@@ -27,9 +31,9 @@ class RetrieveMetadata(Tool):
         results = self.metadata_embedder.search_metadata(query, k)
 
         if not results:
-            return "No relevant psych_metadata found"
+            return "No relevant metadata found"
 
-        response = "Relevant psych_metadata:\n\n"
+        response = "Relevant metadata:\n\n"
         for i, result in enumerate(results, 1):
             response += f"**Result {i}** (similarity: {result['similarity_score']:.3f})\n"
             response += f"{result['content']}\n\n"
@@ -37,119 +41,84 @@ class RetrieveMetadata(Tool):
         return response
 
 class DocumentLearningInsights(Tool):
-    name = "DocumentLearningInsights"
-    description = "Logs and embeds the agent's insights from a data chunk, storing both the markdown/JSON summaries and vector embeddings."
-    inputs = {
-        "notes": {"type": "string", "description": "The agent's reflections on the current chunk"}
-    }
-    output_type = "string"
-    help_notes = """ 
-    DocumentLearningInsights: 
-    A tool that allows you to document your insights, observations, and learnings about a data chunk.
-    These notes are stored both as readable markdown/JSON and as vector embeddings for future retrieval.
-    Use this to record important findings that might be useful later in your analysis.
-
-    Example usage: 
-
-    result = DocumentLearningInsights(notes="This chunk contains customer data with several outliers in the age column. Most values are between 25-45 years.")
     """
+    Captures a lightweight, per-chunk insight (markdown + json) under the session's export tree.
+    - Allocates a chunk id at runtime (no touching /workspace during import/init).
+    - Saves:
+        export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/insights_chunk_{k}.md
+        export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/insights_chunk_{k}.json
+    - Returns paths and the allocated chunk id.
+    """
+    name = "document_learning_insights"
+    description = "Persist analyst/agent insights (markdown + json) for the current chunk."
+    inputs = {
+        "title": {
+            "type": "string",
+            "description": "Short heading for this insight block.",
+            "required": False
+        },
+        "notes_markdown": {
+            "type": "string",
+            "description": "Freeform markdown notes for this chunk.",
+            "required": True
+        },
+        "metadata": {
+            "type": "object",
+            "description": "Optional JSON-safe dict of extra fields (e.g., counts, timings).",
+            "required": False
+        }
+    }
 
     def __init__(self, sandbox=None):
         super().__init__()
         self.sandbox = sandbox
 
-    def run(self, *args, **kwargs):
-        """
-        Args:
-            notes (str): The agent's reflections on the current chunk.
+    def run(self, title: str = "Analysis Insights", notes_markdown: str = "", metadata: dict | None = None):
+        # 1) Allocate the next chunk id AT RUNTIME (safe in host or sandbox)
+        k = next_chunk_id_counter(sandbox=self.sandbox)
 
-        Returns:
-            str: Confirmation message including the assigned chunk number.
-        """
-        if not self.sandbox:
-            return "Error: Sandbox not available"
-
-        chunk_number = next_chunk_id(
-            SBX_DB_PATH,
+        # 2) Build writer bound to the current session
+        exporter = ExportWriter(
+            sandbox=self.sandbox,
             patient_id=PATIENT_ID,
             session_type=SESSION_TYPE,
             session_date=SESSION_DATE
         )
 
-        """
-        Work out a way to clean this mess up with the ExportWriter
-        """
+        # 3) Compose filenames (kept near data outputs)
+        md_name   = f"insights_chunk_{k}.md"
+        json_name = f"insights_chunk_{k}.json"
 
-        # Old method pre-ExportWriter to save markdown and JSON versions
-        md_path = f"insights/chunk_{chunk_number}.md"
-        json_path = f"insights/chunk_{chunk_number}.json"
+        # 4) Prepare payloads
+        ts = datetime.utcnow().isoformat() + "Z"
+        md = f"""## {title} — Chunk {k}
+_Time:_ {ts}
 
-        md_content = f"""## Analysis Insights - Chunk {chunk_number}
-        
-
-### Agent Notes
-{notes}
+{notes_markdown.strip()}
 """
-        json_content = {
-            "chunk": chunk_number,
-            "notes": notes,
-            "type": "agent_notes"
+
+        meta = metadata or {}
+        json_obj = {
+            "patient_id": PATIENT_ID,
+            "session_type": SESSION_TYPE,
+            "session_date": SESSION_DATE,
+            "chunk_id": k,
+            "title": title,
+            "timestamp_utc": ts,
+            "metadata": meta,
         }
 
-        try:
-            import os
-            import json
-            import numpy as np
-            from openai import OpenAI
-            
-            # Using simple numpy-based similarity instead of faiss
-            
-            # Initialize OpenAI client
-            openai_api_key = os.getenv("OPENAI_API_KEY")
-            openai_client = OpenAI(api_key=openai_api_key)
-            
-            # Create embedding
-            response = openai_client.embeddings.create(
-                input=notes,
-                model="text-embedding-3-small"
-            )
-            embedding = response.data[0].embedding
+        # 5) Write both files via ExportWriter
+        md_paths   = exporter.write_text(k, md_name, md)
+        json_paths = exporter.write_text(k, json_name, json.dumps(json_obj, indent=2))
 
-
-            # Simple storage with full embeddings (no faiss needed)
-            chunk_data = {
-                "chunk": chunk_number,
-                "notes": notes,
-                "embedding": embedding,  # Store full embedding for similarity search
-                "type": "agent_notes"
-            }
-            
-            try:
-                store_data = self.sandbox.files.read(self.agent_notes_store_path).decode()
-                agent_store = json.loads(store_data)
-            except:
-                agent_store = []
-            
-            agent_store.append(chunk_data)
-
-            # Save everything
-            self.sandbox.files.write(md_path, md_content.encode())
-            self.sandbox.files.write(json_path, json.dumps(json_content, indent=2).encode())
-            self.sandbox.files.write(index_path, str(chunk_number).encode())
-
-            # Save embeddings as simple JSON
-            store_json = json.dumps(agent_store, indent=2)
-            self.sandbox.files.write(self.agent_notes_store_path, store_json.encode())
-
-            # use the new method to export:
-            exporter.write_csv(f"qa_chunk_{chunk_number}.csv", csv_content)
-            exporter.write(f"graph_chunk_{chunk_number}.json", json.dumps(graph_data, indent=2))
-
-            return f"Logged and embedded notes for chunk {chunk_number}"
-
-        except Exception as e:
-            return f"Error processing notes: {e}"
-
+        # 6) Return a compact summary for the agent/logs
+        return {
+            "chunk_id": k,
+            "markdown": md_paths,  # {"sandbox": "...", "host": "..."}
+            "json": json_paths,
+            "message": f"Saved insights for chunk {k}."
+        }
 
 
 class RetrieveSimilarChunks(Tool):
@@ -175,7 +144,7 @@ class RetrieveSimilarChunks(Tool):
         super().__init__()
         self.sandbox = sandbox
 
-    def forward(self, query, num_results=3):
+    def run(self, query, num_results=3):
         """
         Args:
             query (str): The query or current goal the agent is working on.

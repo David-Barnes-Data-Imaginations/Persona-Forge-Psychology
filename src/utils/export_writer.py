@@ -65,6 +65,37 @@ class ExportWriter:
         with open(host_path, "w", encoding="utf-8") as f:
             f.write(text)
 
+    def write_text(self, k: int, filename: str, text: str) -> dict[str, str]:
+        """
+        Write an arbitrary text file for chunk k (e.g., insights markdown).
+        Returns {"sandbox": "...", "host": "..."} paths.
+        """
+        # Re-use the session path templates
+        from .session_paths import session_paths_for_chunk
+
+        paths = session_paths_for_chunk(self.pid, self.st, self.sd, k)
+        # Put the text under the same export/{pid}/{type}/{date} tree
+        # Note: we DON'T hardcode a subfolder; you control it via filename.
+        sbx_path = f'{paths["export_base"]}/{filename}'
+        host_path = "." + sbx_path if sbx_path.startswith("/") else sbx_path
+
+        # ensure dirs & write
+        try:
+            # sandbox
+            if self.sandbox:
+                try:
+                    self.sandbox.files.mkdir(paths["export_base"])
+                except Exception:
+                    pass
+                self.sandbox.files.write(sbx_path, text.encode("utf-8"))
+        finally:
+            # host
+            os.makedirs(os.path.dirname(host_path), exist_ok=True)
+            with open(host_path, "w", encoding="utf-8") as f:
+                f.write(text)
+
+        return {"sandbox": sbx_path, "host": host_path}
+
     def write_csv(self, k: int, df) -> dict[str, str]:
         paths = session_paths_for_chunk(self.pid, self.st, self.sd, k)
         csv_sbx = paths["csv_path"]

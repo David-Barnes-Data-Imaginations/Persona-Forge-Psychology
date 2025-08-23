@@ -7,7 +7,7 @@ database operations, and documentation.
 
 # Import from database_tools.py
 from .sql_tools import (QuerySQLite, WriteQAtoSQLite)
-
+from .graph_tools import WriteCypherForChunk, WriteGraphForChunk
 # Import from documentation_tools.py
 from .documentation_tools import (
     DocumentLearningInsights,
@@ -23,5 +23,7 @@ __all__ = [
     'RetrieveSimilarChunks',
     'ValidateCleaningResults',
     'RetrieveMetadata',
+    'WriteCypherForChunk',
+    'WriteGraphForChunk'
 
 ]

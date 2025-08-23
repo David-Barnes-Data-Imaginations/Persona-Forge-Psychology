@@ -220,11 +220,12 @@ class CustomAgent:
             "params": params or {},
             "result": result
         }
-        if self.telemetry:
-            self.telemetry.log_agent_step(event)
-        with open("states/agent_step_log.jsonl", "a") as f:
-            f.write(json.dumps(event) + "\n")
-        print("🧠 AGENT STEP saved to log.")
+      #  if self.telemetry:
+       #     self.telemetry.log_agent_step(event)
+       # remove this until exporting 'write' sorted
+     #  with open("states/agent_step_log.jsonl", "a") as f:
+      #      f.write(json.dumps(event) + "\n")
+     #   print("🧠 AGENT STEP saved to log.")
         return event
 
 # --- Context Manager ---
@@ -314,6 +315,7 @@ class ToolFactory:
                                                RetrieveMetadata, RetrieveSimilarChunks,
                                                ValidateCleaningResults)
         from tools.sql_tools import QuerySQLite, WriteQAtoSQLite
+        from tools.graph_tools import WriteCypherForChunk, WriteGraphForChunk
 
         # Create instances of your custom tools
         tools = [
@@ -322,6 +324,8 @@ class ToolFactory:
             RetrieveSimilarChunks(sandbox=self.sandbox),
             ValidateCleaningResults(sandbox=self.sandbox),
             QuerySQLite(sandbox=self.sandbox),
-            WriteQAtoSQLite(sandbox=self.sandbox)
+            WriteQAtoSQLite(sandbox=self.sandbox),
+            WriteCypherForChunk(sandbox=self.sandbox),
+            WriteGraphForChunk(sandbox=self.sandbox)
         ]
         return tools
