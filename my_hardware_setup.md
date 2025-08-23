@@ -100,3 +100,19 @@ Operating System: Ubuntu server
 smart speaker with Alexa")
 
 2 x THIRDREALITY USB Motion Sensor 2 Pack for Echo Flex, Setup
+
+VLM & 'Home Assistant' Rigged up to look something like:
+
+```
+
+[Cameras] → Jetson (VLM fall-detection model)
+   │
+   ├──> HA (Raspberry Pi 5)
+   │       ├──> Hue Lights
+   │       ├──> Alexa Devices (alerts, dashboards, commands)
+   │       └──> Logging / Dashboards
+   │
+   └──> Future: external DB (event storage, training data for Persona-Forge)
+
+
+```
