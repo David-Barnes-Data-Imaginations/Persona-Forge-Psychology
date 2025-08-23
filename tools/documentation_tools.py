@@ -129,16 +129,7 @@ class RetrieveSimilarChunks(Tool):
         "num_results": {"type": "integer", "description": "Number of top similar chunks to return", "optional": True, "nullable": True}
     }
     output_type = "object"  # Returns list of dictionaries
-    help_notes = """ 
-    RetrieveSimilarChunks: 
-    A tool that finds previously documented insights that are semantically similar to your current query.
-    Use this when you want to reference past observations or findings that might be relevant to your current task.
-    This helps maintain consistency in your analysis and build upon previous work.
 
-    Example usage: 
-
-    similar_chunks = RetrieveSimilarChunks(query="customer age distribution patterns", num_results=3)
-    """
 
     def __init__(self, sandbox=None):
         super().__init__()

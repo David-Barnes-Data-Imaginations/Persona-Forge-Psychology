@@ -1,6 +1,4 @@
-from typing import Callable
-import requests  # add for Ollama embeddings
-from src.utils.paths import SBX_DATA_DIR
+from src.utils.embeddings import get_embedder_from_env, BaseEmbedder
 import os, json, hashlib, time
 from dataclasses import dataclass
 from typing import Optional, Iterable, List, Dict, Any
@@ -107,38 +105,10 @@ class MetadataEmbedder:
     """
     def __init__(self, sandbox=None):
         self.sandbox = sandbox
-        self.corpus_store = []
-
-        self.metadata_store_path = "embeddings/metadata_store.json"
-        self.corpus_store_path = "embeddings/corpus_store.json"
         self.agent_notes_store_path = "embeddings/agent_notes_store.json"
-        # Embedding backends
-        self.use_openai = os.getenv("USE_OPENAI_EMBEDDINGS", "false").lower() == "true"
-        self.use_ollama_embed = os.getenv("USE_OLLAMA_EMBEDDINGS", "false").lower() == "false"
+        self.metadata_store = []
+        self.agent_notes_store = []
 
-        # OpenAI init (opt-in)
-        self.openai_client = None
-        if self.use_openai:
-            if OpenAI is None:
-                raise RuntimeError("USE_OPENAI_EMBEDDINGS=true but the 'openai' package is not installed.")
-            openai_api_key = os.getenv("OPENAI_API_KEY")
-            if not openai_api_key:
-                raise RuntimeError("USE_OPENAI_EMBEDDINGS=true but OPENAI_API_KEY is missing.")
-            self.openai_client = OpenAI(api_key=openai_api_key)
-
-        # Ollama settings (opt-in)
-        self.ollama_host = os.getenv("OLLAMA_HOST", "localhost")
-        self.ollama_port = int(os.getenv("OLLAMA_PORT", "11434"))
-        self.ollama_embed_model = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
-        self._embed_with_openai
-
-        """        Choose embedding function by precedence: OpenAI -> Ollama -> Local
-                if self.openai_client:
-                    self._embed_fn: Callable[[str], list[float]] = self._embed_with_openai
-                elif self.use_ollama_embed:
-                    self._embed_fn = self._embed_with_ollama
-                else:
-                    self._embed_fn = self._embed_locally  """
 
         # -------- public API --------
 
@@ -312,7 +282,7 @@ class MetadataEmbedder:
         return chunks
 
     def _embed_fn(self, chunk: str):
-        return [float(len(chunk) % 10)] * 10  # fake vector
+        return self.embedder.embed(chunk)
 
     def _embed_with_openai(self, chunk: str) -> list[float]:
         """Create an embedding using OpenAI"""
