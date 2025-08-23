@@ -959,3 +959,52 @@ The following table is designed to demonstrate an awareness of common security a
   
 **Key Principle:** No matter how small the perceived probability of a risk (e.g., content injection), in new or untested systems it should be treated as **High Likelihood / High Impact** until there is operational evidence to downgrade its rating. This approach mirrors physical security protocols, where high-impact threats are addressed proactively rather than reactively.  
 - Additional note: The backtick tags '```' noted with 'aiignore' can be used for when you need to demonstrate code with a specific language (e.g., python) but don't want it to confuse AI tools that might read it.
+
+# Technical Build Notes by GPT
+## Useful notes for other learners (and me!)
+
+### GPT on when to use `f"""` versus when to use `r"""` in prompts etc.
+___
+- Use f"""...""" when you want Python to interpolate variables now (e.g., insert the current sandbox paths like /workspace/export/...).
+- Use plain """...""" when you want to show literal braces that the LLM will substitute mentally (e.g., /workspace/export/{PATIENT_ID}/.../qa_chunk_{k}.csv).
+- If you must use an f‑string but want literal braces inside the text, double them: {{k}} shows up as {k}.
+- Use r"""...""" (raw string) only if you have lots of backslashes (regex, Windows paths). It stops \n → newline escaping. You can also combine as fr"""...""" when you need both raw and f‑string interpolation—but avoid unless necessary.
+
+### Example: building the planning facts safely
+This version uses an f‑string to inject the paths from your templates (e.g., /workspace/export/...), but it does not interpolate {k}—that brace lives inside the variable’s string value and is preserved:
+
+```
+# src/utils/prompts.py
+from . import config as C
+from .session_paths import session_templates
+from .paths import SBX_DATA_DIR, SBX_EXPORTS_DIR, SBX_DB_DIR
+
+def build_planning_initial_facts() -> str:
+    t = session_templates(C.PATIENT_ID, C.SESSION_TYPE, C.SESSION_DATE)
+    return f"""
+**Fixed environment facts (SANDBOX paths)**
+- Data dir: {SBX_DATA_DIR}
+- Exports dir: {SBX_EXPORTS_DIR}
+- DB dir: {SBX_DB_DIR}
+- Session export base: {t.export_base}
+- CSV path template: {t.csv_template}
+- Graph JSON template: {t.graph_template}
+- Cypher export dir: {t.cypher_dir}
+- SQLite DB: {t.sqlite_db}
+- Therapy transcript: {t.therapy_md}
+- Psych frameworks: {t.psych_frameworks_md}
+- Graph schema: {t.graph_schema_json}
+
+**Placeholders**
+- Use k (an integer) as the current chunk index when calling tools. Do **not** write files directly; call:
+  - write_graph_for_chunk(k, graph)
+  - write_cypher_for_chunk(k, cypher_text)
+""".strip()
+```
+Why this is safe:
+
+- t.csv_template is literally /workspace/export/.../qa_chunk_{k}.csv as a string value. Inserting it via {t.csv_template} does not touch the {k} inside it.
+- You don’t need backticks around k unless you want Markdown code formatting. If you do, it’s fine, since it’s just text for the README/prompt.
+- If you ever need to show {k} inside an f‑string literal (not coming from a variable), escape as {{k}}.
+
+---

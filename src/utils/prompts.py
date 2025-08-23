@@ -19,10 +19,6 @@ To change where files land, edit `session_paths.session_templates()`
 
 
 def build_planning_initial_facts() -> str:
-    """
-    Returns a Markdown string with sandbox-first, model-friendly facts.
-    Uses {k} (chunk index) placeholder so a Pass can substitute at runtime.
-    """
     t = session_templates(C.PATIENT_ID, C.SESSION_TYPE, C.SESSION_DATE)
     return f"""
 **Fixed environment facts (SANDBOX paths)**
@@ -39,12 +35,9 @@ def build_planning_initial_facts() -> str:
 - Graph schema: {t.graph_schema_json}
 
 **Placeholders**
-- Use `k` (integer) for the current chunk number when writing CSV/Graph JSON.
-
-**Rules of engagement**
-- Always create parent directories before writing.
-- Always validate Graph‑JSON against the schema before finalizing.
-- Normalize tags using the psych frameworks metadata.
+- Use k (an integer) as the current chunk index when calling tools. Do **not** write files directly; call:
+  - write_graph_for_chunk(k, graph)
+  - write_cypher_for_chunk(k, cypher_text)
 """.strip()
 
 # Export the constant your router expects
