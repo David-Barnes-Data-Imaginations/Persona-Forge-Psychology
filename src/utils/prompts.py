@@ -29,7 +29,7 @@ Graph schema: {t.graph_schema_json}
  - Use k (an integer) as the current chunk index when calling tools. Do **not** write files directly; call:
    - write_graph_for_chunk(k, graph)
    - write_cypher_for_chunk(k, cypher_text)
-   - write_csv_for_chunk(k, csv_text, records, columns[column_headers])
+   - write_csv_for_chunk(k, csv_text, record_count, columns)
  """.strip()
 
 # Export the constant your router expects
@@ -63,7 +63,7 @@ OUTPUT CONTRACTS PER PASS
 
 - Pass B (FILE): persist the processed chunk via tools:
   1) CSV → (tool-managed) session export dir
-  SQLite → /workspace/exports/therapy.db (table: qa_pairs; PK: (patient_id, session_date, session_type, turn_id))
+  2) SQLite → /workspace/exports/therapy.db (table: qa_pairs; PK: (patient_id, session_date, session_type, turn_id))
   3) Graph‑JSON → (tool-managed) session export dir
 
 Do **not** write files directly; call the tools. Targets are:
@@ -91,7 +91,6 @@ FINALIZATION
 
 THERAPY_PASS_A_CLEAN = r"""
 ROLE: CLEAN & NORMALIZE QA pairs from a raw transcript file.
-
 
 INPUTS
 - A UTF‑8 text file (e.g., `therapy.md`) containing alternating Therapist/Client blocks.
@@ -130,69 +129,41 @@ THERAPY_PASS_B_FILE = r"""
 ROLE: Persist the cleaned chunk to CSV, SQLite, and Graph‑JSON.
 
 PRECONDITION
-- `df_clean` exists in memory from Pass A
+- `df_clean` exists in memory from Pass A (same Python session)
 - Variables set: PATIENT_ID, SESSION_TYPE, SESSION_DATE, CHUNK_SIZE
 - Current chunk index `k` (start at 1 per session)
 
-FILE TARGETS
-1) CSV path (tool-managed): `/workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv`
-2) SQLite DB: `/workspace/exports/therapy.db` table `qa_pairs` (create if missing)
-3) Graph‑JSON path (tool-managed): `/workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json`
+FILE TARGETS (tool‑managed)
+- CSV:   /workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv
+- SQLite: /workspace/exports/therapy.db  (table: qa_pairs; create if missing)
+- Graph: /workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json
 
 ACTION STEPS
-- Persist CSV for the chunk (use your CSV tool or code path).
-- Call `write_graph_for_chunk` with `{"k": k, "graph": graph_dict}`.
-- UPSERT rows into SQLite `qa_pairs` (idempotent).
+1) Prepare CSV:
+   - If `df_clean` is available, produce:
+     - `csv_text = df_clean.to_csv(index=False)`
+     - `columns = list(df_clean.columns)` (expected: ["session_date","session_type","turn_id","speaker","text_raw","text_clean"])
+     - `rows = len(df_clean)`
+   - Call: `write_csv_for_chunk(k, csv_text, rows, columns)`
 
-PSYCHOLOGY FRAMEWORKS USED IN GRAPH SCHEMA
-These can be searched on in the psych_metadata if required.
+2) Prepare Graph‑JSON object (minimal, schema‑aligned):
+   - Build a Python dict `graph_dict` with:
+     - "utterances": list of utterance dicts derived from `df_clean` rows, with conservative annotations
+     - You may omit or leave uncertain fields as empty/Unknown; the tool will autofill top‑level fields
+   - Call: `write_graph_for_chunk(k, graph_dict)`
+   - The tool normalizes, validates against `graph_schema.json`, and persists.
 
-GRAPH‑JSON SCHEMA (strict)
-{
-    "patient_id": "Client_345",
-    "session_date": "2025-08-19",
-    "session_type": "therapy",
-    "chunk_index": 1,
-    "utterances": [
-    {
-        "turn_id": 1,
-        "speaker": "Client",
-        "text": "...text_clean...",
-        "annotations": {
-          "distortions": ["Overgeneralization"],
-          "emotions_primary": ["Shame"],
-          "sentiment2d": {"valence": -0.70, "arousal": 0.60},
-          "erikson_stage": "Identity vs Role Confusion",
-          "attachment_style": "Anxious|Avoidant|Secure|Disorganized|Unknown",
-          "big5": {"O": 0.62, "C": 0.48, "E": 0.41, "A": 0.71, "N": 0.58},
-          "schemas": ["Abandonment"],
-          "defense_mechanisms": ["Denial"]
-        }
-    },
-    ...
-  ]
-}
+3) SQLite upserts:
+   - Open /workspace/exports/therapy.db, ensure table `qa_pairs` with PK (patient_id, session_date, session_type, turn_id)
+   - UPSERT rows from `df_clean` (idempotent)
 
-After building the Graph‑JSON dict for the current chunk k: Call write_graph_for_chunk with arguments { "k": k, "graph": <your_graph_dict> } and use the returned paths in your log.
-
-ANNOTATION RULES
-- Keep conservative. If uncertain, leave arrays empty or use "Unknown".
-- Use Russell valence/arousal in [-1.0, 1.0].
-- Big Five scaled to [0,1]. If not inferable → omit the key or set null.
-
-
-ACTIONS
-- Write CSV for the chunk
-- UPSERT rows into SQLite `qa_pairs`
-- Build Graph‑JSON with annotations (heuristics/regex + lightweight rules). No LLM calls required; stay local unless tools are available.
-
-OUTPUT
-- Print absolute file paths + rows written
-- Print a short dict with counts: {"csv_rows": n, "sqlite_upserts": n, "graph_nodes": n_estimate}
+VALIDATION / LOGGING
+- After each tool call, print the returned paths and counts.
+- After SQLite upsert, print {"csv_rows": rows, "sqlite_upserts": upsert_count, "graph_utterances": n_utterances}.
+- Do NOT write files directly; ALWAYS use the tools for CSV and Graph‑JSON.
 
 DOCUMENTATION
-After each chunk, call document_learning_insights with a short title, a concise notes_markdown summary, and any metadata counters. 
-Do not hand‑write paths; the tool persists to the session export directory automatically.
+- After each chunk, call `document_learning_insights(title, notes_markdown, metadata)` with a concise summary.
 """
 
 THERAPY_PASS_C_GRAPH = r"""
