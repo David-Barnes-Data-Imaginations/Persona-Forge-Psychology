@@ -28,7 +28,7 @@ class QuerySQLite(Tool):
     inputs = {"sql": "str"}
     output_type = "list"
 
-    def forward(self, sql: str):
+    def run(self, sql: str):
         import sqlite3
         conn = sqlite3.connect("./export/therapy.db")
         cur = conn.cursor()

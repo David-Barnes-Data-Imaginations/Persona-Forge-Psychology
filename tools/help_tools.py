@@ -25,7 +25,7 @@ class GetToolHelp(Tool):
         self.sandbox = sandbox
         self.metadata_embedder = metadata_embedder
 
-    def forward(self,query):
+    def run(self,query):
         """Get tool help using semantic search on embedded help notes."""
         try:
             from smolagents import Tool

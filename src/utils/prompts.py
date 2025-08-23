@@ -29,6 +29,7 @@ Graph schema: {t.graph_schema_json}
  - Use k (an integer) as the current chunk index when calling tools. Do **not** write files directly; call:
    - write_graph_for_chunk(k, graph)
    - write_cypher_for_chunk(k, cypher_text)
+   - write_csv_for_chunk(k, csv_text, records, columns[column_headers])
  """.strip()
 
 # Export the constant your router expects

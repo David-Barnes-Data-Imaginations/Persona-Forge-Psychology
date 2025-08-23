@@ -12,7 +12,6 @@ from .graph_tools import WriteCypherForChunk, WriteGraphForChunk
 from .documentation_tools import (
     DocumentLearningInsights,
     RetrieveSimilarChunks,
-    ValidateCleaningResults,
     RetrieveMetadata
 )
 
@@ -21,7 +20,6 @@ __all__ = [
     # Documentation tools
     'DocumentLearningInsights',
     'RetrieveSimilarChunks',
-    'ValidateCleaningResults',
     'RetrieveMetadata',
     'WriteCypherForChunk',
     'WriteGraphForChunk'

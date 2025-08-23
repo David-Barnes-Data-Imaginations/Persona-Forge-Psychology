@@ -6,9 +6,10 @@ from smolagents.agent_types import AgentText
 from smolagents import CodeAgent, Tool
 from smolagents.models import LiteLLMModel
 from typing import List, Any, AsyncGenerator, Optional
-from src.utils.io_helpers import SessionKey, save_csv, sqlite_upsert_df, write_graph_json, write_cypher
+import src.utils.io_helpers
+from tools.csv_tools import WriteCSVForChunk
 
-from src.executors import docker_python_executor
+
 """from src.utils.prompts import CA_SYSTEM_PROMPT, DB_SYSTEM_PROMPT, PLANNING_INITIAL_FACTS, PLANNING_INITIAL_PLAN, \
     PLANNING_UPDATE_FACTS_PRE, PLANNING_UPDATE_FACTS_POST, PLANNING_UPDATE_PLAN_PRE, PLANNING_UPDATE_PLAN_POST, \
     CA_MAIN_PROMPT"""
@@ -186,7 +187,6 @@ class CustomAgent:
         print(self.agent.tools.values())
         return """🚀 Starting agentic workflow! I'm now in analysis mode. 
 
-
 """
 
     def return_to_chat_mode(self):
@@ -312,17 +312,17 @@ class ToolFactory:
 
         # Import your custom tool
         from tools.documentation_tools import (DocumentLearningInsights,
-                                               RetrieveMetadata, RetrieveSimilarChunks,
-                                               ValidateCleaningResults)
+                                               RetrieveMetadata, RetrieveSimilarChunks)
         from tools.sql_tools import QuerySQLite, WriteQAtoSQLite
         from tools.graph_tools import WriteCypherForChunk, WriteGraphForChunk
+        from tools.csv_tools import WriteCSVForChunk
 
         # Create instances of your custom tools
         tools = [
             DocumentLearningInsights(sandbox=self.sandbox),
             RetrieveMetadata(sandbox=self.sandbox, metadata_embedder=self.metadata_embedder),
             RetrieveSimilarChunks(sandbox=self.sandbox),
-            ValidateCleaningResults(sandbox=self.sandbox),
+            WriteCSVForChunk(sandbox=self.sandbox),
             QuerySQLite(sandbox=self.sandbox),
             WriteQAtoSQLite(sandbox=self.sandbox),
             WriteCypherForChunk(sandbox=self.sandbox),
