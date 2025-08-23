@@ -82,12 +82,16 @@ class PersistenceManager:
 
     # --- lifecycle hooks ---
     def on_boot(self):
-        ensure_host_dirs()
-        for d in self.paths.sbx_dirs:
-            self._sbx_mkdir(d)
-
         if not self.sandbox:
             return
+
+        ensure_host_dirs()
+        for d in ["/workspace/data", "/workspace/export", "/workspace/embeddings", "/workspace/states"]:
+            try:
+                self.sandbox.files.mkdir(d)
+            except Exception:
+                pass
+
         # Push canonical resources
         if os.path.exists(self.paths.host_db):
             self.push_file(self.paths.host_db, self.paths.sbx_db)

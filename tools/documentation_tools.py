@@ -1,5 +1,8 @@
 from smolagents import Tool
-
+from src.utils.chunk_ids import next_chunk_id
+from src.states.paths import SBX_DB_PATH  # or config.DB_PATH in sandbox
+from src.utils.config import PATIENT_ID, SESSION_TYPE, SESSION_DATE
+from src.utils.export_writer import ExportWriter as exporter
 
 class RetrieveMetadata(Tool):
     name = "RetrieveMetadata"
@@ -53,25 +56,9 @@ class DocumentLearningInsights(Tool):
 
     def __init__(self, sandbox=None):
         super().__init__()
-        from src.utils.chunk_ids import next_chunk_id
-        from src.states.paths import SBX_DB_PATH  # or config.DB_PATH in sandbox
-        from src.utils.config import PATIENT_ID, SESSION_TYPE, SESSION_DATE
-        from src.states.persistence import PersistenceManager
-
-        chunk_number = next_chunk_id(SBX_DB_PATH,
-                                     patient_id=PATIENT_ID, session_type=SESSION_TYPE, session_date=SESSION_DATE)
-
-        md_path = f"insights/chunk_{chunk_number}.md"
-        json_path = f"insights/chunk_{chunk_number}.json"
-
         self.sandbox = sandbox
 
-        # File paths
-        self.agent_notes_index_path = "embeddings/agent_notes_index.faiss"
-        self.agent_notes_store_path = "embeddings/agent_notes_store.json"
-
-
-    def forward(self, notes):
+    def run(self, *args, **kwargs):
         """
         Args:
             notes (str): The agent's reflections on the current chunk.
@@ -82,16 +69,18 @@ class DocumentLearningInsights(Tool):
         if not self.sandbox:
             return "Error: Sandbox not available"
 
-        # Get chunk number, triple logic temp added for testing
-        index_path = "insights/chunk_index.txt"
-        try:
-            current_index = int(self.sandbox.files.read(index_path).decode().strip())
-            chunk_number = current_index + 1
-            self.sandbox.files.write(index_path, str(chunk_number).encode())
-        except:
-            chunk_number = 0
+        chunk_number = next_chunk_id(
+            SBX_DB_PATH,
+            patient_id=PATIENT_ID,
+            session_type=SESSION_TYPE,
+            session_date=SESSION_DATE
+        )
 
-        # Save markdown and JSON versions
+        """
+        Work out a way to clean this mess up with the ExportWriter
+        """
+
+        # Old method pre-ExportWriter to save markdown and JSON versions
         md_path = f"insights/chunk_{chunk_number}.md"
         json_path = f"insights/chunk_{chunk_number}.json"
 
@@ -151,6 +140,10 @@ class DocumentLearningInsights(Tool):
             # Save embeddings as simple JSON
             store_json = json.dumps(agent_store, indent=2)
             self.sandbox.files.write(self.agent_notes_store_path, store_json.encode())
+
+            # use the new method to export:
+            exporter.write_csv(f"qa_chunk_{chunk_number}.csv", csv_content)
+            exporter.write(f"graph_chunk_{chunk_number}.json", json.dumps(graph_data, indent=2))
 
             return f"Logged and embedded notes for chunk {chunk_number}"
 

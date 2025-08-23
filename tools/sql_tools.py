@@ -6,7 +6,7 @@ class WriteQAtoSQLite(Tool):
     inputs = {"qa": "dict"}
     output_type = "str"
 
-    def forward(self, qa: dict) -> str:
+    def run(self, qa: dict) -> str:
         import sqlite3, os
         db_path = "./export/therapy.db"
         conn = sqlite3.connect(db_path)
