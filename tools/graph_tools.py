@@ -94,16 +94,17 @@ class WriteGraphForChunk(Tool):
     name = "write_graph_for_chunk"
     description = "Normalize, validate, and persist a Graph‑JSON dict for chunk k."
     inputs = {
-        "k": {"type": "integer", "description": "Chunk index.", "required": True},
-        "graph": {"type": "object", "description": "Graph‑JSON payload.", "required": True},
-        "autofill": {"type": "boolean", "description": "If true, fill patient_id/session_date/type/chunk_index.", "required": False}
+        "k": {"type": "integer", "description": "Chunk index.", "nullable": True},
+        "graph": {"type": "object", "description": "Graph‑JSON payload.", "default": None, "nullable": True},
+        "autofill": {"type": "boolean", "description": "If true, fill patient_id/session_date/type/chunk_index.", "default": None, "nullable": True}
     }
+    output_type = "object"
 
     def __init__(self, sandbox=None):
         super().__init__()
         self.sandbox = sandbox
 
-    def run(self, k: int, graph: Dict[str, Any], autofill: bool = True):
+    def forward(self, k: int, graph: Dict[str, Any], autofill: bool = True):
         # 1) Load schema (sandbox‑first)
         t = session_templates(C.PATIENT_ID, C.SESSION_TYPE, C.SESSION_DATE)
         schema_text = _read_text_host_or_sbx(
@@ -144,15 +145,16 @@ class WriteCypherForChunk(Tool):
     name = "write_cypher_for_chunk"
     description = "Write Cypher text for chunk k to the session's cypher directory."
     inputs = {
-        "k": {"type": "integer", "description": "Chunk index.", "required": True},
-        "cypher_text": {"type": "string", "description": "Cypher statements to write.", "required": True},
+        "k": {"type": "integer", "description": "Chunk index.", "default": 1, "nullable": False},
+        "cypher_text": {"type": "string", "description": "Cypher statements to write.", "default": None, "nullable": False},
     }
+    output_type = "object"
 
     def __init__(self, sandbox=None):
         super().__init__()
         self.sandbox = sandbox
 
-    def run(self, k: int, cypher_text: str):
+    def forward(self, k: int, cypher_text: str):
         t = session_templates(C.PATIENT_ID, C.SESSION_TYPE, C.SESSION_DATE)
         # Build a filename
         fname = f"cypher/chunk_{k}.cypher"

@@ -26,21 +26,25 @@ class WriteCSVForChunk(Tool):
         "csv_text": {
             "type": "string",
             "description": "Raw CSV text to save. Mutually exclusive with `records`.",
-            "required": False,
+            "default": None,
+            "nullable": True
         },
         "records": {
             "type": "array",
             "description": "List of row dicts to form a DataFrame. Mutually exclusive with `csv_text`.",
             "items": {"type": "object"},
-            "required": False,
+            "default": None,
+            "nullable": True
         },
         "columns": {
             "type": "array",
             "description": "Optional explicit column order (applied if `records` provided).",
             "items": {"type": "string"},
-            "required": False,
+            "default": None,
+            "nullable": True
         },
     }
+    output_type = "object"
 
     def __init__(self, sandbox=None):
         super().__init__()
@@ -50,7 +54,7 @@ class WriteCSVForChunk(Tool):
         missing = [c for c in REQUIRED_COLUMNS if c not in df.columns]
         return missing
 
-    def run(
+    def forward(
         self,
         k: int,
         csv_text: Optional[str] = None,
