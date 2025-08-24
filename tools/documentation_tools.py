@@ -1,61 +1,51 @@
 from __future__ import annotations
-import json
-from smolagents import Tool  # or from smolagents.tools import Tool
+from smolagents import Tool # or from smolagents.tools import tool (haven't worked out diff yet
 from datetime import datetime
+import json
 
 from src.utils.export_writer import ExportWriter
 from src.utils.config import PATIENT_ID, SESSION_TYPE, SESSION_DATE
 from src.utils.chunk_ids import next_chunk_id_counter  # runtime-safe (host/sandbox aware)
 
 class DocumentLearningInsights(Tool):
-    """
-    Persist a lightweight per-chunk insight (markdown + json) under the session export tree.
-    Also (optionally) index the note for semantic retrieval if a MetadataEmbedder is provided.
-    """
     name = "document_learning_insights"
-    description = "Persist analyst/agent insights (markdown + json) for the current chunk."
+    description = (
+        "Persist a markdown note + JSON metadata for the current session. "
+        "Optionally index the note into the psych_metadata store for retrieval."
+    )
+    # Must match forward(...) parameter names exactly:
     inputs = {
         "title": {
             "type": "string",
-            "description": "Short heading for this insight block.",
-            "required": False
+            "description": "Short title for the note (used in file header).",
+            "default": "Analysis Insights",
         },
         "notes_markdown": {
             "type": "string",
-            "description": "Freeform markdown notes for this chunk.",
-            "required": True
+            "description": "Body of the note in Markdown.",
+            "default": "",
         },
         "metadata": {
             "type": "object",
-            "description": "Optional JSON-safe dict of extra fields (e.g., counts, timings).",
-            "required": False
+            "description": "Arbitrary JSON-serializable metadata to store alongside the note.",
+            "nullable": True,
+            "default": None,
         },
         "index": {
             "type": "boolean",
-            "description": "If true, also index this note for retrieval (embeddings).",
-            "required": False
-        }
+            "description": "If true, embed this note into the metadata index.",
+            "default": False,
+        },
     }
-    # ✅ smolagents requires this:
-    output_type = "object"
-    # Optional but nice: schema for the returned object
     output_schema = {
         "type": "object",
-        "required": ["chunk_id", "markdown", "json", "message"],
         "properties": {
             "chunk_id": {"type": "integer"},
-            "markdown": {
-                "type": "object",
-                "properties": {"sandbox": {"type": "string"}, "host": {"type": "string"}},
-                "required": ["sandbox"]
-            },
-            "json": {
-                "type": "object",
-                "properties": {"sandbox": {"type": "string"}, "host": {"type": "string"}},
-                "required": ["sandbox"]
-            },
-            "message": {"type": "string"}
-        }
+            "markdown": {"type": "object"},
+            "json": {"type": "object"},
+            "message": {"type": "string"},
+        },
+        "required": ["chunk_id", "markdown", "json", "message"],
     }
 
     def __init__(self, sandbox=None, indexer=None):
@@ -66,9 +56,16 @@ class DocumentLearningInsights(Tool):
         """
         super().__init__()
         self.sandbox = sandbox
-        self.indexer = indexer  # pass MetadataEmbedder.index_agent_note if you want inline indexing
+        self.indexer = indexer  # injected dependency; not part of inputs
 
-    def run(self, title: str = "Analysis Insights", notes_markdown: str = "", metadata: dict | None = None, index: bool = False):
+    # <-- smolagents will validate against THIS signature -->
+    def forward(
+        self,
+        title: str = "Analysis Insights",
+        notes_markdown: str = "",
+        metadata: dict | None = None,
+        index: bool = False,
+    ):
         # 1) Allocate the next chunk id at runtime (safe in host or sandbox)
         k = next_chunk_id_counter(sandbox=self.sandbox)
 
@@ -89,7 +86,7 @@ class DocumentLearningInsights(Tool):
         md = f"""## {title} — Chunk {k}
 _Time:_ {ts}
 
-{notes_markdown.strip()}
+{(notes_markdown or "").strip()}
 """
 
         meta = metadata or {}
@@ -103,7 +100,7 @@ _Time:_ {ts}
             "metadata": meta,
         }
 
-        # 5) Write both files via ExportWriter (directories are auto-created)
+        # 5) Write both files via ExportWriter
         md_paths   = exporter.write_text(k, md_name, md)
         json_paths = exporter.write_text(k, json_name, json.dumps(json_obj, indent=2))
 
@@ -112,7 +109,6 @@ _Time:_ {ts}
             try:
                 self.indexer(k, title, notes_markdown, meta)
             except Exception as e:
-                # Don't fail the tool if indexing hiccups; just record it in the message
                 return {
                     "chunk_id": k,
                     "markdown": md_paths,
@@ -122,9 +118,7 @@ _Time:_ {ts}
 
         return {
             "chunk_id": k,
-            "markdown": md_paths,  # {"sandbox": "...", "host": "..."} (host may be absent when running purely in sandbox)
+            "markdown": md_paths,
             "json": json_paths,
             "message": f"Saved insights for chunk {k}."
         }
-
-
