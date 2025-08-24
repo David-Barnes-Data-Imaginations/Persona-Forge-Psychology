@@ -87,7 +87,6 @@ class DocumentLearningInsights(Tool):
             index=index,
         )
 
-    # your existing run(...) unchanged
     def run(self, title: str = "Analysis Insights", notes_markdown: str = "", metadata: dict | None = None, index: bool = False):
 
         k = next_chunk_id_counter(sandbox=self.sandbox)

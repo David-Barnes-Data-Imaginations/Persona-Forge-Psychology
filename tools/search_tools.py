@@ -44,11 +44,13 @@ class SearchMetadataChunks(Tool):
     name = "search_metadata_chunks"
     description = "Search vectorized metadata/corpus/agent notes and return the most similar chunks."
 
+    # Keep this clean: no top-level stray keys.
     inputs = {
-        "query": {
+        "query": {  # allow None, we'll guard against it in code
             "type": "string",
             "description": "Search text",
-            "nullable": False
+            "default": None,
+            "nullable": True
         },
         "top_k": {
             "type": "integer",
@@ -56,7 +58,7 @@ class SearchMetadataChunks(Tool):
             "default": 5,
             "nullable": False
         },
-        "kind":  {
+        "kind": {
             "type": "string",
             "description": "metadata|corpus|any",
             "default": "metadata",
@@ -90,45 +92,15 @@ class SearchMetadataChunks(Tool):
 
     output_type = "object"
 
-
     def __init__(self, sandbox=None):
         super().__init__()
         self.sandbox = sandbox
+        # smolagents validates against forward(...), not run(...)
+        # IMPORTANT: smolagents inspects **forward**, not run
 
-    # ---- IO helpers ----
-    def _sbx_read(self, path: str) -> Optional[str]:
-        if not self.sandbox:
-            return _read_json_local(path)
-        try:
-            blob = self.sandbox.files.read(path)
-            return blob.decode() if isinstance(blob, (bytes, bytearray)) else str(blob)
-        except Exception:
-            return None
-
-    def _load_store(self, path: str) -> List[Dict[str, Any]]:
-        raw = self._sbx_read(path)
-        if not raw:
-            return []
-        try:
-            data = json.loads(raw)
-            if isinstance(data, list):
-                return data
-            # Some stores might be a dict wrapper later; handle gracefully
-            if isinstance(data, dict) and "items" in data:
-                return data["items"]
-        except Exception:
-            pass
-        return []
-
-    # ---- main ----
-    def __init__(self, sandbox=None):
-        super().__init__()
-        self.sandbox = sandbox
-
-    # smolagents validates against forward(...), not run(...)
     def forward(
             self,
-            query: str,
+            query: Optional[str] = None,  # nullable=True -> Optional + default None
             top_k: int = 5,
             kind: str = "metadata",
             include_notes: bool = True,
@@ -136,32 +108,15 @@ class SearchMetadataChunks(Tool):
             include_content: bool = False,
             preview_chars: int = 240,
     ):
-        return self.run(
-            query=query,
-            top_k=top_k,
-            kind=kind,
-            include_notes=include_notes,
-            min_score=min_score,
-            include_content=include_content,
-            preview_chars=preview_chars,
-        )
+        if not query or not str(query).strip():
+            return {"results": [], "info": "Empty query."}
 
-    def run(
-        self,
-        query: str,
-        top_k: int = 5,
-        kind: str = "metadata",
-        include_notes: bool = True,
-        min_score: float = 0.0,
-        include_content: bool = False,
-        preview_chars: int = 240,
-    ):
         embedder = get_embedder_from_env()
         qv = embedder.embed(query)
+
         kind = (kind or "metadata").lower()
         if kind not in SUPPORTED_KINDS:
             kind = "metadata"
-
 
         # Load stores
         results_pool: List[Dict[str, Any]] = []
@@ -188,8 +143,8 @@ class SearchMetadataChunks(Tool):
         if not results_pool:
             return {"results": [], "info": "No stores found or empty."}
 
-  #      embedder = get_embedder_from_env()
-   #     qv = embedder.embed(query)
+        #      embedder = get_embedder_from_env()
+        #     qv = embedder.embed(query)
 
         store_models = set()
         for rec in results_pool:
@@ -232,3 +187,33 @@ class SearchMetadataChunks(Tool):
         out = {"results": scored[: max(1, int(top_k))]}
         if info: out = out["info"]
         return out
+
+    # ---- IO helpers ----
+    def _sbx_read(self, path: str) -> Optional[str]:
+        if not self.sandbox:
+            return _read_json_local(path)
+        try:
+            blob = self.sandbox.files.read(path)
+            return blob.decode() if isinstance(blob, (bytes, bytearray)) else str(blob)
+        except Exception:
+            return None
+
+    def _load_store(self, path: str) -> List[Dict[str, Any]]:
+        raw = self._sbx_read(path)
+        if not raw:
+            return []
+        try:
+            data = json.loads(raw)
+            if isinstance(data, list):
+                return data
+            # Some stores might be a dict wrapper later; handle gracefully
+            if isinstance(data, dict) and "items" in data:
+                return data["items"]
+        except Exception:
+            pass
+        return []
+
+
+
+
+
