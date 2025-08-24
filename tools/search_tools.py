@@ -44,27 +44,54 @@ class SearchMetadataChunks(Tool):
     """
     Semantic search across metadata/corpus/agent notes embeddings.
 
-    Inputs:
-      - query (str): search text
-      - top_k (int): number of results (default 5)
-      - kind (str): "metadata" | "corpus" | "any" (default "metadata")
-      - include_notes (bool): also search agent_notes_store.json (default True)
-      - min_score (float): filter low scores (default 0.0)
-      - include_content (bool): return full content (default False; else preview)
-      - preview_chars (int): length of preview if include_content=False (default 240)
-
-    Output: {"results":[{score, kind, source, doc_id, chunk_index, preview|content}]}
+    Output: {"results":[{score, kind, source, doc_id, chunk_index, preview|content}], "info": "...?"}
     """
     name = "search_metadata_chunks"
     description = "Search vectorized metadata/corpus/agent notes and return the most similar chunks."
+
+    # IMPORTANT: no "required" flags; use "default" to mark optionals.
     inputs = {
-        "query": {"type": "string", "description": "Search text", "required": True, "nullable": False},
-        "top_k": {"type": "integer", "description": "Number of hits", "required": False, "nullable": True},
-        "kind":  {"type": "string",  "description": "metadata|corpus|any", "required": False, "nullable": True},
-        "include_notes": {"type": "boolean", "description": "Search agent notes too", "required": False, "nullable": False},
-        "min_score": {"type": "number", "description": "Score threshold 0..1", "required": False, "nullable": True},
-        "include_content": {"type": "boolean", "description": "Return full content instead of preview", "required": False, "nullable": False},
-        "preview_chars": {"type": "integer", "description": "Preview char count", "required": False, "nullable": True},
+        "query": {  # required (no default), non-nullable
+            "type": "string",
+            "description": "Search text",
+            "nullable": False
+        },
+        "top_k": {  # optional, non-nullable
+            "type": "integer",
+            "description": "Number of hits",
+            "default": 5,
+            "nullable": False
+        },
+        "kind": {  # optional, non-nullable
+            "type": "string",
+            "description": "metadata|corpus|any",
+            "default": "metadata",
+            "nullable": False
+        },
+        "include_notes": {  # optional, non-nullable
+            "type": "boolean",
+            "description": "Search agent notes too",
+            "default": True,
+            "nullable": False
+        },
+        "min_score": {  # optional, non-nullable
+            "type": "number",
+            "description": "Score threshold 0..1",
+            "default": 0.0,
+            "nullable": False
+        },
+        "include_content": {  # optional, non-nullable
+            "type": "boolean",
+            "description": "Return full content instead of preview",
+            "default": False,
+            "nullable": False
+        },
+        "preview_chars": {  # optional, non-nullable
+            "type": "integer",
+            "description": "Preview char count",
+            "default": 240,
+            "nullable": False
+        },
     }
     output_type = "object"
 
@@ -98,6 +125,31 @@ class SearchMetadataChunks(Tool):
         return []
 
     # ---- main ----
+    def __init__(self, sandbox=None):
+        super().__init__()
+        self.sandbox = sandbox
+
+    # smolagents validates against forward(...), not run(...)
+    def forward(
+            self,
+            query: str,
+            top_k: int = 5,
+            kind: str = "metadata",
+            include_notes: bool = True,
+            min_score: float = 0.0,
+            include_content: bool = False,
+            preview_chars: int = 240,
+    ):
+        return self.run(
+            query=query,
+            top_k=top_k,
+            kind=kind,
+            include_notes=include_notes,
+            min_score=min_score,
+            include_content=include_content,
+            preview_chars=preview_chars,
+        )
+
     def run(
         self,
         query: str,
@@ -181,7 +233,5 @@ class SearchMetadataChunks(Tool):
 
         scored.sort(key=lambda x: x["score"], reverse=True)
         out = {"results": scored[: max(1, int(top_k))]}
-        if info: out["info"] = info
+        if info: out = out["info"]
         return out
-
-    forward = run
