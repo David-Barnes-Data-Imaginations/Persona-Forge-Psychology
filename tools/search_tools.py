@@ -58,13 +58,13 @@ class SearchMetadataChunks(Tool):
     name = "search_metadata_chunks"
     description = "Search vectorized metadata/corpus/agent notes and return the most similar chunks."
     inputs = {
-        "query": {"type": "string", "description": "Search text", "required": True},
-        "top_k": {"type": "integer", "description": "Number of hits", "required": False},
-        "kind":  {"type": "string",  "description": "metadata|corpus|any", "required": False},
-        "include_notes": {"type": "boolean", "description": "Search agent notes too", "required": False},
-        "min_score": {"type": "number", "description": "Score threshold 0..1", "required": False},
-        "include_content": {"type": "boolean", "description": "Return full content instead of preview", "required": False},
-        "preview_chars": {"type": "integer", "description": "Preview char count", "required": False},
+        "query": {"type": "string", "description": "Search text", "required": True, "nullable": True},
+        "top_k": {"type": "integer", "description": "Number of hits", "required": False, "nullable": True},
+        "kind":  {"type": "string",  "description": "metadata|corpus|any", "required": False, "nullable": True},
+        "include_notes": {"type": "boolean", "description": "Search agent notes too", "required": False, "nullable": False},
+        "min_score": {"type": "number", "description": "Score threshold 0..1", "required": False, "nullable": True},
+        "include_content": {"type": "boolean", "description": "Return full content instead of preview", "required": False, "nullable": False},
+        "preview_chars": {"type": "integer", "description": "Preview char count", "required": False, "nullable": True},
     }
     output_type = "object"
 
