@@ -58,7 +58,7 @@ class SearchMetadataChunks(Tool):
     name = "search_metadata_chunks"
     description = "Search vectorized metadata/corpus/agent notes and return the most similar chunks."
     inputs = {
-        "query": {"type": "string", "description": "Search text", "required": True, "nullable": True},
+        "query": {"type": "string", "description": "Search text", "required": True, "nullable": False},
         "top_k": {"type": "integer", "description": "Number of hits", "required": False, "nullable": True},
         "kind":  {"type": "string",  "description": "metadata|corpus|any", "required": False, "nullable": True},
         "include_notes": {"type": "boolean", "description": "Search agent notes too", "required": False, "nullable": False},
@@ -113,7 +113,6 @@ class SearchMetadataChunks(Tool):
         kind = (kind or "metadata").lower()
         if kind not in SUPPORTED_KINDS:
             kind = "metadata"
-
 
         # Load stores
         results_pool: List[Dict[str, Any]] = []
@@ -184,3 +183,5 @@ class SearchMetadataChunks(Tool):
         out = {"results": scored[: max(1, int(top_k))]}
         if info: out["info"] = info
         return out
+
+    forward = run
