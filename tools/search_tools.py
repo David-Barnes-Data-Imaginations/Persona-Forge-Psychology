@@ -166,6 +166,7 @@ class SearchMetadataChunks(Tool):
         if kind not in SUPPORTED_KINDS:
             kind = "metadata"
 
+
         # Load stores
         results_pool: List[Dict[str, Any]] = []
         if kind in ("metadata", "any"):
@@ -191,8 +192,8 @@ class SearchMetadataChunks(Tool):
         if not results_pool:
             return {"results": [], "info": "No stores found or empty."}
 
-        embedder = get_embedder_from_env()
-        qv = embedder.embed(query)
+  #      embedder = get_embedder_from_env()
+   #     qv = embedder.embed(query)
 
         store_models = set()
         for rec in results_pool:
