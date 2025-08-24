@@ -28,7 +28,7 @@ def _dummy_embed(text: str) -> List[float]:
     """
     Matches the current MetadataEmbedder._embed_fn behavior:
     a 10-dim vector of (len(text) % 10).
-    If you upgrade to real embeddings, swap this out to match.
+    Used for testing and note real metadata.
     """
     v = float(len(text) % 10)
     return [v] * 10

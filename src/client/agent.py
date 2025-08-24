@@ -306,29 +306,44 @@ class ToolFactory:
         self.sandbox = sandbox
         self.metadata_embedder = metadata_embedder
 
-    def create_all_tools(self) -> List[Tool]:
-        """Create all tools with sandbox and metadata_embedder dependencies injected"""
+    class ToolFactory:
+        """Factory for creating all tools with proper dependencies"""
 
+        def __init__(self, sandbox, metadata_embedder=None):
+            self.sandbox = sandbox
+            self.metadata_embedder = metadata_embedder  # expect to be injected
 
-        # Import your custom tool
-        from tools.documentation_tools import (DocumentLearningInsights,
-                                               RetrieveSimilarChunks)
-        from tools.sql_tools import QuerySQLite, WriteQAtoSQLite
-        from tools.graph_tools import WriteCypherForChunk, WriteGraphForChunk
-        from tools.csv_tools import WriteCSVForChunk
-        from tools.search_tools import SearchMetadataChunks
+        def create_all_tools(self) -> list[Tool]:
+            # Lazy fallback: only create if not injected (avoid re-embedding here)
+            if self.metadata_embedder is None:
+                self.metadata_embedder = MetadataEmbedder(self.sandbox)
 
-        metadata_embedder = MetadataEmbedder(sandbox=self.sandbox)
-        # Create instances of your custom tools
-        tools = [
-            DocumentLearningInsights(sandbox=self.sandbox),
-            DocumentLearningInsights(sandbox=self.sandbox, indexer=metadata_embedder.index_agent_note),
-            RetrieveSimilarChunks(sandbox=self.sandbox),
-            WriteCSVForChunk(sandbox=self.sandbox),
-            QuerySQLite(sandbox=self.sandbox),
-            WriteQAtoSQLite(sandbox=self.sandbox),
-            WriteCypherForChunk(sandbox=self.sandbox),
-            WriteGraphForChunk(sandbox=self.sandbox),
-            SearchMetadataChunks(sandbox=self.sandbox),
-        ]
-        return tools
+            from tools.documentation_tools import DocumentLearningInsights
+            from tools.search_tools import SearchMetadataChunks
+            from tools.sql_tools import QuerySQLite, WriteQAtoSQLite
+            from tools.graph_tools import WriteCypherForChunk, WriteGraphForChunk
+            from tools.csv_tools import WriteCSVForChunk
+
+            emb = self.metadata_embedder  # shorthand
+
+            tools = [
+                # Insights (persist + optional inline indexing)
+                DocumentLearningInsights(
+                    sandbox=self.sandbox,
+                    indexer=emb.index_agent_note  # so agent can set index=True to embed the note
+                ),
+
+                # Retrieval over metadata + agent notes
+                SearchMetadataChunks(
+                    sandbox=self.sandbox, metadata_search=emb.search_metadata, notes_search=emb.search_agent_notes,
+                ),
+
+                # The rest of your IO tools
+                WriteCSVForChunk(sandbox=self.sandbox),
+                WriteGraphForChunk(sandbox=self.sandbox),
+                WriteCypherForChunk(sandbox=self.sandbox),
+                QuerySQLite(sandbox=self.sandbox),
+                WriteQAtoSQLite(sandbox=self.sandbox),
+            ]
+            return tools
+

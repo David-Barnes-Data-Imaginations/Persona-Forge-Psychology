@@ -160,19 +160,26 @@ def main():
         if not e2b_api_key:
             raise RuntimeError("USE_E2B=true but E2B_API_KEY is missing. Set it in your environment or .env")
 
-
-    # Initialize psych_metadata embedder and embed psych_metadata file
+        # Build the embedder instance
     print("📚 Setting up psych_metadata embeddings...")
-    metadata_embedder = MetadataEmbedder(sandbox)
-    result = metadata_embedder.embed_metadata_dirs([
-        "./src/data/psych_metadata",
-        "./src/data/patient_raw_data"
-    ], refresh=False)
+    metadata_embedder = MetadataEmbedder(sandbox)  # same instance passed everywhere
+
+    # 2) Ensure (or refresh) the index once at boot
+    #    - include_corpus: False by default to avoid embedding patient_raw_data unless you want it
+    result = metadata_embedder.embed_metadata_dirs(
+        [
+            "./src/data/psych_metadata",
+            # "./src/data/patient_raw_data"  # include when you want corpus indexed
+        ],
+        refresh=False,
+        include_corpus=False,
+        verbose=True,
+    )
     print(result)
 
-    # Create agent, tool factory and tools
+    # Create tools with the same embedder instance
     print("🛠️ Creating tools...")
-    tool_factory = ToolFactory(sandbox, metadata_embedder)
+    tool_factory = ToolFactory(sandbox, metadata_embedder=metadata_embedder)
     tools = tool_factory.create_all_tools()
 
     # Start Ollama server and pull model
@@ -184,7 +191,7 @@ def main():
         return
     pull_model("gpt-oss:20b", host="localhost", port=11434)
 
-    # Create agent with context manager support for cleanup
+    # Create agent, passing the embedder so the tools can use it
     agent = CustomAgent(
         tools=tools,
         sandbox=sandbox,
