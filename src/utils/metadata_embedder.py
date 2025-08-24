@@ -302,6 +302,26 @@ class MetadataEmbedder:
         # unified entrypoint to backend
         return self.embedder.embed(chunk)
 
+    def index_agent_note(self, chunk_id: int, title: str, notes: str, metadata: dict | None = None) -> None:
+        """Append one agent note to the agent_notes_store.json with an embedding."""
+        rec = {
+            "chunk_id": chunk_id,
+            "title": title,
+            "notes": notes,
+            "metadata": metadata or {},
+            "embedding": self.embedder.embed(notes),  # uses the backend you configured (OpenAI or local)
+        }
+        self.agent_notes_store.append(rec)
+
+        # persist
+        payload = json.dumps(self.agent_notes_store, indent=2)
+        if self.sandbox:
+            self.sandbox.files.write(self.agent_notes_store_path, payload.encode())
+        else:
+            os.makedirs(os.path.dirname(self.agent_notes_store_path), exist_ok=True)
+            with open(self.agent_notes_store_path, "w", encoding="utf-8") as f:
+                f.write(payload)
+
 if __name__ == "__main__":
     import argparse
 

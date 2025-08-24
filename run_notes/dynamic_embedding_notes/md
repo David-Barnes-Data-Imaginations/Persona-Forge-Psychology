@@ -1,0 +1,17 @@
+# GPT:
+
+When should “learning insights” be embedded?
+
+Two options:
+
+Inline (now):
+- pass `index=True` when the agent calls `document_learning_insights(...)`,
+- This means we call `metadata_embedder.index_agent_note(...)` immediately.
+- Use your local embed backend (e.g., nomic-embed-text via ollama) to avoid API spend during iteration.
+
+### Batch (after run):
+- Run your CLI to (re)index a directory of notes.
+- That’s cheaper if you want to control timing.
+```
+python -m src.utils.metadata_embedder --dirs ./insights --refresh
+```

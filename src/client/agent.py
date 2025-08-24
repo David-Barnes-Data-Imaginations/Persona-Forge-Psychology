@@ -8,7 +8,7 @@ from smolagents.models import LiteLLMModel
 from typing import List, Any, AsyncGenerator, Optional
 import src.utils.io_helpers
 from tools.csv_tools import WriteCSVForChunk
-
+from src.utils.metadata_embedder import MetadataEmbedder
 
 """from src.utils.prompts import CA_SYSTEM_PROMPT, DB_SYSTEM_PROMPT, PLANNING_INITIAL_FACTS, PLANNING_INITIAL_PLAN, \
     PLANNING_UPDATE_FACTS_PRE, PLANNING_UPDATE_FACTS_POST, PLANNING_UPDATE_PLAN_PRE, PLANNING_UPDATE_PLAN_POST, \
@@ -309,18 +309,20 @@ class ToolFactory:
     def create_all_tools(self) -> List[Tool]:
         """Create all tools with sandbox and metadata_embedder dependencies injected"""
 
+
         # Import your custom tool
         from tools.documentation_tools import (DocumentLearningInsights,
-                                               RetrieveMetadata, RetrieveSimilarChunks)
+                                               RetrieveSimilarChunks)
         from tools.sql_tools import QuerySQLite, WriteQAtoSQLite
         from tools.graph_tools import WriteCypherForChunk, WriteGraphForChunk
         from tools.csv_tools import WriteCSVForChunk
         from tools.search_tools import SearchMetadataChunks
 
+        metadata_embedder = MetadataEmbedder(sandbox=self.sandbox)
         # Create instances of your custom tools
         tools = [
             DocumentLearningInsights(sandbox=self.sandbox),
-            RetrieveMetadata(sandbox=self.sandbox, metadata_embedder=self.metadata_embedder),
+            DocumentLearningInsights(sandbox=self.sandbox, indexer=metadata_embedder.index_agent_note),
             RetrieveSimilarChunks(sandbox=self.sandbox),
             WriteCSVForChunk(sandbox=self.sandbox),
             QuerySQLite(sandbox=self.sandbox),
