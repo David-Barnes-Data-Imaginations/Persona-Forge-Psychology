@@ -93,10 +93,24 @@ def _normalize_graph(graph: Dict[str, Any], *, k: int) -> Dict[str, Any]:
 class WriteGraphForChunk(Tool):
     name = "write_graph_for_chunk"
     description = "Normalize, validate, and persist a Graph‑JSON dict for chunk k."
+
     inputs = {
-        "k": {"type": "integer", "description": "Chunk index.", "nullable": True},
-        "graph": {"type": "object", "description": "Graph‑JSON payload.", "default": None, "nullable": True},
-        "autofill": {"type": "boolean", "description": "If true, fill patient_id/session_date/type/chunk_index.", "default": None, "nullable": True}
+        "k": {
+            "type": "integer",
+            "description": "Chunk index.",
+            "nullable": False
+        },
+        "graph": {
+            "type": "object",
+            "description": "Graph‑JSON payload.",
+            "nullable": False
+        },
+        "autofill": {
+            "type": "boolean",
+            "description": "If true, fill patient_id/session_date/type/chunk_index.",
+            "default": True,
+            "nullable": False
+        }
     }
     output_type = "object"
 
