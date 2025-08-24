@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 from smolagents import Tool
 import os
 import json
+from src.utils.embeddings import get_embedder_from_env
 
 # Default store locations (host or sandbox paths are identical strings)
 METADATA_STORE_PATH = "embeddings/metadata_store.json"
@@ -107,9 +108,12 @@ class SearchMetadataChunks(Tool):
         include_content: bool = False,
         preview_chars: int = 240,
     ):
+        embedder = get_embedder_from_env()
+        qv = embedder.embed(query)
         kind = (kind or "metadata").lower()
         if kind not in SUPPORTED_KINDS:
             kind = "metadata"
+
 
         # Load stores
         results_pool: List[Dict[str, Any]] = []
@@ -136,7 +140,17 @@ class SearchMetadataChunks(Tool):
         if not results_pool:
             return {"results": [], "info": "No stores found or empty."}
 
-        qv = _dummy_embed(query)
+        embedder = get_embedder_from_env()
+        qv = embedder.embed(query)
+
+        store_models = set()
+        for rec in results_pool:
+            m = rec.get("embedding_model")
+            if m: store_models.add(m)
+
+        info = None
+        if store_models and (getattr(embedder, "name", None) not in store_models):
+            info = f"Query embedder {getattr(embedder, 'name', '?')} differs from store models {sorted(store_models)}; scores may be less comparable."
 
         # Score
         scored: List[Dict[str, Any]] = []
@@ -166,6 +180,7 @@ class SearchMetadataChunks(Tool):
                     out["preview"] = preview + ("…" if len(content) > preview_chars else "")
                 scored.append(out)
 
-        # Sort + top_k
         scored.sort(key=lambda x: x["score"], reverse=True)
-        return {"results": scored[: max(1, int(top_k))]}
+        out = {"results": scored[: max(1, int(top_k))]}
+        if info: out["info"] = info
+        return out
