@@ -31,6 +31,7 @@ Graph schema: {t.graph_schema_json}
    - write_cypher_for_chunk(k, cypher_text)
    - write_csv_for_chunk(k, csv_text, record_count, columns)
    - search_metadata_chunks(query, top_k=5, kind="metadata|corpus|any", include_notes=true)
+   - document_learning_insights(title, notes_markdown, metadata)
  """.strip()
 
 # Export the constant your router expects
@@ -84,6 +85,10 @@ OUTPUT CONTRACTS/TOOLS
 VALIDATION
 - After each write, print an explicit confirmation with file paths and row counts.
 
+DOCUMENTATION
+After each chunk, call document_learning_insights(title, notes_markdown, metadata) exactly once. Do not call it more than once per chunk. 
+Do not call it in Pass A unless a chunk completed. 
+Include { "chunk_id": k, "csv_rows": n, "sqlite_upserts": n, "graph_nodes": n_est } when available.
 
 FINALIZATION
 - Only when a pass completes for all chunks, call:
@@ -122,7 +127,10 @@ OUTPUT
 - Do NOT write files in Pass A.
 
 DOCUMENTATION
-After each chunk, call document_learning_insights with a short title, a concise notes_markdown summary, and any metadata counters. 
+DOCUMENTATION
+After each chunk, call document_learning_insights(title, notes_markdown, metadata) exactly once. Do not call it more than once per chunk. 
+For this task, call it only when a chunk is completed. 
+Include { "chunk_id": k, "csv_rows": n, "sqlite_upserts": n, "graph_nodes": n_est } when available.
 Do not hand‑write paths; the tool persists to the session export directory automatically.
 """
 
@@ -165,6 +173,11 @@ VALIDATION / LOGGING
 
 DOCUMENTATION
 - After each chunk, call `document_learning_insights(title, notes_markdown, metadata)` with a concise summary.
+
+DOCUMENTATION
+After each chunk, call document_learning_insights(title, notes_markdown, metadata) exactly once. 
+Do not call it more than once per chunk. 
+Include { "chunk_id": k, "csv_rows": n, "sqlite_upserts": n, "graph_nodes": n_est } when available.
 """
 
 THERAPY_PASS_C_GRAPH = r"""
@@ -213,6 +226,10 @@ Do not hand‑write paths; the tool persists to the session export directory aut
 FINAL
 - When all chunks processed, emit <code>final_answer("PASS_COMPLETE")</code>.
 
+DOCUMENTATION
+After each chunk, call document_learning_insights(title, notes_markdown, metadata) exactly once. 
+Do not call it more than once per chunk. 
+Include { "chunk_id": k, "csv_rows": n, "sqlite_upserts": n, "graph_nodes": n_est } when available.
 """
 
 THERAPY_TASK_PROMPT = r"""

@@ -12,16 +12,12 @@ from .search_tools import SearchMetadataChunks
 # Import from documentation_tools.py
 from .documentation_tools import (
     DocumentLearningInsights,
-    RetrieveSimilarChunks,
-    RetrieveMetadata
 )
 
 __all__ = [
 
     # Documentation tools
     'DocumentLearningInsights',
-    'RetrieveSimilarChunks',
-    'RetrieveMetadata',
     'WriteCypherForChunk',
     'WriteGraphForChunk',
     'SearchMetadataChunks'

@@ -13,21 +13,31 @@ from src.utils.metadata_embedder import MetadataEmbedder
 """from src.utils.prompts import CA_SYSTEM_PROMPT, DB_SYSTEM_PROMPT, PLANNING_INITIAL_FACTS, PLANNING_INITIAL_PLAN, \
     PLANNING_UPDATE_FACTS_PRE, PLANNING_UPDATE_FACTS_POST, PLANNING_UPDATE_PLAN_PRE, PLANNING_UPDATE_PLAN_POST, \
     CA_MAIN_PROMPT"""
-from src.utils.prompts import THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, THERAPY_PASS_B_FILE, THERAPY_PASS_C_GRAPH, DB_SYSTEM_PROMPT
+from src.utils.prompts import (
+    THERAPY_SYSTEM_PROMPT,
+    THERAPY_PASS_A_CLEAN,
+    THERAPY_PASS_B_FILE,
+    THERAPY_PASS_C_GRAPH,
+    PLANNING_INITIAL_FACTS,
+    DB_SYSTEM_PROMPT,
+)
 
-# Prompt templates
 prompt_templates = {
+    # Global rules + cadence + DOCUMENTATION section with “only once per chunk”
     "system_prompt": THERAPY_SYSTEM_PROMPT,
+    # One-shot environment facts (paths, db, chunk size).
     "planning": {
-        "initial_facts": "",
+        "initial_facts": PLANNING_INITIAL_FACTS,
         "initial_plan": "",
         "update_facts_pre_messages": "",
         "update_facts_post_messages": "",
         "update_plan_pre_messages": "",
         "update_plan_post_messages": "",
     },
+    # leave this empty and let router set the pass-specific task,
+    # The router will supply A/B/C prompts.
     "managed_agent": {
-        "task": THERAPY_SYSTEM_PROMPT,
+        "task": "",
         "report": ""
     },
     "final_answer": {
@@ -306,44 +316,33 @@ class ToolFactory:
         self.sandbox = sandbox
         self.metadata_embedder = metadata_embedder
 
-    class ToolFactory:
-        """Factory for creating all tools with proper dependencies"""
+    def create_all_tools(self) -> list[Tool]:
+        # Lazy fallback: only create if not injected (avoid re-embedding here)
+        if self.metadata_embedder is None:
+            self.metadata_embedder = MetadataEmbedder(self.sandbox)
 
-        def __init__(self, sandbox, metadata_embedder=None):
-            self.sandbox = sandbox
-            self.metadata_embedder = metadata_embedder  # expect to be injected
+        from tools.documentation_tools import DocumentLearningInsights
+        from tools.search_tools import SearchMetadataChunks
+        from tools.sql_tools import QuerySQLite, WriteQAtoSQLite
+        from tools.graph_tools import WriteCypherForChunk, WriteGraphForChunk
+        from tools.csv_tools import WriteCSVForChunk
 
-        def create_all_tools(self) -> list[Tool]:
-            # Lazy fallback: only create if not injected (avoid re-embedding here)
-            if self.metadata_embedder is None:
-                self.metadata_embedder = MetadataEmbedder(self.sandbox)
+        emb = self.metadata_embedder  # shorthand
 
-            from tools.documentation_tools import DocumentLearningInsights
-            from tools.search_tools import SearchMetadataChunks
-            from tools.sql_tools import QuerySQLite, WriteQAtoSQLite
-            from tools.graph_tools import WriteCypherForChunk, WriteGraphForChunk
-            from tools.csv_tools import WriteCSVForChunk
+        tools = [
+            # Insights (persist + optional inline indexing)
+            DocumentLearningInsights(
+                sandbox=self.sandbox,
+                indexer=emb.index_agent_note  # so agent can set index=True to embed the note
+            ),
 
-            emb = self.metadata_embedder  # shorthand
-
-            tools = [
-                # Insights (persist + optional inline indexing)
-                DocumentLearningInsights(
-                    sandbox=self.sandbox,
-                    indexer=emb.index_agent_note  # so agent can set index=True to embed the note
-                ),
-
-                # Retrieval over metadata + agent notes
-                SearchMetadataChunks(
-                    sandbox=self.sandbox, metadata_search=emb.search_metadata, notes_search=emb.search_agent_notes,
-                ),
-
-                # The rest of your IO tools
-                WriteCSVForChunk(sandbox=self.sandbox),
-                WriteGraphForChunk(sandbox=self.sandbox),
-                WriteCypherForChunk(sandbox=self.sandbox),
-                QuerySQLite(sandbox=self.sandbox),
-                WriteQAtoSQLite(sandbox=self.sandbox),
-            ]
-            return tools
+            # Retrieval over metadata + agent notes
+            SearchMetadataChunks(sandbox=self.sandbox),
+            WriteCSVForChunk(sandbox=self.sandbox),
+            WriteGraphForChunk(sandbox=self.sandbox),
+            WriteCypherForChunk(sandbox=self.sandbox),
+            QuerySQLite(sandbox=self.sandbox),
+            WriteQAtoSQLite(sandbox=self.sandbox),
+        ]
+        return tools
 
