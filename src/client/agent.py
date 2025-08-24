@@ -114,8 +114,7 @@ class CustomAgent:
                 "re",
                 # NEW — DB layer
                 "sqlite3", "sqlalchemy",
-                # your helpers
-                "src.utils.io_helpers", "src.utils.config","src.utils.paths", "src.utils.persistence", "src.utils.sqlite_helpers", "src.utils.chunk_ids"
+
             ],
             executor_type="e2b",
             use_structured_outputs_internally=True,

@@ -302,26 +302,26 @@ class MetadataEmbedder:
         # unified entrypoint to backend
         return self.embedder.embed(chunk)
 
-import argparse
-from pathlib import Path
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Embed metadata directories")
-    # Compute repo root: .../<project_root>/src/utils/metadata_embedder.py → parents[2]
-    repo_root = Path(__file__).resolve().parents[2]
-    default_dirs = [
-        str(repo_root / "src" / "data" / "psych_metadata"),
-        str(repo_root / "src" / "data" / "patient_raw_data"),
-    ]
-    parser.add_argument("--refresh", action="store_true", help="Force refresh of all embeddings")
-    parser.add_argument("--dirs", nargs="*", default=default_dirs, help="Directories to embed")
-    parser.add_argument("--verbose", action="store_true", help="Verbose include/exclude logging")
-    args = parser.parse_args()
+    import argparse
 
-    embedder = MetadataEmbedder()
-    # Shows missing dirs
-    for d in args.dirs:
-        if not os.path.isdir(d):
-            print(f"⏭️  Skipping; not a directory: {d}")
-    result = embedder.embed_metadata_dirs(args.dirs, refresh=args.refresh, verbose=args.verbose)
-    print(result)
+
+    parser = argparse.ArgumentParser(prog="metadata_embedder.py")
+    parser.add_argument("--refresh", action="store_true", help="Rebuild store instead of loading cache")
+    parser.add_argument("--include-corpus", action="store_true", help="Also embed patient_raw_data/")
+    parser.add_argument("--verbose", action="store_true", help="Verbose prints")
+    parser.add_argument("--dirs", nargs="+", default=None, help="One or more directories to embed")
+    parser.add_argument("paths", nargs="*", help="(Optional) same as --dirs; trailing positional dirs")
+
+    args = parser.parse_args()
+    base_dirs = args.dirs or args.paths or ["./src/data/psych_metadata"]
+
+    embedder = MetadataEmbedder(sandbox=None)  # or pass your sandbox if needed
+    print(
+        embedder.embed_metadata_dirs(
+            base_dirs=base_dirs,
+            refresh=args.refresh,
+            include_corpus=args.include_corpus,
+            verbose=args.verbose,
+        )
+    )

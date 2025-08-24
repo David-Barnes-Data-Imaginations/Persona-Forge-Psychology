@@ -10,7 +10,6 @@ from .paths import PathPack, ensure_host_dirs, PathPack, SBX_DATA_DIR, SBX_STATE
 from .prompts import THERAPY_SYSTEM_PROMPT, THERAPY_PASS_A_CLEAN, THERAPY_PASS_B_FILE, THERAPY_PASS_C_GRAPH, THERAPY_TASK_PROMPT, PLANNING_INITIAL_FACTS, DB_SYSTEM_PROMPT
 from .config import BASE_EXPORT, CYPHER_DIR, DB_PATH, E2B_MIRROR_DIR, CHUNK_SIZE, PATIENT_ID, SESSION_TYPE, SESSION_DATE
 from .io_helpers import write_cypher, write_graph_json, sqlite_upsert_df, save_csv, ensure_dirs, _maybe_mirror_write
-from .metadata_embedder import MetadataEmbedder, FS
 from .session_paths import make_session_paths
 from .export_writer import ExportWriter
 from .prompts import build_planning_initial_facts
@@ -48,7 +47,6 @@ __all__ = [
     'save_csv',
     'ensure_dirs',
     '_maybe_mirror_write',
-    'FS',
     'make_session_paths',
     '_ensure_schema',
     '_sess_key',
