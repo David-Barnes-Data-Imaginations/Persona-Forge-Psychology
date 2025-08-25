@@ -13,7 +13,8 @@ import os
 from src.states.persistence import get_next_chunk_index
 from src.client.agent import CustomAgent
 from src.client.agent_router import TherapyRouter
-import src.utils.io_helpers, src.utils.config,src.utils.paths, src.states.persistence, src.utils.sqlite_helpers, src.utils.chunk_ids
+from src.utils.session_paths import make_session_paths  # <-- add this import
+
 from src.utils.config import (
 BASE_EXPORT,
 DB_PATH,
@@ -55,7 +56,7 @@ def ensure_runtime_dirs():
     for p in [BASE_EXPORT, INSIGHTS_DIR, EMBEDDINGS_DIR, STATES_DIR, LOGS_DIR, DB_PATH.parent]:
         p.mkdir(parents=True, exist_ok=True)
 
-# ---- Planning facts prompt (compact) ----
+
 # This is generated at runtime so it always reflects real paths.
 def build_planning_initial_facts(*, patient_id=None, session_type=None, session_date=None, chunk_size=None) -> str:
     pid = patient_id or PATIENT_ID
@@ -97,7 +98,7 @@ def cli():
     parser = argparse.ArgumentParser(description="Therapy agent router")
     parser.add_argument("action", choices=["pass", "pipeline"], help="Run a single pass or full pipeline")
     parser.add_argument("pass_name", nargs="?", help="A|B|C when action=pass")
-    parser.add_argument("--input_path", default="./therapy-gpt.md")
+    parser.add_argument("--input_path", default="./therapy.md")
     parser.add_argument("--patient_id", default=PATIENT_ID)
     parser.add_argument("--session_type", default=SESSION_TYPE)
     parser.add_argument("--session_date", default=SESSION_DATE)
@@ -106,6 +107,10 @@ def cli():
     args = parser.parse_args()
 
     ensure_runtime_dirs()
+
+    # Ensure sandbox session dirs exist for this run (idempotent)
+    if USE_E2B:
+        make_session_paths(args.patient_id, args.session_type, args.session_date, chunk_id=1)
 
     agent = CustomAgent(model_id=os.getenv("MODEL_ID", "gpt-oss:20b"))
     agent.router = TherapyRouter(agent) # ensure attached
@@ -159,6 +164,9 @@ def main():
         e2b_api_key = os.getenv("E2B_API_KEY")
         if not e2b_api_key:
             raise RuntimeError("USE_E2B=true but E2B_API_KEY is missing. Set it in your environment or .env")
+        # Ensure the session export dirs exist in the sandbox/host before tools run
+        make_session_paths(PATIENT_ID, SESSION_TYPE, SESSION_DATE, chunk_id=1)
+
 
         # Build the embedder instance
     print("📚 Setting up psych_metadata embeddings...")

@@ -68,6 +68,8 @@ OUTPUT CONTRACTS PER PASS
   2) SQLite → /workspace/exports/therapy.db (table: qa_pairs; PK: (patient_id, session_date, session_type, turn_id))
   3) Graph‑JSON → (tool-managed) session export dir
 
+- If the 'sqlite' database errors, skip sql and continue the remaining task goals.
+
 Do **not** write files directly; call the tools. Targets are:
     - CSV: /workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv
     - Graph: /workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json
@@ -126,6 +128,7 @@ OUTPUT
 - Print `df_clean.info()` and the first 3 rows for audit.
 - Keep `df_clean` in memory for Pass B.
 - Do NOT write files in Pass A.
+
 
 DOCUMENTATION
 After each chunk, call document_learning_insights(title, notes_markdown, metadata) exactly once. Do not call it more than once per chunk. 

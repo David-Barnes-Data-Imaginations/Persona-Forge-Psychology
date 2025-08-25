@@ -47,7 +47,6 @@ __all__ = [
     'save_csv',
     'ensure_dirs',
     '_maybe_mirror_write',
-    'make_session_paths',
     '_ensure_schema',
     '_sess_key',
     'next_chunk_id',

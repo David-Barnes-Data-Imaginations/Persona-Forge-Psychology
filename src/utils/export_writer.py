@@ -1,38 +1,14 @@
 from __future__ import annotations
 import os, json
-from typing import Any
+from typing import Any, Dict
 from . import config as C
 from .session_paths import session_paths_for_chunk
+import sqlite3
 
 """
 This creates the nested directories and files (like './export/{PATIENT_ID}/...' for usage as 'PATIENT_ID / SESSION_TYPE / SESSION_DATE')
 It hands back stable paths (e.g. csv_path, graph_path) and writes the file content in both host and sandbox so persistence works.
-
-Example usage:
-```
-from utils.export_writer import ExportWriter
-from utils.config import PATIENT_ID, SESSION_TYPE, SESSION_DATE
-
-exporter = ExportWriter(sandbox, PATIENT_ID, SESSION_TYPE, SESSION_DATE)
-
-csv_host, csv_sbx = exporter.path(f"qa_chunk_{chunk_number}.csv")
-graph_host, graph_sbx = exporter.path(f"graph_chunk_{chunk_number}.json")
-```
-# When saving:
-```
-exporter.write(f"qa_chunk_{chunk_number}.csv", csv_content)
-exporter.write(f"graph_chunk_{chunk_number}.json", json.dumps(graph_data, indent=2))
-```
-This way there's no need to hard-code './export/...' in prompts or tools anymore.
-Router / Passes: your Pass B / Pass C instructions now reference:
-
-- CSV path template: /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/qa_chunk_{k}.csv
-- Graph JSON template: /workspace/export/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json
-- Tools: when the model needs to save, either:
-- call a CSV save tool / Graph save tool that internally uses session_paths_for_chunk(..., k) and os.makedirs, or
-- call ExportWriter.write_csv(k, df) and ExportWriter.write_graph(k, obj).
-- Persistence: persist.on_shutdown() pulls /workspace/export → ./export, so the results show on host.
-
+# ... existing code ...
 """
 
 class ExportWriter:
@@ -46,6 +22,15 @@ class ExportWriter:
         self.pid = patient_id or C.PATIENT_ID
         self.st = session_type or C.SESSION_TYPE
         self.sd = session_date or C.SESSION_DATE
+
+        # Derive a consistent base once for both sandbox and host mirrors
+        # We reuse a known k (1) only to fetch export_base; k does not affect export_base itself.
+        base_paths = session_paths_for_chunk(self.pid, self.st, self.sd, k=1)
+        self.export_base_sbx = base_paths["export_base"]                       # e.g. /workspace/exports/PID/TYPE/DATE
+        self.export_base_host = "." + self.export_base_sbx if self.export_base_sbx.startswith("/") else self.export_base_sbx
+        # Canonical SQLite location (sandbox-first), with host mirror for sqlite3
+        self.sqlite_path_sbx = base_paths["sqlite_db"]                         # e.g. /workspace/exports/therapy.db
+        self.sqlite_path_host = "." + self.sqlite_path_sbx if self.sqlite_path_sbx.startswith("/") else self.sqlite_path_sbx
 
     def _ensure_dir(self, path: str):
         # host-side mkdir
@@ -113,3 +98,37 @@ class ExportWriter:
         graph_text = json.dumps(graph_obj, indent=2)
         self._write_text(graph_sbx, graph_host, graph_text)
         return {"sandbox": graph_sbx, "host": graph_host}
+
+    def write_sql(self, filename: str = "therapy.db") -> Dict[str, Any]:
+        """
+        Ensure a session-scoped SQLite DB exists and return structured paths + the resolved db_path.
+        Canonical path (sandbox-first): {SBX_EXPORTS_DIR}/therapy.db
+        Host mirror used by sqlite3:    .{SBX_EXPORTS_DIR}/therapy.db
+        """
+        # Host path (this is what sqlite3.connect will use in your local Python process)
+        host_path = self.sqlite_path_host
+
+        # Ensure host directory and touch DB file if missing
+        os.makedirs(os.path.dirname(host_path), exist_ok=True)
+        if not os.path.exists(host_path):
+            conn = sqlite3.connect(host_path)
+            conn.close()
+
+        paths = {"host": host_path}
+
+        # Optional: create/mirror empty file inside sandbox for inspection
+        if self.sandbox:
+            sbx_path = self.sqlite_path_sbx
+            try:
+                self.sandbox.files.mkdir(os.path.dirname(sbx_path))
+            except Exception:
+                pass
+            try:
+                # touching file in sandbox (SQLite can create on first write too)
+                self.sandbox.files.write(sbx_path, b"")
+                paths["sandbox"] = sbx_path
+            except Exception:
+                # Ignore sandbox write errors (not fatal for host-side sqlite3)
+                pass
+
+        return {"db_path": host_path, "paths": paths}

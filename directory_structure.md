@@ -47,7 +47,7 @@ src/
 │  ├─ ollama_utils
 │  ├─ prompts.py
 │  ├─ metadata_embedder.py
-│  ├─ sqlite_helpers.py
+│  ├─ sqlite_helpers.py  # from old 
 │  ├─ __init__.py
 main.py
 README.md

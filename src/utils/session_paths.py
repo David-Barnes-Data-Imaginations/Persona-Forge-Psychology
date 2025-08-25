@@ -45,12 +45,21 @@ def make_session_paths(patient_id: str, session_type: str, session_date: str, ch
     - At Boot: Option to push an existing DB into the sandbox
     - At Shutdown: pull the sandbox export tree back.
     """
-    os.makedirs(base, exist_ok=True)  # SANDBOX side when running in sandbox
+    # Try to create inside sandbox path; if running locally, fallback to host mirror (prefix ".")
+    try:
+        os.makedirs(base, exist_ok=True)  # SANDBOX side when running in sandbox
+        base_dir_for_creation = base
+    except PermissionError:
+        host_mirror = "." + base if base.startswith("/") else base
+        os.makedirs(host_mirror, exist_ok=True)
+        base_dir_for_creation = host_mirror
+
     return SessionPaths(
-        base=base,
+        base=base,  # keep the sandbox-first path as the canonical reference
         csv_path=f"{base}/qa_chunk_{chunk_id}.csv",
         graph_path=f"{base}/graph_chunk_{chunk_id}.json",
     )
+
 
 # concrete paths for a specific chunk index
 def session_paths_for_chunk(patient_id: str, session_type: str, session_date: str, k: int) -> dict[str, str]:
