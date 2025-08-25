@@ -1,11 +1,10 @@
 from __future__ import annotations
 import json
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from smolagents import Tool
 from jsonschema import validate as js_validate, ValidationError, SchemaError
 from datetime import datetime
 import re
-
 from src.utils.export_writer import ExportWriter
 from src.utils.session_paths import session_templates
 from src.utils import config as C
@@ -94,16 +93,17 @@ class WriteGraphForChunk(Tool):
     name = "write_graph_for_chunk"
     description = "Normalize, validate, and persist a Graph‑JSON dict for chunk k."
 
+    # Keep schema permissive (nullable True) to satisfy smolagents, enforce in code.
     inputs = {
         "k": {
             "type": "integer",
             "description": "Chunk index.",
-            "nullable": False
+            "nullable": True
         },
         "graph": {
             "type": "object",
             "description": "Graph‑JSON payload.",
-            "nullable": False
+            "nullable": True
         },
         "autofill": {
             "type": "boolean",
@@ -115,10 +115,22 @@ class WriteGraphForChunk(Tool):
     output_type = "object"
 
     def __init__(self, sandbox=None):
+        # Probe before super().__init__ triggers validation
+        try:
+            from pprint import pformat
+            print("[WGFC] inputs right now ->", pformat(self.inputs))
+        except Exception:
+            pass
         super().__init__()
         self.sandbox = sandbox
 
-    def forward(self, k: int, graph: Dict[str, Any], autofill: bool = True):
+    def forward(self, k: Optional[int], graph: Optional[Dict[str, Any]], autofill: bool = True):
+        # Hard enforcement so the tool behaves like a required API.
+        if k is None:
+            return {"ok": False, "error": "missing_required_argument: k"}
+        if graph is None:
+            return {"ok": False, "error": "missing_required_argument: graph"}
+
         # 1) Load schema (sandbox‑first)
         t = session_templates(C.PATIENT_ID, C.SESSION_TYPE, C.SESSION_DATE)
         schema_text = _read_text_host_or_sbx(
@@ -154,34 +166,59 @@ class WriteGraphForChunk(Tool):
 
 class WriteCypherForChunk(Tool):
     """
-    Persist Cypher text for chunk k under session `cypher/` directory.
+    Persist Cypher text for chunk k under the session `cypher/` directory.
     """
     name = "write_cypher_for_chunk"
     description = "Write Cypher text for chunk k to the session's cypher directory."
+
+    # Keep schema permissive (nullable True) to satisfy smolagents; enforce in code.
     inputs = {
-        "k": {"type": "integer", "description": "Chunk index.", "default": 1, "nullable": False},
-        "cypher_text": {"type": "string", "description": "Cypher statements to write.", "default": None, "nullable": False},
+        "k": {
+            "type": "integer",
+            "description": "Chunk index.",
+            "nullable": True
+        },
+        "cypher_text": {
+            "type": "string",
+            "description": "Cypher statements to write.",
+            "nullable": True
+        },
     }
     output_type = "object"
 
     def __init__(self, sandbox=None):
+        # Probe before super().__init__ triggers validation (handy while iterating)
+        try:
+            from pprint import pformat
+            print("[W CYC] inputs right now ->", pformat(self.inputs))
+        except Exception:
+            pass
         super().__init__()
         self.sandbox = sandbox
 
-    def forward(self, k: int, cypher_text: str):
+    def forward(self, k: Optional[int], cypher_text: Optional[str]):
+        # Hard enforcement so the tool behaves like a required API.
+        if k is None:
+            return {"ok": False, "error": "missing_required_argument: k"}
+        if cypher_text is None:
+            return {"ok": False, "error": "missing_required_argument: cypher_text"}
+
+        text = cypher_text.strip()
+        if not text:
+            return {"ok": False, "error": "empty_cypher_text"}
+
         t = session_templates(C.PATIENT_ID, C.SESSION_TYPE, C.SESSION_DATE)
-        # Build a filename
         fname = f"cypher/chunk_{k}.cypher"
 
-        # Reuse ExportWriter.write_text to place file under session export base
         exporter = ExportWriter(
             sandbox=self.sandbox,
             patient_id=C.PATIENT_ID,
             session_type=C.SESSION_TYPE,
             session_date=C.SESSION_DATE,
         )
-        paths = exporter.write_text(k, fname, cypher_text)
+        # Ensure trailing newline for POSIX-y niceness
+        payload = text if text.endswith("\n") else text + "\n"
+        paths = exporter.write_text(k, fname, payload)
 
-        # Also return the first few lines for quick inspection (like your prompt asks)
-        preview = "\n".join(cypher_text.splitlines()[:15])
+        preview = "\n".join(text.splitlines()[:15])
         return {"ok": True, "paths": paths, "preview": preview, "chunk_id": k}

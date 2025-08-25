@@ -1,38 +1,62 @@
 from smolagents import Tool
+from typing import Optional, Dict, Any  # make sure these are imported somewhere above
+from src.utils.export_writer import ExportWriter
+from src.utils.session_paths import session_templates
+from src.utils import config as C
 
-class WriteQAtoSQLite(Tool):
-    name = "WriteQAtoSQLite"
-    description = "Insert a QA pair into the SQLite database."
-    inputs = {"qa": "dict"}
-    output_type = "str"
+class WriteCypherForChunk(Tool):
+    """
+    Persist Cypher text for chunk k under session `cypher/` directory.
+    """
+    name = "write_cypher_for_chunk"
+    description = "Write Cypher text for chunk k to the session's cypher directory."
 
-    def run(self, qa: dict) -> str:
-        import sqlite3, os
-        db_path = "./export/therapy.db"
-        conn = sqlite3.connect(db_path)
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS qa_pairs
-                       (patient_id TEXT, session_date TEXT,
-                        question TEXT, answer TEXT)""")
-        cur.execute("INSERT INTO qa_pairs VALUES (?, ?, ?, ?)",
-                    (qa.get("patient_id"),
-                     qa.get("session_date"),
-                     qa.get("question"),
-                     qa.get("answer")))
-        conn.commit(); conn.close()
-        return f"Inserted QA for {qa.get('patient_id')}"
+    # Permissive for smolagents (nullable True), enforce in forward()
+    inputs = {
+        "k": {
+            "type": "integer",
+            "description": "Chunk index.",
+            "nullable": True
+        },
+        "cypher_text": {
+            "type": "string",
+            "description": "Cypher statements to write.",
+            "nullable": True
+        },
+    }
+    output_type = "object"
 
-class QuerySQLite(Tool):
-    name = "QuerySQLite"
-    description = "Run a SQL query on the therapy.db"
-    inputs = {"sql": "str"}
-    output_type = "list"
+    def __init__(self, sandbox=None):
+        # Optional: echo schema before validation happens in Tool.__init__
+        try:
+            from pprint import pformat
+            print("[W C F C] inputs ->", pformat(self.inputs))
+        except Exception:
+            pass
+        super().__init__()
+        self.sandbox = sandbox
 
-    def run(self, sql: str):
-        import sqlite3
-        conn = sqlite3.connect("./export/therapy.db")
-        cur = conn.cursor()
-        cur.execute(sql)
-        rows = cur.fetchall()
-        conn.close()
-        return rows
+    def forward(self, k: Optional[int], cypher_text: Optional[str]):
+        # Hard enforce requireds at runtime
+        if k is None:
+            return {"ok": False, "error": "missing_required_argument: k"}
+        if cypher_text is None or not str(cypher_text).strip():
+            return {"ok": False, "error": "missing_required_argument: cypher_text"}
+
+        cypher_text = str(cypher_text)
+
+        # Build session‑scoped filename
+        t = session_templates(C.PATIENT_ID, C.SESSION_TYPE, C.SESSION_DATE)
+        fname = f"cypher/chunk_{k}.cypher"
+
+        # Persist via ExportWriter
+        exporter = ExportWriter(
+            sandbox=self.sandbox,
+            patient_id=C.PATIENT_ID,
+            session_type=C.SESSION_TYPE,
+            session_date=C.SESSION_DATE,
+        )
+        paths = exporter.write_text(k, fname, cypher_text)
+
+        preview = "\n".join(cypher_text.splitlines()[:15])
+        return {"ok": True, "paths": paths, "preview": preview, "chunk_id": k}

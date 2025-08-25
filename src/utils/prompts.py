@@ -31,7 +31,7 @@ Graph schema: {t.graph_schema_json}
    - write_cypher_for_chunk(k, cypher_text)
    - write_csv_for_chunk(k, csv_text, record_count, columns)
    - search_metadata_chunks(query, top_k=5, kind="metadata|corpus|any", include_notes=true)
-   - document_learning_insights(title, notes_markdown, metadata)
+
  """.strip()
 
 # Export the constant your router expects
@@ -82,6 +82,7 @@ OUTPUT CONTRACTS/TOOLS
   - write_cypher_for_chunk(k, cypher_txt) → writes to cypher/chunk_{k}.cypher
   - document_learning_insights(title, notes_markdown, metadata) → persists insights
 
+
 VALIDATION
 - After each write, print an explicit confirmation with file paths and row counts.
 
@@ -126,7 +127,6 @@ OUTPUT
 - Keep `df_clean` in memory for Pass B.
 - Do NOT write files in Pass A.
 
-DOCUMENTATION
 DOCUMENTATION
 After each chunk, call document_learning_insights(title, notes_markdown, metadata) exactly once. Do not call it more than once per chunk. 
 For this task, call it only when a chunk is completed. 
