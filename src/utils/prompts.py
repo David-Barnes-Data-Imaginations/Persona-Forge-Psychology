@@ -151,23 +151,22 @@ FILE TARGETS (tool‑managed)
 - Graph: /workspace/exports/{PATIENT_ID}/{SESSION_TYPE}/{SESSION_DATE}/graph_chunk_{k}.json
 
 ACTION STEPS
+
+PERSISTENCE
 1) Prepare CSV:
-   - If `df_clean` is available, produce:
-     - `csv_text = df_clean.to_csv(index=False)`
-     - `columns = list(df_clean.columns)` (expected: ["session_date","session_type","turn_id","speaker","text_raw","text_clean"])
-     - `rows = len(df_clean)`
-   - Call: `write_csv_for_chunk(k, csv_text, rows, columns)`
+    - CSV: call `write_csv_for_chunk(k, csv_text= df_clean.to_csv(index=False), columns=list(df_clean.columns))`
 
 2) Prepare Graph‑JSON object (minimal, schema‑aligned):
    - Build a Python dict `graph_dict` with:
      - "utterances": list of utterance dicts derived from `df_clean` rows, with conservative annotations
      - You may omit or leave uncertain fields as empty/Unknown; the tool will autofill top‑level fields
    - Call: `write_graph_for_chunk(k, graph_dict)`
-   - The tool normalizes, validates against `graph_schema.json`, and persists.
 
-3) SQLite upserts:
-   - Open /workspace/exports/therapy.db, ensure table `qa_pairs` with PK (patient_id, session_date, session_type, turn_id)
-   - UPSERT rows from `df_clean` (idempotent)
+
+3) SQLite upserts: 
+    - SQLite: call upsert_df_clean_to_sqlite(csv_text=df_clean.to_csv(index=False))
+        - or upsert_df_clean_to_sqlite(records=df_clean.to_dict(orient="records")
+
 
 VALIDATION / LOGGING
 - After each tool call, print the returned paths and counts.

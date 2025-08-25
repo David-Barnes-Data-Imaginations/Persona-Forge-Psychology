@@ -8,6 +8,8 @@ import sqlite3
 """
 This creates the nested directories and files (like './export/{PATIENT_ID}/...' for usage as 'PATIENT_ID / SESSION_TYPE / SESSION_DATE')
 It hands back stable paths (e.g. csv_path, graph_path) and writes the file content in both host and sandbox so persistence works.
+
+Example usage:
 # ... existing code ...
 """
 
@@ -23,13 +25,13 @@ class ExportWriter:
         self.st = session_type or C.SESSION_TYPE
         self.sd = session_date or C.SESSION_DATE
 
-        # Derive a consistent base once for both sandbox and host mirrors
-        # We reuse a known k (1) only to fetch export_base; k does not affect export_base itself.
+        # Derive canonical session export base once (sandbox-first), and its host mirror.
         base_paths = session_paths_for_chunk(self.pid, self.st, self.sd, k=1)
-        self.export_base_sbx = base_paths["export_base"]                       # e.g. /workspace/exports/PID/TYPE/DATE
+        self.export_base_sbx = base_paths["export_base"]  # e.g., /workspace/exports/PID/TYPE/DATE
         self.export_base_host = "." + self.export_base_sbx if self.export_base_sbx.startswith("/") else self.export_base_sbx
-        # Canonical SQLite location (sandbox-first), with host mirror for sqlite3
-        self.sqlite_path_sbx = base_paths["sqlite_db"]                         # e.g. /workspace/exports/therapy.db
+
+        # Canonical SQLite location (sandbox-first) and host mirror
+        self.sqlite_path_sbx = base_paths["sqlite_db"]    # e.g., /workspace/exports/therapy.db
         self.sqlite_path_host = "." + self.sqlite_path_sbx if self.sqlite_path_sbx.startswith("/") else self.sqlite_path_sbx
 
     def _ensure_dir(self, path: str):
@@ -101,22 +103,22 @@ class ExportWriter:
 
     def write_sql(self, filename: str = "therapy.db") -> Dict[str, Any]:
         """
-        Ensure a session-scoped SQLite DB exists and return structured paths + the resolved db_path.
-        Canonical path (sandbox-first): {SBX_EXPORTS_DIR}/therapy.db
-        Host mirror used by sqlite3:    .{SBX_EXPORTS_DIR}/therapy.db
+        Ensure the session-scoped SQLite DB exists and return paths.
+        Canonical (sandbox-first): /workspace/exports/therapy.db
+        Host mirror (used by sqlite3): ./workspace/exports/therapy.db
         """
-        # Host path (this is what sqlite3.connect will use in your local Python process)
+        # Use the host path for sqlite3 in this Python process
         host_path = self.sqlite_path_host
-
-        # Ensure host directory and touch DB file if missing
         os.makedirs(os.path.dirname(host_path), exist_ok=True)
+
+        # Touch DB file if missing on host
         if not os.path.exists(host_path):
             conn = sqlite3.connect(host_path)
             conn.close()
 
-        paths = {"host": host_path}
+        paths: Dict[str, str] = {"host": host_path}
 
-        # Optional: create/mirror empty file inside sandbox for inspection
+        # Optional: ensure a mirror in the sandbox for inspection
         if self.sandbox:
             sbx_path = self.sqlite_path_sbx
             try:
@@ -124,11 +126,10 @@ class ExportWriter:
             except Exception:
                 pass
             try:
-                # touching file in sandbox (SQLite can create on first write too)
+                # Touch in sandbox (SQLite file will be created/overwritten as needed)
                 self.sandbox.files.write(sbx_path, b"")
                 paths["sandbox"] = sbx_path
             except Exception:
-                # Ignore sandbox write errors (not fatal for host-side sqlite3)
                 pass
 
         return {"db_path": host_path, "paths": paths}
